@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto py-12">
+    <h2 class="text-2xl font-bold mb-6 text-center">Create Placement Profile</h2>
+    <form method="POST" enctype="multipart/form-data" id="wizardForm" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- College Email (Step 1) -->
+        <div class="form-step" id="step1">
+            <div class="flex flex-col">
+                <label for="college_email" class="text-lg font-medium text-gray-700 mb-2">College Email</label>
+                <input type="email" name="college_email" id="college_email" 
+                       class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                       placeholder="Your College Email" required>
+                {% if form.college_email.errors %}
+                    <p class="text-sm text-red-500 mt-2">{{ form.college_email.errors }}</p>
+                {% endif %}
+            </div>
+            <div class="flex justify-center mt-4">
+                <button type="button" class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500" onclick="nextStep(2)">Next</button>
+            </div>
+        </div>
+
+        <!-- First Name (Step 2) -->
+        <div class="form-step hidden" id="step2">
+            <div class="flex flex-col">
+                <label for="first_name" class="text-lg font-medium text-gray-700 mb-2">First Name</label>
+                <input type="text" name="first_name" id="first_name" 
+                       class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                       placeholder="First Name" required>
+                {% if form.first_name.errors %}
+                    <p class="text-sm text-red-500 mt-2">{{ form.first_name.errors }}</p>
+                {% endif %}
+            </div>
+            <div class="flex justify-center mt-4">
+                <button type="button" class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500" onclick="nextStep(3)">Next</button>
+            </div>
+        </div>
+
+        <!-- Last Name (Step 3) -->
+        <div class="form-step hidden" id="step3">
+            <div class="flex flex-col">
+                <label for="last_name" class="text-lg font-medium text-gray-700 mb-2">Last Name</label>
+                <input type="text" name="last_name" id="last_name" 
+                       class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                       placeholder="Last Name" required>
+                {% if form.last_name.errors %}
+                    <p class="text-sm text-red-500 mt-2">{{ form.last_name.errors }}</p>
+                {% endif %}
+            </div>
+            <div class="flex justify-center mt-4">
+                <button type="button" class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500" onclick="nextStep(4)">Next</button>
+            </div>
+        </div>
+
+        <!-- Address Updated Dropdown (Step 4) -->
+        <div class="form-step hidden" id="step4">
+            <div class="flex flex-col">
+                <label for="address_updated" class="text-lg font-medium text-gray-700 mb-2">Did you change your address?</label>
+                <select name="address_updated" id="address_updated" 
+                        class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                </select>
+            </div>
+            <div class="flex justify-center mt-4">
+                <button type="button" class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500" onclick="nextStep(5)">Next</button>
+            </div>
+        </div>
+
+        <!-- Employer Letter Upload (Step 7) -->
+        <div class="form-step hidden" id="step5">
+            <div class="flex flex-col" id="employer_letter">
+                <label for="employer_letter" class="text-lg font-medium text-gray-700 mb-2">Employer Letter</label>
+                <input type="file" name="employer_letter" id="employer_letter_input" 
+                       class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div class="flex justify-center mt-4">
+                <button type="button" class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500" onclick="nextStep(8)">Next</button>
+            </div>
+        </div>
+
+        <!-- Shift Requested Dropdown (Step 8) -->
+        <div class="form-step hidden" id="step6">
+            <div class="flex flex-col">
+                <label for="shift_requested" class="text-lg font-medium text-gray-700 mb-2">Shift Requested</label>
+                <select name="shift_requested" id="shift_requested" 
+                        class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="Morning">Morning - Mon to Fri - 7AM to 3PM</option>
+                    <option value="Evening">Evening - Mon to Fri - 3PM to 11PM</option>
+                    <option value="Night">Night - Mon to Fri - 11PM to 7AM</option>
+                    <option value="Weekend Morning">Weekend Morning - Sat & Sun</option>
+                    <option value="Weekend Evening">Weekend Evening - Sat & Sun</option>
+                    <option value="Weekend Night">Weekend Night - Sat & Sun</option>
+                </select>
+            </div>
+            <div class="flex justify-center mt-4">
+                <button type="button" class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500" onclick="nextStep(9)">Next</button>
+            </div>
+        </div>
+
+        <!-- Preferred Facility (Step 9) -->
+        <div class="form-step hidden" id="step7">
+            <div class="flex flex-col">
+                <label for="preferred_facility_name" class="text-lg font-medium text-gray-700 mb-2">Preferred Facility Name (Optional)</label>
+                <input type="text" name="preferred_facility_name" id="preferred_facility_name" 
+                       class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                       placeholder="Facility Name">
+            </div>
+            <div class="flex flex-col">
+                <label for="preferred_facility_address" class="text-lg font-medium text-gray-700 mb-2">Preferred Facility Address (Optional)</label>
+                <textarea name="preferred_facility_address" id="preferred_facility_address" rows="3" 
+                          class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                          placeholder="Facility Address"></textarea>
+            </div>
+            <div class="flex flex-col">
+                <label for="preferred_facility_contact_person" class="text-lg font-medium text-gray-700 mb-2">Preferred Facility Contact Person (Optional)</label>
+                <input type="text" name="preferred_facility_contact_person" id="preferred_facility_contact_person" 
+                       class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                       placeholder="Contact Person">
+            </div>
+            <div class="flex justify-center mt-4">
+                <button type="submit" class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">Submit</button>
+            </div>
+        </div>
+
+        <!-- Experience Level Dropdown (Step 5) -->
+        <div class="form-step hidden" id="step8">
+            <div class="flex flex-col">
+                <label for="experience_level" class="text-lg font-medium text-gray-700 mb-2">Experience Level</label>
+                <select name="experience_level" id="experience_level" 
+                        class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="No Experience">No Experience (300 Hrs)</option>
+                    <option value="1 Year PSW Experience">One Year PSW Experience (230 Hrs)</option>
+                    <option value="International Nurse">International Nurse (200 Hrs)</option>
+                </select>
+            </div>
+            <div class="flex justify-center mt-4">
+                <button type="button" class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500" onclick="nextStep(6)">Next</button>
+            </div>
+        </div>
+
+        <!-- Upload Fields (All at Once) (Step 6) -->
+        <div class="form-step hidden" id="step9">
+            <h3 class="text-xl font-semibold text-gray-700 mb-4">Upload Required Documents</h3>
+            
+            <!-- Medical Certificate -->
+            <div class="flex flex-col">
+                <label for="medical_certificate" class="text-lg font-medium text-gray-700 mb-2">Medical Certificate (Mandatory)</label>
+                <input type="file" name="medical_certificate" id="medical_certificate" 
+                       class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Covid Vaccination Certificate -->
+            <div class="flex flex-col">
+                <label for="covid_vaccination_certificate" class="text-lg font-medium text-gray-700 mb-2">Covid Vaccination Certificate (Mandatory)</label>
+                <input type="file" name="covid_vaccination_certificate" id="covid_vaccination_certificate" 
+                       class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Vulnerable Sector Check -->
+            <div class="flex flex-col">
+                <label for="vulnerable_sector_check" class="text-lg font-medium text-gray-700 mb-2">Vulnerable Sector Check (Mandatory)</label>
+                <input type="file" name="vulnerable_sector_check" id="vulnerable_sector_check" 
+                       class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- CPR or First Aid -->
+            <div class="flex flex-col">
+                <label for="cpr_or_first_aid" class="text-lg font-medium text-gray-700 mb-2">CPR or First Aid (Mandatory)</label>
+                <input type="file" name="cpr_or_first_aid" id="cpr_or_first_aid" 
+                       class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Mask Fit Certificate -->
+            <div class="flex flex-col">
+                <label for="mask_fit_certificate" class="text-lg font-medium text-gray-700 mb-2">Mask Fit Certificate (Mandatory)</label>
+                <input type="file" name="mask_fit_certificate" id="mask_fit_certificate" 
+                       class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Basic Life Support -->
+            <div class="flex flex-col">
+                <label for="bls_certificate" class="text-lg font-medium text-gray-700 mb-2">Basic Life Support (Mandatory)</label>
+                <input type="file" name="bls_certificate" id="bls_certificate" 
+                       class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            
+            <div class="flex justify-center mt-4">
+                <button type="submit" class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    Submit
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    function nextStep(stepNumber) {
+        const steps = document.querySelectorAll('.form-step');
+        steps.forEach((step) => {
+            step.classList.add('hidden');
+        });
+        const currentStep = document.getElementById('step' + stepNumber);
+        currentStep.classList.remove('hidden');
+    }
+
+    // Show the first step initially
+    nextStep(1);
+</script>
+{% endblock %}
