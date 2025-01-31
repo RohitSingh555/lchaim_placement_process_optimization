@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views import View
+
+from private_healthcare_placement_optimization.enums import DocumentStatus
 from .models import PlacementProfile, Document, Approver, ApprovalLog, FeeStatus, PlacementNotification
 from .forms import PlacementProfileForm, DocumentForm
 from django.core.mail import send_mail
@@ -12,6 +14,9 @@ from django.views.generic import TemplateView
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.forms import AuthenticationForm
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login, logout
 
 def staff_required(view_func):
@@ -180,10 +185,8 @@ class PlacementProfileView(View):
     
 class StudentProfileLogsView(View):
     def get(self, request):
-        # Fetch the profile along with related documents in one query
         profile = PlacementProfile.objects.filter(user=request.user).prefetch_related('documents').first()
         
-        # Prepare a combined structure for frontend (profile + document details)
         if profile:
             profile_details = {
                 'first_name': profile.first_name,
@@ -197,6 +200,8 @@ class StudentProfileLogsView(View):
                 'preferred_facility_contact_person': profile.preferred_facility_contact_person,
                 'documents': [
                     {
+                        'id': document.id,
+                        'status': document.status,
                         'document_type': document.document_type,
                         'file': document.file.url,  # Use the file URL to make it accessible on the frontend
                         'status': document.status,
@@ -213,6 +218,47 @@ class StudentProfileLogsView(View):
         return render(request, 'student_profile_logs.html', {
             'profile_details': profile_details
         })
+
+
+@csrf_exempt
+@login_required
+def approve_document(request, document_id):
+    if request.method == "POST":
+        document = get_object_or_404(Document, id=document_id)
+        approver = get_object_or_404(Approver, user=request.user)
+
+        action = request.POST.get("action")  
+        rejection_reason = request.POST.get("reason", "").strip()
+
+        valid_actions = {DocumentStatus.APPROVED.value, DocumentStatus.REJECTED.value, DocumentStatus.IN_REVIEW.value}
+        if action not in valid_actions:
+            return JsonResponse({"error": "Invalid action"}, status=400)
+
+        document.status = action
+        document.rejection_reason = rejection_reason if action == DocumentStatus.REJECTED.value else None
+        document.save()
+
+        ApprovalLog.objects.create(
+            approver=approver,
+            document=document,
+            action=action,
+            reason=rejection_reason if action == DocumentStatus.REJECTED.value else None,
+        )
+
+        # Send placement notification
+        message = f"Your document '{document.document_type}' has been {action.lower()}."
+        if action == DocumentStatus.REJECTED.value:
+            message += f" Reason: {rejection_reason}"
+
+        PlacementNotification.objects.create(
+            profile=document.profile,
+            subject=f"Document {action}: {document.document_type}",
+            message=message
+        )
+
+        return JsonResponse({"message": f"Document {action.lower()} successfully!"}, status=200)
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
 
 def profile_submission_success(request):
     return render(request, 'profile_submission_success.html')

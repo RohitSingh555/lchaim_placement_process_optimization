@@ -20,5 +20,6 @@ urlpatterns = [
     path('signup/', signup, name='signup'),
     path('staff-signup/', StaffSignupView.as_view(), name='staff_signup'),
     path('profile/', profile_view, name='profile'),  # Profile page
+    path("approve-document/<int:document_id>/", approve_document, name="approve_document"),
     path('logout/', logout_view, name='logout'),
 ]

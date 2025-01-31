@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 
+from private_healthcare_placement_optimization.enums import DocumentStatus
+
 def document_upload_path(instance, filename):
     return f"documents/{instance.profile.user.id}/{filename}"
 
@@ -54,8 +56,8 @@ class Document(models.Model):
     file = models.FileField(upload_to=document_upload_path)
     status = models.CharField(
         max_length=20,
-        choices=[("Under Review", "Under Review"), ("Approved", "Approved"), ("Rejected", "Rejected")],
-        default="Under Review"
+        choices=DocumentStatus.choices(),
+        default=DocumentStatus.IN_REVIEW.value
     )
     rejection_reason = models.TextField(blank=True, null=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
