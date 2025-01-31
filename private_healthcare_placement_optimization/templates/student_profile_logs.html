@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto p-6">
+    <h2 class="text-3xl font-semibold text-center mb-10 text-gray-800 tracking-wide">Student Placement Profiles</h2>
+
+    <!-- Button to create a new placement profile -->
+    {% if not profile_details %}
+        <div class="mb-4 text-center">
+            <a href="{% url 'create_placement_profile' %}" class="inline-block px-8 py-4 bg-blue-600 text-white rounded-full text-lg font-semibold hover:bg-blue-700 transition-colors duration-300">
+                Create Placement Profile
+            </a>
+        </div>
+    {% endif %}
+
+    <!-- Display Profile and Document Details in a Beautiful Table -->
+    {% if profile_details %}
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-8">
+            <div class="overflow-x-auto">
+                <table class="min-w-full table-auto border-collapse">
+                    <thead class="bg-gradient-to-r from-gray-100 to-gray-200">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap">Name</th>
+                            <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap">College Email</th>
+                            <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap">Experience Level</th>
+                            <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap">Shift Requested</th>
+                            <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap">Address Updated</th>
+                            <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap">Preferred Facility</th>
+                            <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap">Facility Address</th>
+                            <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap">Facility Contact</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b hover:bg-gray-50 transition-colors duration-200">
+                            <td class="px-6 py-4 whitespace-nowrap">{{ profile_details.first_name }} {{ profile_details.last_name }}</td>
+                            <td class="px-6 py-4">{{ profile_details.college_email }}</td>
+                            <td class="px-6 py-4">{{ profile_details.experience_level }}</td>
+                            <td class="px-6 py-4">{{ profile_details.shift_requested }}</td>
+                            <td class="px-6 py-4">{{ profile_details.address_updated|yesno:"Yes,No" }}</td>
+                            <td class="px-6 py-4">{{ profile_details.preferred_facility_name }}</td>
+                            <td class="px-6 py-4">{{ profile_details.preferred_facility_address }}</td>
+                            <td class="px-6 py-4">{{ profile_details.preferred_facility_contact_person }}</td>
+                        </tr>
+
+                        <!-- Document Information Rows -->
+                        {% if profile_details.documents %}
+                            <tr class="border-b bg-gray-50">
+                                <td colspan="8" class="px-6 py-4 font-semibold text-xl text-gray-700">Submitted Documents</td>
+                            </tr>
+                            {% for document in profile_details.documents %}
+                                <tr class="border-b hover:bg-gray-50 transition-colors duration-200">
+                                    <td class="px-6 py-4">{{ document.document_type }}</td>
+                                    <td class="px-6 py-4">
+                                        <a href="{{ document.file }}" class="text-blue-600 hover:text-blue-800 font-semibold" target="_blank">View Document</a>
+                                        - <span class="text-green-500">{{ document.status }}</span>
+                                    </td>
+                                    {% if document.rejection_reason %}
+                                        <td class="px-6 py-4 text-gray-500">{{ document.rejection_reason }}</td>
+                                    {% endif %}
+                                    <td class="px-6 py-4">{{ document.uploaded_at }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr class="border-b">
+                                <td colspan="8" class="px-6 py-4 text-center text-gray-500">No documents submitted yet.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center text-red-500 text-lg">No placement profile found. Please submit your profile.</div>
+    {% endif %}
+</div>
+{% endblock %}

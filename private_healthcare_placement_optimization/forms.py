@@ -1,5 +1,6 @@
 from django import forms
-from .models import PlacementProfile, Document
+from .models import PlacementProfile, Document, User
+from django.contrib.auth.forms import UserCreationForm
 
 class PlacementProfileForm(forms.ModelForm):
     class Meta:
@@ -26,3 +27,22 @@ class DocumentForm(forms.ModelForm):
         if not any(file.name.lower().endswith(ext) for ext in allowed_extensions):
             raise forms.ValidationError("Only PDF, JPG, and PNG files are allowed.")
         return file
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ['username', 'password1', 'password2']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Add custom classes to each form field
+        self.fields['username'].widget.attrs.update({
+            'class': 'block w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
+        })
+        self.fields['password1'].widget.attrs.update({
+            'class': 'block w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
+        })
+        self.fields['password2'].widget.attrs.update({
+            'class': 'block w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
+        })

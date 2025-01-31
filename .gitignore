@@ -3,3 +3,4 @@ migrations
 peak_college/__pycache__
 private_healthcare_placement_optimization/__pycache__
 documents/
+private_healthcare_placement_optimization/templatetags/__pycache__
