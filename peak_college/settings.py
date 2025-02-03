@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -132,7 +133,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+MEDIA_URL = '/documents/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'documents')
+
+# Static files
+STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -146,3 +151,11 @@ FILE_UPLOAD_HANDLERS = [
 
 # Max upload size check (this may also throw errors if exceeded)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'app.lchaimretirement.ca' 
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'lcahim@app.lchaimretirement.ca'
+EMAIL_HOST_PASSWORD = 'Rub2484@'
+DEFAULT_FROM_EMAIL = 'lcahim@app.lchaimretirement.ca'

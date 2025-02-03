@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views import View
-
 from private_healthcare_placement_optimization.enums import DocumentStatus
 from .models import PlacementProfile, Document, Approver, ApprovalLog, FeeStatus, PlacementNotification
 from .forms import PlacementProfileForm, DocumentForm
@@ -18,6 +17,7 @@ from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 
 def staff_required(view_func):
     return user_passes_test(lambda u: u.is_staff)(view_func)
@@ -40,37 +40,39 @@ def signup(request):
 
 class StaffSignupView(View):
     def get(self, request, *args, **kwargs):
-        # If access password is already correct (stored in session), show the form
         if request.session.get('password_verified', False):
             form = UserCreationForm()
             return render(request, 'staff_signup.html', {'form': form, 'password_verified': True})
 
-        # If not, show password form
         return render(request, 'staff_signup.html', {'password_verified': False})
 
     def post(self, request, *args, **kwargs):
-        # Handle password verification form
         if 'password' in request.POST:
             access_password = request.POST.get('password')
             if access_password == '1234':
-                # Store the verification status in the session
                 request.session['password_verified'] = True
-                return redirect('staff_signup')  # Reload the page with the form visible
+                return redirect('staff_signup')
             else:
-                return render(request, 'staff_signup.html', {'password_verified': False, 'error_message': 'Incorrect password.'})
+                return render(request, 'staff_signup.html', {
+                    'password_verified': False,
+                    'error_message': 'Incorrect password.'
+                })
 
-        # Handle staff registration form submission
         if request.session.get('password_verified', False):
             form = UserCreationForm(request.POST)
             if form.is_valid():
                 user = form.save()
-                user.is_staff = True  # Set is_staff to True
+                user.is_staff = True
                 user.save()
 
-                # After successful registration, redirect to login page
+                Approver.objects.create(
+                    user=user,
+                    full_name=f"{user.first_name} {user.last_name}" if user.first_name and user.last_name else user.username,
+                    position="Staff"  
+                )
+
                 return redirect('login')
 
-        # If not verified, redirect to password entry form
         return redirect('staff_signup')
     
 class StudentLoginView(View):
@@ -181,14 +183,24 @@ class PlacementProfileView(View):
         except Exception as e:
             print(f"Error sending email: {e}")
 
-        return redirect('profile_submission_success')
+        return redirect('student_profile_logs')
     
-class StudentProfileLogsView(View):
+
+from django.contrib.auth.mixins import LoginRequiredMixin
+class StudentProfileLogsView(LoginRequiredMixin, View):
+    login_url = '/login/'
+
     def get(self, request):
-        profile = PlacementProfile.objects.filter(user=request.user).prefetch_related('documents').first()
-        
-        if profile:
-            profile_details = {
+        is_approver = Approver.objects.filter(user=request.user).exists()
+
+        if is_approver:
+            profiles = PlacementProfile.objects.prefetch_related('documents').all()
+        else:
+            profiles = PlacementProfile.objects.filter(user=request.user).prefetch_related('documents')
+
+        profile_details = [
+            {
+                'profile_id': profile.id,
                 'first_name': profile.first_name,
                 'last_name': profile.last_name,
                 'college_email': profile.college_email,
@@ -203,18 +215,16 @@ class StudentProfileLogsView(View):
                         'id': document.id,
                         'status': document.status,
                         'document_type': document.document_type,
-                        'file': document.file.url,  # Use the file URL to make it accessible on the frontend
-                        'status': document.status,
+                        'file': document.file,  
                         'rejection_reason': document.rejection_reason,
                         'uploaded_at': document.uploaded_at
                     }
                     for document in profile.documents.all()
                 ]
             }
-        else:
-            profile_details = None
+            for profile in profiles
+        ]
 
-        # Pass the profile details to the template
         return render(request, 'student_profile_logs.html', {
             'profile_details': profile_details
         })
@@ -256,9 +266,264 @@ def approve_document(request, document_id):
             message=message
         )
 
-        return JsonResponse({"message": f"Document {action.lower()} successfully!"}, status=200)
+        # Return updated document details
+        return JsonResponse({
+            "message": f"Document {action.lower()} successfully!",
+            "document": {
+                "id": document.id,
+                "document_type": document.document_type,
+                "status": document.status,
+                "rejection_reason": document.rejection_reason,
+                "uploaded_at": document.uploaded_at.strftime("%Y-%m-%d %H:%M:%S"),
+                "file": document.file.url if document.file else None,
+            }
+        }, status=200)
 
     return JsonResponse({"error": "Invalid request"}, status=400)
+
+def send_email_remind_fee(profile):
+    subject = 'Placement Profile: Settle Tuition Fee Balance'
+    message = f"""
+    <html>
+    <head>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                background: linear-gradient(to bottom, rgba(0, 128, 128, 0.1), #ffffff);
+                padding: 20px;
+                color: #333;
+            }}
+            .container {{
+                background-color: #ffffff;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                width: 100%;
+                max-width: 600px;
+                margin: auto;
+            }}
+            h2 {{
+                color: #008080;
+                font-size: 24px;
+            }}
+            p {{
+                line-height: 1.6;
+                font-size: 16px;
+            }}
+            .footer {{
+                margin-top: 20px;
+                font-size: 14px;
+                color: #555;
+            }}
+            .footer a {{
+                color: #008080;
+                text-decoration: none;
+            }}
+            .bold {{
+                font-weight: bold;
+            }}
+            .highlight {{
+                color: #008080;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Placement Profile: Settle Tuition Fee Balance</h2>
+            <p>Greetings!</p>
+            <p>Thank you for creating your Placement Profile! You still have an outstanding balance. Please pay your tuition fee to avoid any delays in the process. This will help us move forward smoothly with your placement.</p>
+            <h3>Payment Options:</h3>
+            <ul>
+                <li>E-Transfer to: <span class="highlight">payment@peakcollege.ca</span></li>
+                <li>Cash, Credit, or Debit Payment on Campus</li>
+            </ul>
+            <h4>School Office Hours:</h4>
+            <p><span class="bold">Monday to Thursday:</span> 9:30 AM to 5:00 PM</p>
+            <p><span class="bold">Saturday:</span> 9:30 AM to 4:00 PM</p>
+            <div class="footer">
+                <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
+                <p>Warm regards, <br> The Peak Healthcare Team</p>
+                <p>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></p>
+                <p>1140 Sheppard Ave West - Unit #12, North York, ON, M3K 2A2</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [profile.college_email],
+        html_message=message
+    )
+
+def send_email_notify_result(profile):
+    subject = 'Placement Profile: Resubmit Rejected Documents'
+    message = f"""
+    <html>
+    <head>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                background: linear-gradient(to bottom, rgba(0, 128, 128, 0.1), #ffffff);
+                padding: 20px;
+                color: #333;
+            }}
+            .container {{
+                background-color: #ffffff;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                width: 100%;
+                max-width: 600px;
+                margin: auto;
+            }}
+            h2 {{
+                color: #008080;
+                font-size: 24px;
+            }}
+            p {{
+                line-height: 1.6;
+                font-size: 16px;
+            }}
+            .footer {{
+                margin-top: 20px;
+                font-size: 14px;
+                color: #555;
+            }}
+            .footer a {{
+                color: #008080;
+                text-decoration: none;
+            }}
+            .bold {{
+                font-weight: bold;
+            }}
+            .highlight {{
+                color: #008080;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Placement Profile: Resubmit Rejected Documents</h2>
+            <p>Greetings!</p>
+            <p>The documents below were rejected due to the following reasons:</p>
+            <ul>
+                <li><span class="bold">Letter from Employer:</span> Unclear content</li>
+                <li><span class="bold">Vulnerable Sector Check:</span> Expired Document</li>
+            </ul>
+            <p>Next step: address the reasons and resubmit the documents by clicking the link below.</p>
+            <p><a href="https://www.peakcollege.ca/student-view" class="highlight">Resubmission Link: Click here!</a></p>
+            <p>You’ll receive another email once all are approved.</p>
+            <div class="footer">
+                <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
+                <p>Warm regards, <br> The Peak Healthcare Team</p>
+                <p>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></p>
+                <p>1140 Sheppard Ave West - Unit #12, North York, ON, M3K 2A2</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [profile.college_email],
+        html_message=message
+    )
+
+def send_email_done(profile):
+    subject = 'Placement Profile: Documents Approved'
+    message = f"""
+    <html>
+    <head>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                background: linear-gradient(to bottom, rgba(0, 128, 128, 0.1), #ffffff);
+                padding: 20px;
+                color: #333;
+            }}
+            .container {{
+                background-color: #ffffff;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                width: 100%;
+                max-width: 600px;
+                margin: auto;
+            }}
+            h2 {{
+                color: #008080;
+                font-size: 24px;
+            }}
+            p {{
+                line-height: 1.6;
+                font-size: 16px;
+            }}
+            .footer {{
+                margin-top: 20px;
+                font-size: 14px;
+                color: #555;
+            }}
+            .footer a {{
+                color: #008080;
+                text-decoration: none;
+            }}
+            .bold {{
+                font-weight: bold;
+            }}
+            .highlight {{
+                color: #008080;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Placement Profile: Documents Approved</h2>
+            <p>Greetings!</p>
+            <p>All your documents are now <span class="highlight">APPROVED</span>.</p>
+            <p>The Placement Coordinator: Grace Doton will reach out to you through email or phone call. Once you finalize with her which facility you’re going to do your placement, she will inform you of your Placement Orientation Date.</p>
+            <p>Then you can pick up your Skills Passbook and NACC Reviewer from the school on any operating day.</p>
+            <h4>School Office Hours:</h4>
+            <p><span class="bold">Monday to Thursday:</span> 9:30 AM to 5:00 PM</p>
+            <p><span class="bold">Saturday:</span> 9:30 AM to 4:00 PM</p>
+            <div class="footer">
+                <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
+                <p>Warm regards, <br> The Peak Healthcare Team</p>
+                <p>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></p>
+                <p>1140 Sheppard Ave West - Unit #12, North York, ON, M3K 2A2</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [profile.college_email],
+        html_message=message
+    )
+
+
+def handle_button_action(request, profile_id, action):
+    try:
+        profile = PlacementProfile.objects.get(id=profile_id)
+        
+        if action == 'remind_fee':
+            send_email_remind_fee(profile)
+        elif action == 'notify_result':
+            send_email_notify_result(profile)
+        elif action == 'done':
+            send_email_done(profile)
+        
+        return JsonResponse({"status": "success", "message": f"Email sent for action {action}"})
+    
+    except PlacementProfile.DoesNotExist:
+        return JsonResponse({"status": "error", "message": "Profile not found"})
 
 def profile_submission_success(request):
     return render(request, 'profile_submission_success.html')
@@ -283,21 +548,77 @@ class ApproverView(View):
     def get(self, request):
         approvers = Approver.objects.all()
         return render(request, 'approvers_list.html', {'approvers': approvers})
+    
+def approvers_view(request):
+    approvers = User.objects.all()
+    approvers_data = []
+
+    for user in approvers:
+        try:
+            # Check if the user has an associated approver
+            approver = user.approver_profile
+            approvers_data.append({
+                'user': user,
+                'role': 'Approver',  # Display 'Approver' if the approver exists
+                'full_name': approver.full_name,
+                'position': approver.position,
+            })
+        except Approver.DoesNotExist:
+            # If no approver exists, display 'Student'
+            approvers_data.append({
+                'user': user,
+                'role': 'Student',  # Display 'Student' if no approver
+                'full_name': user.username,  # Display username as full name
+                'position': '',  # No position for student
+            })
+
+    return render(request, 'approvers_list.html', {'approvers': approvers_data})
 
 
-class ApprovalLogView(View):
-    def get(self, request):
-        logs = ApprovalLog.objects.all()
-        return render(request, 'approval_logs_list.html', {'logs': logs})
+def promote_to_approver(request, user_id):
+    try:
+        user = get_object_or_404(User, id=user_id)
+        # Promote user to approver
+        user.is_staff = True
+        user.save()
+        
+        # Create approver entry
+        Approver.objects.create(
+            user=user,
+            full_name=f"{user.first_name} {user.last_name}" if user.first_name and user.last_name else user.username,
+            position="Staff"
+        )
 
+        return JsonResponse({
+            'status': 'success',
+            'message': f'{user.username} has been promoted to approver.'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        })
 
-class FeeStatusView(View):
-    def get(self, request):
-        fee_statuses = FeeStatus.objects.all()
-        return render(request, 'fee_status_list.html', {'fee_statuses': fee_statuses})
+# Remove a user from approver
+def remove_from_approver(request, user_id):
+    try:
+        user = get_object_or_404(User, id=user_id)
+        
+        # Remove approver entry
+        approver = Approver.objects.filter(user=user).first()
+        if approver:
+            approver.delete()
+        
+        # Revert user's is_staff status
+        user.is_staff = False
+        user.save()
 
-
-class PlacementNotificationView(View):
-    def get(self, request):
-        notifications = PlacementNotification.objects.all()
-        return render(request, 'notifications_list.html', {'notifications': notifications})
+        return JsonResponse({
+            'status': 'success',
+            'message': f'{user.username} has been removed from approvers.'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        })

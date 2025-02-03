@@ -20,7 +20,6 @@
         background: linear-gradient(to right, #4b5563, #374151); /* Darker gradient on hover */
     }
 </style>
-<div class="max-w-7xl mx-auto p-6">
     <h2 class="text-3xl font-semibold text-center mb-10 text-gray-800 tracking-wide">Student Placement Profiles</h2>
 
     {% if not profile_details %}
@@ -38,7 +37,7 @@
             </div>
             <div class="overflow-x-auto custom-scrollbar">
                 <table class="min-w-full table-auto border-collapse border border-gray-300">
-                    <thead class="bg-gradient-to-r from-gray-100 to-gray-200">
+                    <thead class="bg-gradient-to-r from-teal-400 to-teal-700">
                         <tr class="border border-gray-300">
                             <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300">Sr No.</th>
                             <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300">Name</th>
@@ -48,66 +47,86 @@
                             <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300">Address Updated</th>
                             <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300">Preferred Facility</th>
                             <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300">Facility Contact</th>
-                            <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300">Documents</th>
+                            <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="border border-gray-300 hover:bg-gray-50 transition-colors duration-200">
-                            <td class="px-6 py-4 border border-gray-300">1</td>
-                            <td class="px-6 py-4 whitespace-nowrap border border-gray-300">{{ profile_details.first_name }} {{ profile_details.last_name }}</td>
-                            <td class="px-6 py-4 border border-gray-300">{{ profile_details.college_email }}</td>
-                            <td class="px-6 py-4 border border-gray-300">{{ profile_details.experience_level }}</td>
-                            <td class="px-6 py-4 border border-gray-300">{{ profile_details.shift_requested }}</td>
-                            <td class="px-6 py-4 border border-gray-300">{{ profile_details.address_updated|yesno:"Yes,No" }}</td>
-                            <td class="px-6 py-4 border border-gray-300">{{ profile_details.preferred_facility_name }}</td>
-                            <td class="px-6 py-4 border border-gray-300">{{ profile_details.preferred_facility_contact_person }}</td>
-                            <td class="px-6 py-4 border border-gray-300">
-                                <button onclick="openModal()" class="text-blue-600 hover:text-blue-800 font-semibold">
-                                    View Documents
+                        {% for profile in profile_details %}
+                        <tr class="border border-gray-300 hover:bg-teal-50 transition-colors duration-200">
+                            <td class="px-6 py-4 border border-gray-300">{{ forloop.counter }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap border border-gray-300">{{ profile.first_name }} {{ profile.last_name }}</td>
+                            <td class="px-6 py-4 border border-gray-300">{{ profile.college_email }}</td>
+                            <td class="px-6 py-4 border border-gray-300">{{ profile.experience_level }}</td>
+                            <td class="px-6 py-4 border border-gray-300">{{ profile.shift_requested }}</td>
+                            <td class="px-6 py-4 border border-gray-300">{{ profile.address_updated|yesno:"Yes,No" }}</td>
+                            <td class="px-6 py-4 border border-gray-300">{{ profile.preferred_facility_name }}</td>
+                            <td class="px-6 py-4 border border-gray-300">{{ profile.preferred_facility_contact_person }}</td>
+                            <td class="px-6 py-4 border border-gray-300 flex justify-between items-center space-x-2">
+                                <!-- Action buttons with icons -->
+                                <button onclick="openModal('{{ forloop.counter }}')" class="text-teal-600 hover:text-teal-800 font-semibold py-1 px-3 rounded-md text-sm border border-teal-300 hover:border-teal-500 flex items-center space-x-2 whitespace-nowrap">
+                                    <i class="fas fa-eye"></i>
+                                    <span>View Documents</span>
+                                </button>
+                                <button onclick="sendEmailAction('{{ profile.profile_id }}', 'remind_fee')" class="bg-yellow-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-yellow-600 flex items-center space-x-2 whitespace-nowrap">
+                                    <i class="fas fa-credit-card"></i>
+                                    <span>Remind Fee</span>
+                                </button>
+                                <button onclick="sendEmailAction('{{ profile.profile_id }}', 'notify_result')" class="bg-blue-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-blue-600 flex items-center space-x-2 whitespace-nowrap">
+                                    <i class="fas fa-bell"></i>
+                                    <span>Notify Result</span>
+                                </button>
+                                <button onclick="sendEmailAction('{{ profile.profile_id }}', 'done')" class="bg-green-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-green-600 flex items-center space-x-2 whitespace-nowrap">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Done</span>
                                 </button>
                             </td>
                         </tr>
+                        {% endfor %}
                     </tbody>
-                </table>                
+                </table>
+                             
             </div>
         </div>
 
-        <div id="documentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-6">
-            <div class="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6 relative">
-                <h3 class="text-2xl font-semibold text-gray-800 mb-4">Submitted Documents</h3>
-                <button onclick="closeModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700">&times;</button>
+        {% for profile in profile_details %}
+<div id="documentModal-{{ forloop.counter }}" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-6">
+    <div class="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6 relative">
+        <h3 class="text-2xl font-semibold text-gray-800 mb-4">Submitted Documents</h3>
+        <button onclick="closeModal({{ forloop.counter }})" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700">&times;</button>
         
-                <div class="space-y-4">
-                    {% for document in profile_details.documents %}
-                        <div class="bg-gray-100 p-4 rounded-lg flex items-center justify-between">
-                            <div>
-                                <p class="text-lg font-medium">{{ document.document_type }}</p>
-                                <p class="text-sm text-gray-600">{{ document.uploaded_at }}</p>
-                                <p class="text-sm text-gray-600">
-                                    <span class="document-status {{ document.status|lower }}">
-                                        {{ document.status }}
-                                    </span>
-                                </p>
-                                {% if document.rejection_reason %}
-                                    <p class="text-sm text-red-500">Rejection Reason: {{ document.rejection_reason }}</p>
-                                {% endif %}
-                            </div>
-        
-                            <div class="flex space-x-4 items-center">
-                                <a href="{{ document.file }}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">View</a>
+        <div class="space-y-4">
+            {% for document in profile.documents %}
+                <div class="bg-gray-100 p-4 rounded-lg flex items-center justify-between">
+                    <div>
+                        <p class="text-lg font-medium">{{ document.document_type }}</p>
+                        <p class="text-sm text-gray-600">{{ document.uploaded_at }}</p>
+                        <p class="text-sm text-gray-600">
+                            <span class="document-status {{ document.status|lower }}">
+                                {{ document.status }}
+                            </span>
+                        </p>
+                        {% if document.rejection_reason %}
+                            <p class="text-sm text-red-500 rejection-reason">Rejection Reason: {{ document.rejection_reason }}</p>
+                        {% endif %}
+                    </div>
 
-                                <select class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium" id="status-{{ document.id }}" onchange="openCommentModal('{{ document.id }}', this.value)">
-                                    <option value="In Review" {% if document.status == 'In Review' %} selected {% endif %}>In Review</option>
-                                    <option value="Approved" {% if document.status == 'Approved' %} selected {% endif %}>Approved</option>
-                                    <option value="Rejected" {% if document.status == 'Rejected' %} selected {% endif %}>Rejected</option>
-                                </select>
-                            </div>
-                        </div>
-                    {% endfor %}
+                    <div class="flex space-x-4 items-center">
+                        <a href="{{ document.file }}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">View</a>
+
+                        <select class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium" id="status-{{ document.id }}" onchange="openCommentModal('{{ document.id }}', this.value)">
+                            <option value="In Review" {% if document.status == 'In Review' %} selected {% endif %}>In Review</option>
+                            <option value="Approved" {% if document.status == 'Approved' %} selected {% endif %}>Approved</option>
+                            <option value="Rejected" {% if document.status == 'Rejected' %} selected {% endif %}>Rejected</option>
+                        </select>
+                    </div>
                 </div>
-                
-            </div>
+            {% endfor %}
         </div>
+    </div>
+</div>
+{% endfor %}
+
+        
         
         <!-- Modal for comments or rejection reason -->
         <div id="commentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-6">
@@ -116,7 +135,21 @@
                 <button onclick="closeCommentModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700">&times;</button>
         
                 <div class="space-y-4">
-                    <textarea id="commentText" class="w-full p-4 border border-gray-300 rounded-lg text-sm text-gray-700" placeholder="Enter comments or rejection reason here..."></textarea>
+                    <select id="rejectionReason" class="w-full p-4 border border-gray-300 rounded-lg text-sm text-gray-700" onchange="toggleOtherReasonInput(this)">
+                        <option value="" disabled selected>Select a reason</option>
+                        <option value="Unclear content">Unclear content</option>
+                        <option value="Incorrect File">Incorrect File</option>
+                        <option value="Incomplete Info">Incomplete Info</option>
+                        <option value="Incorrect Info">Incorrect Info</option>
+                        <option value="Inconsistent Info">Inconsistent Info</option>
+                        <option value="Lack of Required Signatures">Lack of Required Signatures</option>
+                        <option value="Expired Document">Expired Document</option>
+                        <option value="Unauthorized alterations">Unauthorized alterations</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    
+                    <input type="text" id="otherReason" class="w-full p-4 border border-gray-300 rounded-lg text-sm text-gray-700 mt-2 hidden" placeholder="Enter custom reason">
+                    
                 </div>
         
                 <div class="mt-4 text-right">
@@ -124,86 +157,165 @@
                 </div>
             </div>
         </div>
-
+        <div id="loadingOverlay" class="hidden">
+            <div class="loader"></div>
+        </div>
+        
         <script>
-            function openModal() {
-                document.getElementById('documentModal').classList.remove('hidden');
-            }
-            
-            function closeModal() {
-                document.getElementById('documentModal').classList.add('hidden');
-            }
+            function openModal(profileIndex) {
+    const modal = document.getElementById('documentModal-' + profileIndex);
+    modal.classList.remove('hidden');
+}
+
+function closeModal(profileIndex) {
+    const modal = document.getElementById('documentModal-' + profileIndex);
+    modal.classList.add('hidden');
+}
+
         </script>
         
 
     {% else %}
         <div class="text-center text-red-500 text-lg">No placement profile found. Please submit your profile.</div>
     {% endif %}
-</div>
 <script>
-    // Open the comment modal when status is changed
     function openCommentModal(documentId, newStatus) {
-        if (newStatus === "Rejected") {
-            document.getElementById('commentModal').classList.remove('hidden');
-            document.getElementById('commentText').value = '';  // Clear previous comment
-            document.commentingDocumentId = documentId;  // Store document ID for submission
-            document.newDocumentStatus = newStatus;  // Store new status for this document
-        } else {
-            // For Approved and Under Review, directly update status
-            updateStatusUI(documentId, newStatus);
-            submitStatusChange(documentId, newStatus, ''); // No reason needed
-        }
+    if (newStatus === "Rejected") {
+        document.getElementById('commentModal').classList.remove('hidden');
+        document.getElementById('rejectionReason').value = '';  
+        document.getElementById('otherReason').classList.add('hidden');
+        document.commentingDocumentId = documentId; 
+    } else {
+        updateStatusUI(documentId, newStatus);
+        submitStatusChange(documentId, newStatus, '');
+    }
+}
+
+function toggleOtherReasonInput(selectElement) {
+    const otherInput = document.getElementById('otherReason');
+    if (selectElement.value === "Other") {
+        otherInput.classList.remove('hidden');
+        otherInput.focus();
+    } else {
+        otherInput.classList.add('hidden');
+        otherInput.value = ''; 
+    }
+}
+
+function submitComment() {
+    const documentId = document.commentingDocumentId;
+    const selectedReason = document.getElementById('rejectionReason').value;
+    const otherReason = document.getElementById('otherReason').value;
+    const newStatus = document.newDocumentStatus;
+    
+    let finalReason = selectedReason === "Other" ? otherReason : selectedReason;
+    if (!finalReason.trim()) {
+        alert("Please select a rejection reason.");
+        return;
     }
 
-    // Close the comment modal
+    submitStatusChange(documentId, "Rejected", finalReason);
+    updateStatusUI(documentId, "Rejected"); 
+    closeCommentModal();
+}
+
     function closeCommentModal() {
         document.getElementById('commentModal').classList.add('hidden');
     }
 
-    // Submit comment or rejection reason
     function submitStatusChange(documentId, newStatus, commentText) {
-        fetch(`/approve-document/${documentId}/`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                "X-CSRFToken": "{{ csrf_token }}",
-            },
-            body: new URLSearchParams({
-                action: newStatus,
-                reason: commentText
-            }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Update status UI with colors and message
+    fetch(`/approve-document/${documentId}/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": "{{ csrf_token }}",
+        },
+        body: new URLSearchParams({
+            action: newStatus,
+            reason: commentText
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.document) {
+            updateStatusUI(data.document);
+            updateRejectionReason(data.document);
             showMessage(data.message, 'success');
-        })
-        .catch(error => {
-            // Display error message
-            showMessage('An error occurred. Please try again.', 'error');
-        });
-    }
-    
-
-    // Function to update status UI with colors and text
-    function updateStatusUI(documentId, newStatus) {
-        const statusSpan = document.querySelector(`#status-${documentId}`);
-        const documentRow = statusSpan.closest('.bg-gray-100');
-        
-        statusSpan.innerText = newStatus;
-        statusSpan.classList.remove('under_review', 'approved', 'rejected');
-        
-        // Add new color based on status
-        if (newStatus === 'APPROVED') {
-            documentRow.querySelector('.document-status').classList.add('text-green-600');
-        } else if (newStatus === 'REJECTED') {
-            documentRow.querySelector('.document-status').classList.add('text-red-600');
         } else {
-            documentRow.querySelector('.document-status').classList.add('text-yellow-500');
+            showMessage(data.error, 'error');
         }
+    })
+    .catch(error => {
+        showMessage('An error occurred. Please try again.', 'error');
+    });
+}
+
+function updateStatusUI(documentId, newStatus) {
+    if (!documentId) {
+        console.error("Invalid documentId provided.");
+        return;
     }
 
-    // Display a message in the popup
+    const statusElement = document.getElementById(`status-${documentId}`);
+    if (!statusElement) {
+        console.error(`Element with ID #status-${documentId} not found.`);
+        return;
+    }
+
+    const documentRow = statusElement.closest('.bg-gray-100'); 
+    const statusSpan = documentRow.querySelector('.document-status');
+    const rejectionReason = documentRow.querySelector('.rejection-reason');
+
+    statusSpan.innerText = newStatus;
+    statusSpan.classList.remove('under_review', 'approved', 'rejected');
+
+    if (newStatus === "Approved") {
+        statusSpan.classList.add('text-green-600');
+    } else if (newStatus === "Rejected") {
+        statusSpan.classList.add('text-red-600');
+    } else {
+        statusSpan.classList.add('text-yellow-500');
+    }
+}
+
+function updateRejectionReason(documentData) {
+    if (!documentData || typeof documentData !== 'object' || !documentData.id) {
+        console.error("Invalid document object provided:", documentData);
+        return;
+    }
+
+    const documentId = documentData.id;
+    console.log("Document ID:", documentId);
+    
+    const statusElement = document.getElementById(`status-${documentId}`);
+    console.log("Status Element:", statusElement);
+    if (!statusElement) {
+        console.error(`Element with ID #status-${documentId} not found.`);
+        return;
+    }
+
+    const documentRow = statusElement.closest('.bg-gray-100');
+    if (!documentRow) {
+        console.error("Document row not found.");
+        return;
+    }
+
+    const rejectionReasonElement = documentRow.querySelector('.rejection-reason');
+    if (!rejectionReasonElement) {
+        console.error("Rejection reason element not found.");
+        return;
+    }
+
+    const rejectionReason = documentData.rejection_reason ? `Rejection Reason: ${documentData.rejection_reason}` : '';
+
+    if (rejectionReason) {
+        rejectionReasonElement.innerText = rejectionReason;
+    } else {
+        rejectionReasonElement.innerText = ''; 
+    }
+}
+
+
     function showMessage(message, type) {
         const messagePopup = document.getElementById('messagePopup');
         const messageText = document.getElementById('messageText');
@@ -221,8 +333,40 @@
     
         setTimeout(() => {
             messagePopup.classList.add('hidden');
-        }, 4000); // Disappear after 4 seconds
+        }, 4000); 
     }
+
+    function sendEmailAction(profileId, action) {
+    const url = `/send-email/${profileId}/${action}/`;
+
+    // Show the loading overlay and disable interactions
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    document.body.style.pointerEvents = 'none';  // Disable clicks
+
+    fetch(url, {
+        method: 'GET',
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Hide the loading overlay and re-enable interactions
+        document.getElementById('loadingOverlay').style.display = 'none';
+        document.body.style.pointerEvents = 'auto'; // Re-enable clicks
+
+        if (data.status === 'success') {
+            showMessage(data.message, 'success');
+        } else {
+            showMessage(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        // Hide the loading overlay and re-enable interactions
+        document.getElementById('loadingOverlay').style.display = 'none';
+        document.body.style.pointerEvents = 'auto'; // Re-enable clicks
+        
+        showMessage("An error occurred while sending the email.", 'error');
+    });
+}
+
 </script>
 
 <style>
@@ -230,13 +374,43 @@
         font-weight: bold;
     }
     .document-status.approved {
-        color: #10B981; /* Green for Approved */
+        color: #10B981; 
     }
     .document-status.rejected {
-        color: #EF4444; /* Red for Rejected */
+        color: #EF4444;
     }
     .document-status.under_review {
-        color: #F59E0B; /* Yellow for Under Review */
+        color: #F59E0B; 
     }
+    /* Loading overlay */
+#loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Dim the screen */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Make sure it's above all content */
+    display: none; /* Hidden by default */
+}
+
+/* Loader spinner */
+.loader {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #008080; /* Teal color for the spinner */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 </style>
 {% endblock %}
