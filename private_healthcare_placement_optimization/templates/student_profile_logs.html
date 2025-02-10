@@ -20,7 +20,7 @@
         background: linear-gradient(to right, #4b5563, #374151); /* Darker gradient on hover */
     }
 </style>
-    <h2 class="text-3xl font-semibold text-center mb-10 text-gray-800 tracking-wide">Student Placement Profiles</h2>
+    <h2 class="text-3xl font-semibold text-center mb-10 text-gray-800 tracking-wide">Student Placement Profile</h2>
 
     {% if not profile_details %}
         <div class="mb-4 text-center">
@@ -31,12 +31,13 @@
     {% endif %}
 
     {% if profile_details %}
-        <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-8">
+        <div class="rounded-lg overflow-hidden mb-8">
             <div id="messagePopup" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
                 <span id="messageText"></span>
             </div>
             <div class="overflow-x-auto custom-scrollbar">
-                <table class="min-w-full table-auto border-collapse border border-gray-300">
+                {% if is_approver %}
+                <table class="bg-white shadow-lg min-w-full table-auto border-collapse border border-gray-300">
                     <thead class="bg-gradient-to-r from-teal-400 to-teal-700">
                         <tr class="border border-gray-300">
                             <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300">Sr No.</th>
@@ -50,8 +51,8 @@
                             <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300">Actions</th>
                         </tr>
                     </thead>
+                    {% for profile in profile_details %}
                     <tbody>
-                        {% for profile in profile_details %}
                         <tr class="border border-gray-300 hover:bg-teal-50 transition-colors duration-200">
                             <td class="px-6 py-4 border border-gray-300">{{ forloop.counter }}</td>
                             <td class="px-6 py-4 whitespace-nowrap border border-gray-300">{{ profile.first_name }} {{ profile.last_name }}</td>
@@ -67,6 +68,7 @@
                                     <i class="fas fa-eye"></i>
                                     <span>View Documents</span>
                                 </button>
+                                {% if is_approver %}
                                 <button onclick="sendEmailAction('{{ profile.profile_id }}', 'remind_fee')" class="bg-yellow-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-yellow-600 flex items-center space-x-2 whitespace-nowrap">
                                     <i class="fas fa-credit-card"></i>
                                     <span>Remind Fee</span>
@@ -79,13 +81,69 @@
                                     <i class="fas fa-check-circle"></i>
                                     <span>Done</span>
                                 </button>
+                                {% endif %}
                             </td>
                         </tr>
-                        {% endfor %}
                     </tbody>
+                    {% endfor %}
                 </table>
+                {% else %}
+                {% for profile in profile_details %}
+                <div class="flex items-center justify-center p-6">
+                    <div class="w-full max-w-5xl bg-white rounded-2xl p-6 md:p-8 border border-gray-200 shadow-lg">
+                        <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
+                            <div class="w-16 h-16 bg-teal-500 text-white flex items-center justify-center rounded-full text-2xl font-bold">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="text-center sm:text-left">
+                                <h3 class="text-xl md:text-2xl font-semibold text-gray-800">
+                                    {{ profile.first_name }} {{ profile.last_name }}
+                                </h3>
+                                <p class="text-sm text-gray-500">{{ profile.college_email }}</p>
+                            </div>
+                        </div>
+                
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
+                            <p class="flex items-center space-x-2">
+                                <i class="fas fa-briefcase text-teal-500"></i>
+                                <span><strong>Experience Level:</strong> {{ profile.experience_level }}</span>
+                            </p>
+                            <p class="flex items-center space-x-2">
+                                <i class="fas fa-clock text-teal-500"></i>
+                                <span><strong>Shift Requested:</strong> {{ profile.shift_requested }}</span>
+                            </p>
+                            <p class="flex items-center space-x-2">
+                                <i class="fas fa-map-marker-alt text-teal-500"></i>
+                                <span><strong>Address Updated:</strong> {{ profile.address_updated|yesno:"Yes,No" }}</span>
+                            </p>
+                            <p class="flex items-center space-x-2">
+                                <i class="fas fa-hospital text-teal-500"></i>
+                                <span><strong>Preferred Facility:</strong> {{ profile.preferred_facility_name }}</span>
+                            </p>
+                            <p class="flex items-center space-x-2">
+                                <i class="fas fa-map text-teal-500"></i>
+                                <span><strong>Facility Address:</strong> {{ profile.preferred_facility_address }}</span>
+                            </p>
+                            <p class="flex items-center space-x-2">
+                                <i class="fas fa-phone text-teal-500"></i>
+                                <span><strong>Facility Contact:</strong> {{ profile.preferred_facility_contact_person }}</span>
+                            </p>
+                        </div>
+                
+                        <div class="mt-6 flex justify-center">
+                            <button onclick="openModal('{{ forloop.counter }}')" class="text-white bg-teal-600 hover:bg-teal-700 font-semibold py-3 px-6 rounded-lg text-lg flex items-center space-x-2 transition">
+                                <i class="fas fa-file-alt"></i>
+                                <span>View Documents</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>       
+                {% endfor %}         
+                
+                {% endif %}
                              
             </div>
+            
         </div>
 
         {% for profile in profile_details %}
@@ -109,7 +167,7 @@
                             <p class="text-sm text-red-500 rejection-reason">Rejection Reason: {{ document.rejection_reason }}</p>
                         {% endif %}
                     </div>
-
+                    {% if is_approver %}
                     <div class="flex space-x-4 items-center">
                         <a href="{{ document.file }}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">View</a>
 
@@ -119,6 +177,24 @@
                             <option value="Rejected" {% if document.status == 'Rejected' %} selected {% endif %}>Rejected</option>
                         </select>
                     </div>
+                    {% elif document.status != 'Approved' %}
+                    <div class="flex space-x-4 items-center">
+                        <button class="px-4 py-2 bg-teal-500 text-white rounded-lg text-sm font-medium hover:bg-teal-600 transition"
+                            onclick="openNewFileUploadModal('{{ document.id }}')">
+                            Submit New File
+                        </button>
+                    </div>
+                    <div id="fileUploadModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
+                        <div class="bg-white p-6 rounded-lg shadow-lg">
+                            <h3 class="text-lg font-semibold mb-4">Upload New Document</h3>
+                            <input type="file" id="newFileInput" class="mb-4 border rounded p-2 w-full">
+                            <div class="flex justify-end space-x-4">
+                                <button onclick="closeNewFileUploadModal()" class="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500">Cancel</button>
+                                <button onclick="submitNewFile()" class="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600">Upload</button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             {% endfor %}
         </div>
@@ -160,7 +236,52 @@
         <div id="loadingOverlay" class="hidden">
             <div class="loader"></div>
         </div>
+        <script>
+            let selectedDocumentId = null;
         
+            function openNewFileUploadModal(documentId) {
+                selectedDocumentId = documentId;
+                document.getElementById("fileUploadModal").classList.remove("hidden");
+            }
+        
+            function closeNewFileUploadModal() {
+                document.getElementById("fileUploadModal").classList.add("hidden");
+            }
+        
+            function submitNewFile() {
+                let fileInput = document.getElementById("newFileInput");
+                if (!fileInput.files.length) {
+                    alert("Please select a file to upload.");
+                    return;
+                }
+            
+                let formData = new FormData();
+                formData.append("file", fileInput.files[0]);
+                formData.append("document_id", selectedDocumentId);
+            
+                fetch("/submit-new-file/", {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage("File uploaded successfully!", 'success');
+                        setTimeout(() => {
+                            location.reload(); // Reloads the current page
+                        }, 1000);
+                        
+                    } else {
+                        showMessage(data.error, 'error');
+                    }
+                })
+                .catch(error => alert("Something went wrong."));
+            }
+            
+        </script>
         <script>
             function openModal(profileIndex) {
     const modal = document.getElementById('documentModal-' + profileIndex);

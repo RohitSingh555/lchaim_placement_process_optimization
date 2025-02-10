@@ -192,6 +192,7 @@ class StudentProfileLogsView(LoginRequiredMixin, View):
 
     def get(self, request):
         is_approver = Approver.objects.filter(user=request.user).exists()
+        print(is_approver)
 
         if is_approver:
             profiles = PlacementProfile.objects.prefetch_related('documents').all()
@@ -226,7 +227,8 @@ class StudentProfileLogsView(LoginRequiredMixin, View):
         ]
 
         return render(request, 'student_profile_logs.html', {
-            'profile_details': profile_details
+            'profile_details': profile_details,
+            'is_approver': is_approver
         })
 
 
@@ -622,3 +624,30 @@ def remove_from_approver(request, user_id):
             'status': 'error',
             'message': str(e)
         })
+        
+@csrf_exempt  # Disable CSRF protection for now (use proper authentication in production)
+def submit_new_file(request):
+    if request.method == "POST":
+        document_id = request.POST.get("document_id")
+        new_file = request.FILES.get("file")
+
+        if not document_id or not new_file:
+            return JsonResponse({"success": False, "error": "Missing document ID or file."})
+
+        # Get the existing document
+        existing_document = get_object_or_404(Document, id=document_id)
+
+        # Create a new document entry with the updated file
+        new_document = Document.objects.create(
+            profile=existing_document.profile,
+            document_type=existing_document.document_type,
+            file=new_file,
+            status="In Review"  # Reset status to "In Review"
+        )
+
+        # Delete the old document entry
+        existing_document.delete()
+
+        return JsonResponse({"success": True, "new_document_id": new_document.id})
+
+    return JsonResponse({"success": False, "error": "Invalid request method."})

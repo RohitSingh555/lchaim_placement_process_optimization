@@ -22,4 +22,5 @@ urlpatterns = [
     path('approvers-view/', approvers_view, name='approvers_view'),
     path('promote-to-approver/<int:user_id>/', promote_to_approver, name='promote_to_approver'),
     path('remove-from-approver/<int:user_id>/', remove_from_approver, name='remove_from_approver'),
+    path("submit-new-file/", submit_new_file, name="submit_new_file"),
 ]

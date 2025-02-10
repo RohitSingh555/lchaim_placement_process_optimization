@@ -2,7 +2,21 @@
 
 {% block content %}
 <div class="max-w-3xl mx-auto py-12">
-    <h2 class="text-2xl font-bold mb-6 text-center">Create Placement Profile</h2>
+    <div class="relative flex items-center justify-center w-full mb-6">
+        <!-- Stylish Back Button -->
+        <button id="backButton" 
+            class="absolute left-0 flex items-center gap-2 px-4 py-2 bg-gray-300 text-gray-700 font-medium rounded-full 
+                   shadow-md hover:bg-gray-400 hover:shadow-lg transition-all duration-300 hidden"
+            onclick="prevStep()">
+            <i class="fas fa-arrow-left"></i> Back
+        </button>
+    
+        <!-- Title (Centered) -->
+        <h2 class="text-2xl font-bold text-center">
+            Create Placement Profile
+        </h2>
+    </div>
+    
     <form method="POST" enctype="multipart/form-data" id="wizardForm" class="space-y-6">
         {% csrf_token %}
 
@@ -18,12 +32,29 @@
                 {% endif %}
             </div>
             <div class="flex justify-center mt-4">
-                <button type="button" class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500" onclick="nextStep(2)">Next</button>
+                <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
+               hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 
+               transition-all duration-300" onclick="nextStep(2)">Next <i class="fas fa-arrow-right ml-2"></i></button>
+            </div>
+        </div>
+
+        <!-- Password (Step 2) -->
+        <div class="form-step hidden" id="step2">
+            <div class="flex flex-col">
+                <label for="password" class="text-lg font-medium text-gray-700 mb-2">Password</label>
+                <input type="text" name="password" id="password" 
+                       class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                       placeholder="Password" required>
+            </div>
+            <div class="flex justify-center mt-4">
+                <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
+               hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 
+               transition-all duration-300" onclick="nextStep(3)">Next <i class="fas fa-arrow-right ml-2"></i></button>
             </div>
         </div>
 
         <!-- First Name (Step 2) -->
-        <div class="form-step hidden" id="step2">
+        <div class="form-step hidden" id="step3">
             <div class="flex flex-col">
                 <label for="first_name" class="text-lg font-medium text-gray-700 mb-2">First Name</label>
                 <input type="text" name="first_name" id="first_name" 
@@ -34,12 +65,14 @@
                 {% endif %}
             </div>
             <div class="flex justify-center mt-4">
-                <button type="button" class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500" onclick="nextStep(3)">Next</button>
+                <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
+               hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 
+               transition-all duration-300" onclick="nextStep(4)">Next <i class="fas fa-arrow-right ml-2"></i></button>
             </div>
         </div>
 
-        <!-- Last Name (Step 3) -->
-        <div class="form-step hidden" id="step3">
+        <!-- Last Name (Step 4) -->
+        <div class="form-step hidden" id="step4">
             <div class="flex flex-col">
                 <label for="last_name" class="text-lg font-medium text-gray-700 mb-2">Last Name</label>
                 <input type="text" name="last_name" id="last_name" 
@@ -50,12 +83,14 @@
                 {% endif %}
             </div>
             <div class="flex justify-center mt-4">
-                <button type="button" class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500" onclick="nextStep(4)">Next</button>
+                <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
+               hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 
+               transition-all duration-300" onclick="nextStep(5)">Next <i class="fas fa-arrow-right ml-2"></i></button>
             </div>
         </div>
 
         <!-- Address Updated Dropdown (Step 4) -->
-        <div class="form-step hidden" id="step4">
+        <div class="form-step hidden" id="step5">
             <div class="flex flex-col">
                 <label for="address_updated" class="text-lg font-medium text-gray-700 mb-2">Did you change your address?</label>
                 <select name="address_updated" id="address_updated" 
@@ -65,12 +100,32 @@
                 </select>
             </div>
             <div class="flex justify-center mt-4">
-                <button type="button" class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500" onclick="nextStep(5)">Next</button>
+                <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
+               hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 
+               transition-all duration-300" onclick="nextStep(6)">Next <i class="fas fa-arrow-right ml-2"></i></button>
+            </div>
+        </div>
+        
+        <!-- Experience Level Dropdown (Step 5) -->
+        <div class="form-step hidden" id="step6">
+            <div class="flex flex-col">
+                <label for="experience_level" class="text-lg font-medium text-gray-700 mb-2">Experience Level</label>
+                <select name="experience_level" id="experience_level" 
+                        class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="No Experience">No Experience (300 Hrs)</option>
+                    <option value="1 Year PSW Experience">One Year PSW Experience (230 Hrs)</option>
+                    <option value="International Nurse">International Nurse (200 Hrs)</option>
+                </select>
+            </div>
+            <div class="flex justify-center mt-4">
+                <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
+               hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 
+               transition-all duration-300" onclick="nextStep(7)">Next <i class="fas fa-arrow-right ml-2"></i></button>
             </div>
         </div>
 
         <!-- Employer Letter Upload (Step 7) -->
-        <div class="form-step hidden" id="step5">
+        <div class="form-step hidden" id="step7">
             <div class="flex flex-col" id="employer_letter">
                 <label for="employer_letter" class="text-lg font-medium text-gray-700 mb-2">Employer Letter</label>
                 <input type="file" name="employer_letter" id="employer_letter_input" 
@@ -78,12 +133,14 @@
             </div>
             
             <div class="flex justify-center mt-4">
-                <button type="button" class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500" onclick="nextStep(6)">Next</button>
+                <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
+               hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 
+               transition-all duration-300" onclick="nextStep(8)">Next <i class="fas fa-arrow-right ml-2"></i></button>
             </div>
         </div>
 
         <!-- Shift Requested Dropdown (Step 8) -->
-        <div class="form-step hidden" id="step6">
+        <div class="form-step hidden" id="step8">
             <div class="flex flex-col">
                 <label for="shift_requested" class="text-lg font-medium text-gray-700 mb-2">Shift Requested</label>
                 <select name="shift_requested" id="shift_requested" 
@@ -97,12 +154,14 @@
                 </select>
             </div>
             <div class="flex justify-center mt-4">
-                <button type="button" class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500" onclick="nextStep(7)">Next</button>
+                <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
+               hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 
+               transition-all duration-300" onclick="nextStep(9)">Next <i class="fas fa-arrow-right ml-2"></i></button>
             </div>
         </div>
 
         <!-- Preferred Facility (Step 9) -->
-        <div class="form-step hidden" id="step7">
+        <div class="form-step hidden" id="step9">
             <div class="flex flex-col">
                 <label for="preferred_facility_name" class="text-lg font-medium text-gray-700 mb-2">Preferred Facility Name (Optional)</label>
                 <input type="text" name="preferred_facility_name" id="preferred_facility_name" 
@@ -122,28 +181,15 @@
                        placeholder="Contact Person">
             </div>
             <div class="flex justify-center mt-4">
-                <button type="button" class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500" onclick="nextStep(8)">Next</button>
+                <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
+               hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 
+               transition-all duration-300" onclick="nextStep(10)">Next <i class="fas fa-arrow-right ml-2"></i></button>
             </div>
         </div>
 
-        <!-- Experience Level Dropdown (Step 5) -->
-        <div class="form-step hidden" id="step8">
-            <div class="flex flex-col">
-                <label for="experience_level" class="text-lg font-medium text-gray-700 mb-2">Experience Level</label>
-                <select name="experience_level" id="experience_level" 
-                        class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="No Experience">No Experience (300 Hrs)</option>
-                    <option value="1 Year PSW Experience">One Year PSW Experience (230 Hrs)</option>
-                    <option value="International Nurse">International Nurse (200 Hrs)</option>
-                </select>
-            </div>
-            <div class="flex justify-center mt-4">
-                <button type="button" class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500" onclick="nextStep(9)">Next</button>
-            </div>
-        </div>
 
         <!-- Upload Fields (All at Once) (Step 6) -->
-        <div class="form-step hidden" id="step9">
+        <div class="form-step hidden" id="step10">
             <h3 class="text-xl font-semibold text-gray-700 mb-4">Upload Required Documents</h3>
             
             <!-- Medical Certificate -->
@@ -189,7 +235,9 @@
             </div>
             
             <div class="flex justify-center mt-4">
-                <button type="submit" class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button type="submit" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
+               hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 
+               transition-all duration-300">
                     Submit
                 </button>
             </div>
@@ -198,16 +246,139 @@
 </div>
 
 <script>
-    function nextStep(stepNumber) {
-        const steps = document.querySelectorAll('.form-step');
-        steps.forEach((step) => {
-            step.classList.add('hidden');
-        });
-        const currentStep = document.getElementById('step' + stepNumber);
-        currentStep.classList.remove('hidden');
+    let currentStep = 1;
+
+function nextStep() {
+    clearErrors();
+    
+    const currentStepElement = document.querySelector(`#step${currentStep}`);
+    if (!validateStep(currentStepElement)) return; // Stop if validation fails
+
+    currentStep++;
+    updateStep();
+}
+
+function prevStep() {
+    if (currentStep > 1) {
+        currentStep--;
+        updateStep();
+    }
+}
+
+// Function to update step visibility
+function updateStep() {
+    const steps = document.querySelectorAll('.form-step');
+    steps.forEach(step => step.classList.add('hidden'));
+
+    document.getElementById(`step${currentStep}`).classList.remove('hidden');
+
+    // Show/hide back button
+    document.getElementById('backButton').classList.toggle('hidden', currentStep === 1);
+}
+
+// Function to validate fields in the current step
+function validateStep(step) {
+    let isValid = true;
+    const inputs = step.querySelectorAll("input[required], select[required]");
+
+    inputs.forEach(input => {
+        if (!input.value.trim()) {
+            showError(input, "This field is required.");
+            isValid = false;
+        }
+    });
+
+    // Email validation
+    const emailInput = step.querySelector("#college_email");
+    if (emailInput && !emailInput.value.endsWith("@peakcollege.ca")) {
+        showError(emailInput, "Email must end with @peakcollege.ca");
+        isValid = false;
     }
 
-    // Show the first step initially
-    nextStep(1);
+    // Experience-based Employer Letter validation
+    const experienceLevel = document.querySelector("#experience_level");
+    const employerLetter = document.querySelector("#employer_letter_input");
+
+    if (experienceLevel && employerLetter && (experienceLevel.value === "1 Year PSW Experience" || experienceLevel.value === "International Nurse")) {
+        if (!employerLetter.files.length) {
+            showError(employerLetter, "Letter from Employer is mandatory for this experience level.");
+            isValid = false;
+        }
+    }
+
+    return isValid;
+}
+
+// Show error message below input field
+function showError(input, message) {
+    const errorElement = document.createElement("p");
+    errorElement.classList.add("text-sm", "text-red-500", "mt-2");
+    errorElement.textContent = message;
+    input.parentNode.appendChild(errorElement);
+}
+
+// Clear previous errors before validating
+function clearErrors() {
+    document.querySelectorAll(".text-red-500").forEach(el => el.remove());
+}
+
+// Initialize step 1 visibility
+document.addEventListener("DOMContentLoaded", () => updateStep());
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("wizardForm");
+        const collegeEmail = document.getElementById("college_email");
+        const addressUpdated = document.getElementById("address_updated");
+        const experienceLevel = document.getElementById("experience_level");
+        const employerLetter = document.getElementById("employer_letter_input");
+        
+        function showError(input, message) {
+            const errorElement = document.createElement("p");
+            errorElement.classList.add("text-sm", "text-red-500", "mt-2");
+            errorElement.textContent = message;
+            input.parentNode.appendChild(errorElement);
+        }
+    
+        function clearErrors() {
+            document.querySelectorAll(".text-red-500").forEach(el => el.remove());
+        }
+        
+        function validateEmail() {
+            if (!collegeEmail.value.endsWith("@peakcollege.ca")) {
+                showError(collegeEmail, "Email must end with @peakcollege.ca");
+                return false;
+            }
+            return true;
+        }
+    
+        function validateEmployerLetter() {
+            if ((experienceLevel.value === "1 Year PSW Experience" || experienceLevel.value === "International Nurse") && !employerLetter.files.length) {
+                showError(employerLetter, "Letter from Employer is mandatory for this experience level.");
+                return false;
+            }
+            return true;
+        }
+    
+        function handleAddressChange() {
+            if (addressUpdated.value === "Yes") {
+                window.open("https://docs.google.com/forms/d/1AjR2hpVOLnUY9qT8a-mzdV4LVpMnwRPZydsavp7aDBY/edit", "_blank");
+            }
+        }
+    
+        addressUpdated.addEventListener("change", handleAddressChange);
+        experienceLevel.addEventListener("change", validateEmployerLetter);
+    
+        form.addEventListener("submit", function (event) {
+            clearErrors();
+            let valid = true;
+            
+            if (!validateEmail()) valid = false;
+            if (!validateEmployerLetter()) valid = false;
+            
+            if (!valid) event.preventDefault();
+        });
+    });
+    
 </script>
 {% endblock %}
