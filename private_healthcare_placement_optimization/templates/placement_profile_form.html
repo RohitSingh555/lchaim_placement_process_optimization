@@ -281,6 +281,7 @@ function validateStep(step) {
     let isValid = true;
     const inputs = step.querySelectorAll("input[required], select[required]");
 
+    // Validate required fields in the current step
     inputs.forEach(input => {
         if (!input.value.trim()) {
             showError(input, "This field is required.");
@@ -288,21 +289,26 @@ function validateStep(step) {
         }
     });
 
-    // Email validation
-    const emailInput = step.querySelector("#college_email");
-    if (emailInput && !emailInput.value.endsWith("@peakcollege.ca")) {
-        showError(emailInput, "Email must end with @peakcollege.ca");
-        isValid = false;
+    // Email validation (only for step1)
+    if (step.id === "step1") {
+        const emailInput = step.querySelector("#college_email");
+        if (emailInput && !emailInput.value.endsWith("@peakcollege.ca")) {
+            showError(emailInput, "Email must end with @peakcollege.ca");
+            isValid = false;
+        }
     }
 
-    // Experience-based Employer Letter validation
-    const experienceLevel = document.querySelector("#experience_level");
-    const employerLetter = document.querySelector("#employer_letter_input");
+    // Employer Letter validation (only for step7)
+    if (step.id === "step7") {
+        const experienceLevel = document.querySelector("#experience_level");
+        const employerLetter = step.querySelector("#employer_letter_input");
 
-    if (experienceLevel && employerLetter && (experienceLevel.value === "1 Year PSW Experience" || experienceLevel.value === "International Nurse")) {
-        if (!employerLetter.files.length) {
-            showError(employerLetter, "Letter from Employer is mandatory for this experience level.");
-            isValid = false;
+        if (experienceLevel && employerLetter && 
+            (experienceLevel.value === "1 Year PSW Experience" || experienceLevel.value === "International Nurse")) {
+            if (!employerLetter.files.length) {
+                showError(employerLetter, "Letter from Employer is mandatory for this experience level.");
+                isValid = false;
+            }
         }
     }
 
