@@ -1,9 +1,12 @@
+import json
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views import View
+from django.core.mail import EmailMessage
 from private_healthcare_placement_optimization.enums import DocumentStatus
 from .models import PlacementProfile, Document, Approver, ApprovalLog, FeeStatus, PlacementNotification
-from .forms import PlacementProfileForm, DocumentForm
+from .forms import CustomUserCreationForm, DocumentForm
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import send_mail
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -28,13 +31,13 @@ def staff_only_view(request):
 
 def signup(request):
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
             return redirect('login')
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
 
     return render(request, 'signup.html', {'form': form})
 
@@ -90,9 +93,7 @@ class StudentLoginView(View):
 
             if user is not None:
                 login(request, user)
-                return redirect('student_profile_logs')  # Redirect to the student_profile_logs page after successful login
-
-        # If authentication fails, re-render the form with an error message
+                return redirect('student_profile_logs')  
         return render(request, 'login.html', {
             'form': form,
             'error_message': 'Invalid username or password'
@@ -104,7 +105,6 @@ def logout_view(request):
         
 @login_required
 def profile_view(request):
-    # The user is automatically available through the request object
     return render(request, 'profile.html', {'user': request.user})
 
 class PlacementProfileView(View):
@@ -186,7 +186,6 @@ class PlacementProfileView(View):
         return redirect('student_profile_logs')
     
 
-from django.contrib.auth.mixins import LoginRequiredMixin
 class StudentProfileLogsView(LoginRequiredMixin, View):
     login_url = '/login/'
 
@@ -301,7 +300,7 @@ def send_email_remind_fee(profile):
                 border-radius: 10px;
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
                 width: 100%;
-                max-width: 600px;
+                max-width: 100%;
                 margin: auto;
             }}
             h2 {{
@@ -346,6 +345,7 @@ def send_email_remind_fee(profile):
                 <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
                 <p>Warm regards, <br> The Peak Healthcare Team</p>
                 <p>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></p>
+                <img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg"></img>
                 <p>1140 Sheppard Ave West - Unit #12, North York, ON, M3K 2A2</p>
             </div>
         </div>
@@ -360,8 +360,16 @@ def send_email_remind_fee(profile):
         html_message=message
     )
 
-def send_email_notify_result(profile):
+def send_email_notify_result(profile, rejected_documents):
     subject = 'Placement Profile: Resubmit Rejected Documents'
+    
+    # Build the dynamic list of rejected documents
+    document_list_html = ""
+    for doc in rejected_documents:
+        reason = doc.rejection_reason if doc.rejection_reason else "No reason provided"
+        document_list_html += f"<li><span class='bold'>{doc.document_type}:</span> {reason}</li>"
+
+    # Updated message with dynamic document list
     message = f"""
     <html>
     <head>
@@ -378,7 +386,6 @@ def send_email_notify_result(profile):
                 border-radius: 10px;
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
                 width: 100%;
-                max-width: 600px;
                 margin: auto;
             }}
             h2 {{
@@ -404,6 +411,10 @@ def send_email_notify_result(profile):
             .highlight {{
                 color: #008080;
             }}
+            img{{
+            width: 250px;
+            height: 120px;
+            }}
         </style>
     </head>
     <body>
@@ -412,8 +423,7 @@ def send_email_notify_result(profile):
             <p>Greetings!</p>
             <p>The documents below were rejected due to the following reasons:</p>
             <ul>
-                <li><span class="bold">Letter from Employer:</span> Unclear content</li>
-                <li><span class="bold">Vulnerable Sector Check:</span> Expired Document</li>
+                {document_list_html}
             </ul>
             <p>Next step: address the reasons and resubmit the documents by clicking the link below.</p>
             <p><a href="https://www.peakcollege.ca/student-view" class="highlight">Resubmission Link: Click here!</a></p>
@@ -422,12 +432,15 @@ def send_email_notify_result(profile):
                 <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
                 <p>Warm regards, <br> The Peak Healthcare Team</p>
                 <p>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></p>
+                <img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg"></img>
                 <p>1140 Sheppard Ave West - Unit #12, North York, ON, M3K 2A2</p>
             </div>
         </div>
     </body>
     </html>
     """
+
+    # Send the email
     send_mail(
         subject,
         message,
@@ -436,8 +449,8 @@ def send_email_notify_result(profile):
         html_message=message
     )
 
-def send_email_done(profile):
-    subject = 'Placement Profile: Documents Approved'
+def send_email_done(profile, documents):
+    subject = f'{profile.first_name} {profile.last_name} - Placement Profile: Documents Approved'
     message = f"""
     <html>
     <head>
@@ -454,7 +467,7 @@ def send_email_done(profile):
                 border-radius: 10px;
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
                 width: 100%;
-                max-width: 600px;
+                max-width: 100%;
                 margin: auto;
             }}
             h2 {{
@@ -485,6 +498,7 @@ def send_email_done(profile):
     <body>
         <div class="container">
             <h2>Placement Profile: Documents Approved</h2>
+            <h2>{profile.first_name} is now ready for placement.</h2>
             <p>Greetings!</p>
             <p>All your documents are now <span class="highlight">APPROVED</span>.</p>
             <p>The Placement Coordinator: Grace Doton will reach out to you through email or phone call. Once you finalize with her which facility you’re going to do your placement, she will inform you of your Placement Orientation Date.</p>
@@ -496,36 +510,129 @@ def send_email_done(profile):
                 <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
                 <p>Warm regards, <br> The Peak Healthcare Team</p>
                 <p>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></p>
+                <img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg"></img>
                 <p>1140 Sheppard Ave West - Unit #12, North York, ON, M3K 2A2</p>
             </div>
         </div>
     </body>
     </html>
     """
+
+    email = EmailMessage(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [profile.college_email]
+    )
+    email.content_subtype = "html" 
+
+    for document in documents:
+        if document.file: 
+            email.attach(document.file.name, document.file.read())
+
+    email.send()
+
+def send_email_resubmit(profile, documents):
+    # Fetch all approvers (linked to User model)
+    approvers = Approver.objects.select_related('user').all()
+
+    # Collect all approver email addresses
+    approver_emails = [approver.user.email for approver in approvers]
+
+    subject = f"Corrected File Submitted by {profile.first_name} {profile.last_name}"
+    message = f"""
+    <html>
+    <head>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                background: linear-gradient(to bottom, rgba(0, 128, 128, 0.1), #ffffff);
+                padding: 20px;
+                color: #333;
+            }}
+            .container {{
+                background-color: #ffffff;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                width: 100%;
+                max-width: 100%;
+                margin: auto;
+            }}
+            h2 {{
+                color: #008080;
+                font-size: 24px;
+            }}
+            p {{
+                line-height: 1.6;
+                font-size: 16px;
+            }}
+            .footer {{
+                margin-top: 20px;
+                font-size: 14px;
+                color: #555;
+            }}
+            .footer a {{
+                color: #008080;
+                text-decoration: none;
+            }}
+            .bold {{
+                font-weight: bold;
+            }}
+            .highlight {{
+                color: #008080;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Corrected File Submitted</h2>
+            <p>Greetings!</p>
+            <p>The student <span class="bold">{profile.first_name} {profile.last_name}</span> has resubmitted the corrected documents for your review.</p>
+            <p>Click the link below to assess (approve or reject) the submission:</p>
+            <p><a href="https://www.peakcollege.ca/approver-view" class="highlight">Approver's View: Click here to log in!</a></p>
+            <p>Please review and take the necessary action.</p>
+            <div class="footer">
+                <p>Warm regards, <br> The Peak Healthcare Team</p>
+                <p>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></p>
+                <p>1140 Sheppard Ave West - Unit #12, North York, ON, M3K 2A2</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+    # Send email to all approvers
     send_mail(
         subject,
         message,
         settings.DEFAULT_FROM_EMAIL,
-        [profile.college_email],
+        approver_emails,
         html_message=message
     )
 
 
 def handle_button_action(request, profile_id, action):
     try:
-        profile = PlacementProfile.objects.get(id=profile_id)
-        
+        profile = PlacementProfile.objects.prefetch_related("documents").get(id=profile_id)
+
+        documents = profile.documents.all()
+
         if action == 'remind_fee':
-            send_email_remind_fee(profile)
+            send_email_remind_fee(profile, documents)
         elif action == 'notify_result':
-            send_email_notify_result(profile)
+            rejected_documents = documents.filter(status="Rejected")
+            send_email_notify_result(profile, rejected_documents)
         elif action == 'done':
-            send_email_done(profile)
-        
+            send_email_done(profile, documents)
+        elif action == 'resubmit':
+            send_email_resubmit(profile, documents)
+
         return JsonResponse({"status": "success", "message": f"Email sent for action {action}"})
-    
+
     except PlacementProfile.DoesNotExist:
         return JsonResponse({"status": "error", "message": "Profile not found"})
+
 
 def profile_submission_success(request):
     return render(request, 'profile_submission_success.html')
@@ -651,3 +758,27 @@ def submit_new_file(request):
         return JsonResponse({"success": True, "new_document_id": new_document.id})
 
     return JsonResponse({"success": False, "error": "Invalid request method."})
+
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import get_user
+@csrf_exempt  # Optional: For local testing. Remove or replace with CSRF handling in production.
+@login_required  # Ensure only authenticated users can access this endpoint
+def validate_password(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            entered_password = data.get("password")
+
+            # Get the currently logged-in user
+            user = get_user(request)
+
+            # Validate the password
+            if user.check_password(entered_password):
+                return JsonResponse({"valid": True})
+            else:
+                return JsonResponse({"valid": False})
+        except (json.JSONDecodeError, KeyError):
+            return JsonResponse({"error": "Invalid request data"}, status=400)
+    else:
+        return JsonResponse({"error": "Invalid method"}, status=405)

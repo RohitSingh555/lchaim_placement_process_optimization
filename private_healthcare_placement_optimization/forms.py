@@ -29,20 +29,8 @@ class DocumentForm(forms.ModelForm):
         return file
 
 class CustomUserCreationForm(UserCreationForm):
+    email = forms.EmailField(required=True)
+
     class Meta:
         model = User
-        fields = ['username', 'password1', 'password2']
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
-        # Add custom classes to each form field
-        self.fields['username'].widget.attrs.update({
-            'class': 'block w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
-        })
-        self.fields['password1'].widget.attrs.update({
-            'class': 'block w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
-        })
-        self.fields['password2'].widget.attrs.update({
-            'class': 'block w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
-        })
+        fields = ("username", "email", "password1", "password2")

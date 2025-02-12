@@ -153,9 +153,9 @@ FILE_UPLOAD_HANDLERS = [
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'app.lchaimretirement.ca' 
+EMAIL_HOST = 'placement.peakcollege.ca' 
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'lcahim@app.lchaimretirement.ca'
-EMAIL_HOST_PASSWORD = 'Rub2484@'
-DEFAULT_FROM_EMAIL = 'lcahim@app.lchaimretirement.ca'
+EMAIL_HOST_USER = 'email@placement.peakcollege.ca'
+EMAIL_HOST_PASSWORD = ')NnwaguVDCgC'
+DEFAULT_FROM_EMAIL = 'email@placement.peakcollege.ca'

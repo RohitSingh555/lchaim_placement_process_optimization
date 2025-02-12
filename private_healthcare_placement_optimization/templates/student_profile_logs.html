@@ -169,10 +169,10 @@
                     </div>
                     {% if is_approver %}
                     <div class="flex space-x-4 items-center">
-                        <a href="/documents/{{ document.file }}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">
+                        <a href="documents/{{ document.file }}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">
                             View
                         </a>
-                        <a href="/documents/{{ document.file }}" download class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition">
+                        <a href="documents/{{ document.file }}" download class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition">
                             Download
                         </a>
                         <select class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium" id="status-{{ document.id }}" onchange="openCommentModal('{{ document.id }}', this.value)">
@@ -194,7 +194,7 @@
                             <input type="file" id="newFileInput" class="mb-4 border rounded p-2 w-full">
                             <div class="flex justify-end space-x-4">
                                 <button onclick="closeNewFileUploadModal()" class="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500">Cancel</button>
-                                <button onclick="submitNewFile()" class="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600">Upload</button>
+                                <button onclick="submitNewFile(); sendEmailAction('{{ profile.profile_id }}', 'resubmit');" class="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600">Upload</button>
                             </div>
                         </div>
                     </div>

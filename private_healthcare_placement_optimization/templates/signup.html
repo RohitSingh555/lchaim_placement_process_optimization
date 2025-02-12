@@ -2,55 +2,108 @@
 {% load forms_extras %}
 
 {% block content %}
-<div class="max-w-lg mx-auto p-6">
-    <h2 class="text-2xl font-semibold text-center mb-4">Sign Up</h2>
-    <form method="POST" class="space-y-4">
-        {% csrf_token %}
-        
-        <!-- Username Field -->
-        <div class="mb-4">
-            <label for="id_username" class="block text-sm font-medium text-gray-700">Username</label>
-            {{ form.username|add_class:"block w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" }}
-            {% if form.username.errors %}
-                <ul class="mt-1 text-sm text-red-600">
-                    {% for error in form.username.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
-        
-        <!-- Password Field -->
-        <div class="mb-4">
-            <label for="id_password1" class="block text-sm font-medium text-gray-700">Password</label>
-            {{ form.password1|add_class:"block w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" }}
-            {% if form.password1.errors %}
-                <ul class="mt-1 text-sm text-red-600">
-                    {% for error in form.password1.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
-        
-        <!-- Confirm Password Field -->
-        <div class="mb-4">
-            <label for="id_password2" class="block text-sm font-medium text-gray-700">Confirm Password</label>
-            {{ form.password2|add_class:"block w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" }}
-            {% if form.password2.errors %}
-                <ul class="mt-1 text-sm text-red-600">
-                    {% for error in form.password2.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
+<style>
+    body{
+        background-color: #0f7970 !important;
+    }
+</style>
+<div class="min-h-screen flex items-center justify-center">
+    <div class="bg-white shadow-lg rounded-lg p-8 max-w-lg w-full">
+        <h2 class="text-3xl font-bold text-gray-800 text-center mb-6">Create Your Account</h2>
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Username Field -->
+            <div>
+                <label for="id_username" class="block text-sm font-medium text-gray-700">Username</label>
+                {{ form.username|add_class:"block w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500" }}
+                {% if form.username.errors %}
+                    <ul class="mt-1 text-sm text-red-600">
+                        {% for error in form.username.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
 
-        <!-- Submit Button -->
-        <button type="submit" class="w-full py-2 bg-green-500 text-white rounded hover:bg-green-600">Sign Up</button>
-    </form>
-    <div class="mt-4 text-center">
-        <p>Already have an account? <a href="{% url 'login' %}" class="text-blue-500">Login</a></p>
+            <!-- Email Field -->
+            <div>
+                <label for="id_email" class="block text-sm font-medium text-gray-700">Email</label>
+                {{ form.email|add_class:"block w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500" }}
+                {% if form.email.errors %}
+                    <ul class="mt-1 text-sm text-red-600">
+                        {% for error in form.email.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <!-- Password Field -->
+            <div class="relative">
+                <label for="id_password1" class="block text-sm font-medium text-gray-700">Password</label>
+                <div class="relative">
+                    {{ form.password1|add_class:"block w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500 pr-10" }}
+                    <span class="absolute inset-y-0 right-2 top-1/2 transform -translate-y-1/2 cursor-pointer" onclick="togglePassword('id_password1', 'password-icon1')">
+                        <i id="password-icon1" class="far fa-eye-slash text-gray-500"></i>
+                    </span>
+                </div>
+                {% if form.password1.errors %}
+                    <ul class="mt-1 text-sm text-red-600">
+                        {% for error in form.password1.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <!-- Confirm Password Field -->
+            <div class="relative">
+                <label for="id_password2" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                <div class="relative">
+                    {{ form.password2|add_class:"block w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500 pr-10" }}
+                    <span class="absolute inset-y-0 right-2 top-1/2 transform -translate-y-1/2 cursor-pointer" onclick="togglePassword('id_password2', 'password-icon2')">
+                        <i id="password-icon2" class="far fa-eye-slash text-gray-500"></i>
+                    </span>
+                </div>
+                {% if form.password2.errors %}
+                    <ul class="mt-1 text-sm text-red-600">
+                        {% for error in form.password2.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="w-full py-3 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700 focus:ring-4 focus:ring-teal-300 transition-shadow">
+                Sign Up
+            </button>
+        </form>
+
+        <div class="mt-6 text-center">
+            <p class="text-gray-700">Already have an account? 
+                <a href="{% url 'login' %}" class="text-teal-600 font-semibold hover:underline">Login</a>
+            </p>
+        </div>
     </div>
 </div>
+
+<script>
+    // Function to toggle password visibility
+    function togglePassword(passwordFieldId, iconId) {
+        const passwordField = document.getElementById(passwordFieldId);
+        const icon = document.getElementById(iconId);
+        
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        } else {
+            passwordField.type = "password";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        }
+    }
+</script>
 {% endblock %}
