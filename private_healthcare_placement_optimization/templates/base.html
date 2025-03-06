@@ -18,18 +18,23 @@
         <div class="flex items-center space-x-4">
             <a href="/" class="text-2xl font-bold text-turquoise-300 pr-6">Peak College</a>
             <div class="hidden md:flex space-x-6">
+                {% if user.is_authenticated %}
                 <a href="{% url 'create_placement_profile' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
                     <i class="fas fa-id-card"></i>
                     <span>Placement Profile</span>
                 </a>
-                <a href="{% url 'approvers_view' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
-                    <i class="fas fa-users"></i>
-                    <span>Approvers</span>
-                </a>
+                {% if user.is_superuser %}
+                    <a href="{% url 'approvers_view' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
+                        <i class="fas fa-users"></i>
+                        <span>Approvers</span>
+                    </a>
+                {% endif %}
                 <a href="/" class="hover:text-turquoise-300 flex items-center space-x-2">
                     <i class="fas fa-clipboard-list"></i>
                     <span>Approval Logs</span>
                 </a>
+                
+                {% endif %}
             </div>
         </div>
 
@@ -76,10 +81,12 @@
                 <i class="fas fa-id-card"></i>
                 <span>Placement Profile</span>
             </a>
-            <a href="{% url 'approvers_view' %}" class="flex items-center space-x-2">
-                <i class="fas fa-users"></i>
-                <span>Approvers</span>
-            </a>
+            {% if user.is_superuser %}
+        <a href="{% url 'approvers_view' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
+            <i class="fas fa-users"></i>
+            <span>Approvers</span>
+        </a>
+    {% endif %}
             <a href="/" class="flex items-center space-x-2">
                 <i class="fas fa-clipboard-list"></i>
                 <span>Approval Logs</span>

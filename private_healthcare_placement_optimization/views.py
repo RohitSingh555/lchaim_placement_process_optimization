@@ -658,6 +658,10 @@ class ApproverView(View):
         approvers = Approver.objects.all()
         return render(request, 'approvers_list.html', {'approvers': approvers})
     
+def superuser_required(user):
+    return user.is_superuser
+
+@user_passes_test(superuser_required, login_url='/404/')
 def approvers_view(request):
     approvers = User.objects.all()
     approvers_data = []
@@ -782,3 +786,22 @@ def validate_password(request):
             return JsonResponse({"error": "Invalid request data"}, status=400)
     else:
         return JsonResponse({"error": "Invalid method"}, status=405)
+    
+from django.urls import reverse
+from django.http import HttpResponseRedirect
+
+def custom_login_required(function=None, login_url=None):
+    actual_decorator = user_passes_test(
+        lambda u: u.is_authenticated,
+        login_url=reverse("custom_404"),
+    )
+    if function:
+        return actual_decorator(function)
+    return actual_decorator
+
+def custom_404(request, exception=None):
+    return render(request, "404.html", status=404)
+
+@login_required
+def profile_view(request):
+    return render(request, 'profile.html', {'user': request.user})

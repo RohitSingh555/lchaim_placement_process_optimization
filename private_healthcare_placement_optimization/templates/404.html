@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-screen bg-gradient-to-br from-yellow-300 to-pink-400">
+    <div class="max-w-lg text-center bg-white p-8 rounded-lg shadow-2xl">
+        <h1 class="text-5xl font-extrabold text-gray-800">Oops! 🚀</h1>
+        <p class="text-lg text-gray-600 mt-4">Looks like you're lost in space! 🛸</p>
+        <p class="text-md text-gray-500 mt-2">You're not allowed to be here.</p>
+        
+        <img src="https://i.imgur.com/qIufhof.png" class="mx-auto mt-6 w-64" alt="Lost Astronaut">
+
+        <div class="mt-6">
+            <a href="/" class="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 transition">Take Me Home 🏠</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
