@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-l86nl%yn&=y^%!l$bu^(r1w%#ai*ocv!9b*i^p8g!1gsgpwahb'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -159,3 +159,4 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'email@placement.peakcollege.ca'
 EMAIL_HOST_PASSWORD = ')NnwaguVDCgC'
 DEFAULT_FROM_EMAIL = 'email@placement.peakcollege.ca'
+

@@ -82,6 +82,14 @@
                                     <span>Done</span>
                                 </button>
                                 {% endif %}
+                                {% for profile in profile_details %}
+        {% if is_superuser %}
+        <button onclick="deleteProfile({{ profile.profile_id }})" class="delete-btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-red-600 flex items-center space-x-2 whitespace-nowrap">
+            <i class="fas fa-trash"></i>
+            <span>Delete</span>
+        </button>
+        {% endif %}
+{% endfor %}
                             </td>
                         </tr>
                     </tbody>
@@ -199,8 +207,10 @@
                         </div>
                     </div>
                     {% endif %}
+                    
                 </div>
             {% endfor %}
+            
         </div>
     </div>
 </div>
@@ -240,6 +250,49 @@
         <div id="loadingOverlay" class="hidden">
             <div class="loader"></div>
         </div>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            function deleteProfile(profileId) {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "Cancel",
+        showClass: {
+            popup: "animate__animated animate__fadeInDown"
+        },
+        hideClass: {
+            popup: "animate__animated animate__fadeOutUp"
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/delete-profile/${profileId}/`, {
+                method: "DELETE",
+                headers: { "X-CSRFToken": "{{ csrf_token }}" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                Swal.fire({
+                    title: "Deleted!",
+                    text: data.message,
+                    icon: "success",
+                    showClass: {
+                        popup: "animate__animated animate__fadeIn"
+                    },
+                    hideClass: {
+                        popup: "animate__animated animate__fadeOut"
+                    }
+                }).then(() => location.reload()); // Reload after confirmation
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    });
+}
+            </script>
         <script>
             let selectedDocumentId = null;
         

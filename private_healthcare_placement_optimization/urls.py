@@ -25,6 +25,7 @@ urlpatterns = [
     path("submit-new-file/", submit_new_file, name="submit_new_file"),
     path('validate-password/', validate_password, name='validate-password'),
     path("404/", custom_404, name="custom_404"),
+    path('delete-profile/<int:profile_id>/', delete_profile, name='delete_profile'),
     path('profile/', profile_view, name='profile'),
 ]
 handler404 = 'private_healthcare_placement_optimization.views.custom_404'

@@ -225,6 +225,7 @@
         <label for="experience_level" class="text-lg font-medium text-gray-700 mb-2">Experience Level</label>
         <select name="experience_level" id="experience_level" onchange="handleExperienceChange()"
                 class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="No Experience">Select your experience</option>
             <option value="No Experience">No Experience (300 Hrs)</option>
             <option value="1 Year PSW Experience">One (1) Year PSW Experience in Canada : 200 Hrs</option>
             <option value="International Nurse">Internationally Educated Nurse (IEN) : 200 Hrs</option>
@@ -249,14 +250,14 @@
     <div class="flex flex-col hidden" id="document_upload">
         <label id="document_label" class="text-lg font-medium text-gray-700 mb-2"></label>
         <input type="file" name="experience_document" id="experience_document"
-               class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+               class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+               onchange="validateFileUpload()">
         <p class="text-sm text-gray-500 mt-1">If you don’t have the required documents, please contact support.</p>
     </div>
 
     <div class="flex justify-center items-center mt-6">
-
-        <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
-                hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300" 
+        <button type="button" id="nextButton" class="next-button-experience px-6 py-3 bg-gray-400 text-white font-semibold rounded-full shadow-md 
+                cursor-not-allowed transition-all duration-300" disabled 
                 onclick="nextStep(6)">
             Next <i class="fas fa-arrow-right ml-2"></i>
         </button>
@@ -270,12 +271,13 @@
     
     <!-- Preferred Facility Name -->
     <div class="mt-6 mb-6">
+        
+        
+        <label for="preferred_facility" class="text-lg font-medium text-gray-700 mb-2">Preferred Facility Name</label>
         <p class="text-gray-700 text-sm mb-2">
             If you find a placement location near your home, provide the facility's name and contact details. 
             Peak College cannot guarantee placement at this location, but we will make every effort to arrange a contract.
         </p>
-        
-        <label for="preferred_facility" class="text-lg font-medium text-gray-700 mb-2">Preferred Facility Name</label>
         <input type="text" name="preferred_facility" id="preferred_facility"
                class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
                placeholder="Enter facility name (optional)">
@@ -306,7 +308,7 @@
 
 
         <!-- Preferred Facility (Step 9) -->
-        <div class="form-step hidden" id="step7">
+        <!-- <div class="form-step hidden" id="step7">
             <div class="flex flex-col">
                 <label for="preferred_facility_name" class="text-lg font-medium text-gray-700 mb-2">Preferred Facility Name (Optional)</label>
                 <input type="text" name="preferred_facility_name" id="preferred_facility_name" 
@@ -330,11 +332,11 @@
                hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 
                transition-all duration-300" onclick="nextStep(8)">Next <i class="fas fa-arrow-right ml-2"></i></button>
             </div>
-        </div>
+        </div> -->
 
 
         <!-- Upload Fields (All at Once) (Step 6) -->
-        <div class="form-step hidden" id="step8">
+        <div class="form-step hidden" id="step7">
             <h3 class="text-xl font-semibold text-gray-700 mb-6">Upload Required Documents</h3>
         
             <!-- Required Documents -->
@@ -445,6 +447,12 @@
         
                 if (experience === "No Experience") {
                     uploadDiv.classList.add("hidden"); // No upload required
+                    const nextButtons = document.querySelectorAll(".next-button-experience"); // Select all buttons
+
+    nextButtons.forEach((nextButton) => {
+                    nextButton.classList.remove("cursor-not-allowed", "bg-gray-400");
+                    nextButton.classList.add("bg-teal-500", "hover:bg-teal-600", "hover:shadow-lg");
+                    nextButton.disabled = false;})
                 } else {
                     uploadDiv.classList.remove("hidden"); // Show upload section
                 }
@@ -461,6 +469,22 @@
                         break;
                 }
             }
+            function validateFileUpload() {
+    const fileInput = document.getElementById("experience_document");
+    const nextButtons = document.querySelectorAll(".next-button-experience"); // Select all buttons
+
+    nextButtons.forEach((nextButton) => {
+        if (fileInput.files.length > 0) {
+            nextButton.classList.remove("cursor-not-allowed", "bg-gray-400");
+            nextButton.classList.add("bg-teal-500", "hover:bg-teal-600", "hover:shadow-lg");
+            nextButton.disabled = false;
+        } else {
+            nextButton.classList.add("cursor-not-allowed", "bg-gray-400");
+            nextButton.classList.remove("bg-teal-500", "hover:bg-teal-600", "hover:shadow-lg");
+            nextButton.disabled = true;
+        }
+    });
+}
 
             
         </script>

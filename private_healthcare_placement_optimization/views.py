@@ -6,7 +6,6 @@ from django.core.mail import EmailMessage
 from private_healthcare_placement_optimization.enums import DocumentStatus
 from .models import PlacementProfile, Document, Approver, ApprovalLog, FeeStatus, PlacementNotification
 from .forms import CustomUserCreationForm, CustomUserCreationForm, DocumentForm
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import send_mail
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -129,10 +128,11 @@ class PlacementProfileView(View):
     def post(self, request):
         print("POST Data:", request.POST)
         print("FILES Data:", request.FILES)
-
-        college_email = request.POST.get('college_email')
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
+        
+        user = request.user
+        college_email = user.email 
+        first_name = user.first_name
+        last_name = user.last_name
         apt_house_no = request.POST.get('apt_house_no')
         street = request.POST.get('street')
         city = request.POST.get('city')
@@ -145,14 +145,14 @@ class PlacementProfileView(View):
         preferred_facility_address = request.POST.get('preferred_facility_address')
         preferred_facility_contact_person = request.POST.get('preferred_facility_contact_person')
 
-        email_validator = EmailValidator()
-        try:
-            email_validator(college_email)
-            if not college_email.endswith('@peakcollege.ca'):
-                raise ValidationError('Must use @peakcollege.ca email')
-        except ValidationError as e:
-            print(f"Email validation failed: {e}")
-            return render(request, 'placement_profile_form.html', {'error': str(e)})
+        # email_validator = EmailValidator()
+        # try:
+        #     email_validator(college_email)
+        #     if not college_email.endswith('@peakcollege.ca'):
+        #         raise ValidationError('Must use @peakcollege.ca email')
+        # except ValidationError as e:
+        #     print(f"Email validation failed: {e}")
+        #     return render(request, 'placement_profile_form.html', {'error': str(e)})
 
         try:
             profile = PlacementProfile(
@@ -178,6 +178,26 @@ class PlacementProfileView(View):
             print(f"Error saving PlacementProfile: {e}")
             return render(request, 'placement_profile_form.html', {'error': 'Failed to save placement profile'})
 
+        documents_data = [
+            ('medical_certificate', 'Medical Certificate'),
+            ('covid_vaccination_certificate', 'Covid Vaccination Certificate'),
+            ('vulnerable_sector_check', 'Vulnerable Sector Check'),
+            ('cpr_or_first_aid', 'CPR or First Aid'),
+            ('mask_fit_certificate', 'Mask Fit Certificate'),
+            ('bls_certificate', 'Basic Life Support'),
+            ('experience_document', 'Experience Document'),
+        ]
+
+        for file_field, doc_type in documents_data:
+            file = request.FILES.get(file_field)
+            if file:
+                try:
+                    document = Document(profile=profile, document_type=doc_type, file=file)
+                    document.save()
+                    print(f"Document saved: {doc_type} - {file.name}")
+                except Exception as e:
+                    print(f"Error saving document {doc_type}: {e}")
+
         try:
             send_mail(
                 'Placement Profile: Documents Under Review',
@@ -191,13 +211,16 @@ class PlacementProfileView(View):
 
         return redirect('student_profile_logs')
     
-
-class StudentProfileLogsView(LoginRequiredMixin, View):
-    login_url = '/login/'
-
+class StudentProfileLogsView(View):
     def get(self, request):
+        # Check if user is authenticated
+        if not request.user.is_authenticated:
+            return redirect('/login/')  # Redirect if not logged in
+
         is_approver = Approver.objects.filter(user=request.user).exists()
-        print(is_approver)
+        is_superuser = request.user.is_superuser  # Check if user is superuser
+        print("Is Approver:", is_approver)
+        print("Is Superuser:", is_superuser)
 
         if is_approver:
             profiles = PlacementProfile.objects.prefetch_related('documents').all()
@@ -212,7 +235,6 @@ class StudentProfileLogsView(LoginRequiredMixin, View):
                 'college_email': profile.college_email,
                 'experience_level': profile.experience_level,
                 'shift_requested': profile.shift_requested,
-                'address_updated': profile.address_updated,
                 'preferred_facility_name': profile.preferred_facility_name,
                 'preferred_facility_address': profile.preferred_facility_address,
                 'preferred_facility_contact_person': profile.preferred_facility_contact_person,
@@ -221,7 +243,7 @@ class StudentProfileLogsView(LoginRequiredMixin, View):
                         'id': document.id,
                         'status': document.status,
                         'document_type': document.document_type,
-                        'file': document.file,  
+                        'file': document.file.url if document.file else None,
                         'rejection_reason': document.rejection_reason,
                         'uploaded_at': document.uploaded_at
                     }
@@ -233,9 +255,15 @@ class StudentProfileLogsView(LoginRequiredMixin, View):
 
         return render(request, 'student_profile_logs.html', {
             'profile_details': profile_details,
-            'is_approver': is_approver
+            'is_approver': is_approver,
+            'is_superuser': is_superuser  # Pass to the template
         })
 
+@user_passes_test(lambda u: u.is_superuser)  # Only allow superusers
+def delete_profile(request, profile_id):
+    profile = get_object_or_404(PlacementProfile, id=profile_id)
+    profile.delete()
+    return JsonResponse({'message': 'Profile deleted successfully!'})
 
 @csrf_exempt
 @login_required
@@ -507,7 +535,7 @@ def send_email_done(profile, documents):
             <h2>{profile.first_name} is now ready for placement.</h2>
             <p>Greetings!</p>
             <p>All your documents are now <span class="highlight">APPROVED</span>.</p>
-            <p>The Placement Coordinator: Grace Doton will reach out to you through email or phone call. Once you finalize with her which facility you’re going to do your placement, she will inform you of your Placement Orientation Date.</p>
+            <p>The Placement Coordinator: We will reach out to you through email or phone call. Once you finalize with her which facility you’re going to do your placement, she will inform you of your Placement Orientation Date.</p>
             <p>Then you can pick up your Skills Passbook and NACC Reviewer from the school on any operating day.</p>
             <h4>School Office Hours:</h4>
             <p><span class="bold">Monday to Thursday:</span> 9:30 AM to 5:00 PM</p>
@@ -625,7 +653,7 @@ def handle_button_action(request, profile_id, action):
         documents = profile.documents.all()
 
         if action == 'remind_fee':
-            send_email_remind_fee(profile, documents)
+            send_email_remind_fee(profile)
         elif action == 'notify_result':
             rejected_documents = documents.filter(status="Rejected")
             send_email_notify_result(profile, rejected_documents)
