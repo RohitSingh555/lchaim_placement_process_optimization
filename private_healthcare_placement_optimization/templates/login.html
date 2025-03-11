@@ -3,52 +3,36 @@
 {% load forms_extras %}
 
 {% block content %}
-<style>
-    body{
-        background-color: #a2e8e2 !important;
-    }
-</style>
-<div class="flex items-center justify-center min-h-screen">
-    <div class="max-w-lg w-full p-6 bg-white rounded-lg shadow-2xl">
-        <h2 class="text-3xl font-bold text-gray-800 text-center mb-6">Login</h2>
-        
-        <form method="POST" class="space-y-6">
-            {% csrf_token %}
-            
-            <!-- Username Field -->
-            <div>
-                <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
-                {{ form.username|add_class:"block w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" }}
-                {% if form.username.errors %}
-                    <ul class="mt-1 text-sm text-red-600">
-                        {% for error in form.username.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            </div>
+<div class="max-w-lg mx-auto p-6">
+    <h2 class="text-2xl font-semibold text-center mb-4">Login</h2>
 
-            <!-- Password Field with Eye Icon -->
-            <div class="relative">
-                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                <div class="relative">
-                    {{ form.password|add_class:"block w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 pr-10" }}
-                    <span class="absolute inset-y-0 right-2 top-1/2 transform -translate-y-1/2 cursor-pointer" onclick="togglePassword('id_password', 'password-icon')">
-                        <i id="password-icon" class="far fa-eye-slash text-gray-500"></i>
-                    </span>
-                </div>
-                {% if form.password.errors %}
-                    <ul class="mt-1 text-sm text-red-600">
-                        {% for error in form.password.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            </div>
+    <!-- Display error message if authentication fails -->
+    {% if error_message %}
+        <p class="text-red-600 text-center">{{ error_message }}</p>
+    {% endif %}
 
-            <!-- Submit Button -->
-            <button type="submit" class="w-full py-2 bg-green-500 text-white rounded-md hover:bg-green-600">Login</button>
-        </form>
+    <form method="POST" class="space-y-4">
+        {% csrf_token %}
+
+        <!-- College Email Field -->
+        <div>
+            <label for="college_email" class="block text-sm font-medium text-gray-700">College Email</label>
+            <input type="email" name="username" id="college_email"
+                class="block w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                required>
+        </div>
+
+        <!-- Password Field -->
+        <div>
+            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+            <input type="password" name="password" id="password"
+                class="block w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                required>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Login</button>
+    </form>
 
         <div class="mt-6 text-center">
             <p>Don't have an account? <a href="{% url 'signup' %}" class="text-blue-600 hover:underline">Sign up</a></p>

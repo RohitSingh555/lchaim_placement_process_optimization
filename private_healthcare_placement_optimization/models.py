@@ -14,7 +14,17 @@ class PlacementProfile(models.Model):
     ])
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    address_updated = models.BooleanField(default=False)
+
+    # New Address Fields
+    apt_house_no = models.CharField(max_length=255, null=True)
+    street = models.CharField(max_length=255, null=True)
+    city = models.CharField(max_length=100, null=True)
+    province = models.CharField(max_length=100, null=True)
+    postal_code = models.CharField(max_length=20, null=True)
+
+    # New Field
+    open_to_outside_city = models.BooleanField(default=False)
+
     experience_level = models.CharField(
         max_length=50,
         choices=[
@@ -39,6 +49,7 @@ class PlacementProfile(models.Model):
     preferred_facility_address = models.TextField(blank=True, null=True)
     preferred_facility_contact_person = models.CharField(max_length=100, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
 
 class Document(models.Model):
     profile = models.ForeignKey(PlacementProfile, on_delete=models.CASCADE, related_name="documents")

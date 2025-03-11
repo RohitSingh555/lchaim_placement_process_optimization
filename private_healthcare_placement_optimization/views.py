@@ -5,7 +5,7 @@ from django.views import View
 from django.core.mail import EmailMessage
 from private_healthcare_placement_optimization.enums import DocumentStatus
 from .models import PlacementProfile, Document, Approver, ApprovalLog, FeeStatus, PlacementNotification
-from .forms import CustomUserCreationForm, DocumentForm
+from .forms import CustomUserCreationForm, CustomUserCreationForm, DocumentForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import send_mail
 from django.conf import settings
@@ -35,7 +35,7 @@ def signup(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('login')
+            return redirect('student_profile_logs')  # Redirect to the correct page after signup
     else:
         form = CustomUserCreationForm()
 
@@ -84,19 +84,24 @@ class StudentLoginView(View):
         return render(request, 'login.html', {'form': form, 'error_message': None})
 
     def post(self, request, *args, **kwargs):
-        form = AuthenticationForm(request, data=request.POST)
+        email = request.POST.get('username')  # Using 'username' since Django's default AuthenticationForm expects it
+        password = request.POST.get('password')
 
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            user = authenticate(request, username=username, password=password)
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            user = None
 
-            if user is not None:
-                login(request, user)
+        if user is not None:
+            authenticated_user = authenticate(request, username=user.username, password=password)
+
+            if authenticated_user:
+                login(request, authenticated_user)
                 return redirect('student_profile_logs')  
+        form = AuthenticationForm(request, data=request.POST)
         return render(request, 'login.html', {
             'form': form,
-            'error_message': 'Invalid username or password'
+            'error_message': 'Invalid college email or password'
         })
         
 def logout_view(request):
@@ -109,16 +114,31 @@ def profile_view(request):
 
 class PlacementProfileView(View):
     def get(self, request):
-        return render(request, 'placement_profile_form.html')
+        # Get user-related details
+        user = request.user
+        first_name = user.first_name if user.first_name else ''
+        last_name = user.last_name if user.last_name else ''
+        college_email = user.email if user.email else ''
 
+        return render(request, 'placement_profile_form.html', {
+            'user': user,
+            'first_name': first_name,
+            'last_name': last_name,
+            'college_email': college_email
+        })
     def post(self, request):
         print("POST Data:", request.POST)
         print("FILES Data:", request.FILES)
-        
+
         college_email = request.POST.get('college_email')
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
-        address_updated = request.POST.get('address_updated') == 'Yes' 
+        apt_house_no = request.POST.get('apt_house_no')
+        street = request.POST.get('street')
+        city = request.POST.get('city')
+        province = request.POST.get('province')
+        postal_code = request.POST.get('postal_code')
+        open_to_outside_city = request.POST.get('open_to_outside_city') == 'Yes'
         experience_level = request.POST.get('experience_level')
         shift_requested = request.POST.get('shift_requested')
         preferred_facility_name = request.POST.get('preferred_facility_name')
@@ -140,7 +160,12 @@ class PlacementProfileView(View):
                 college_email=college_email,
                 first_name=first_name,
                 last_name=last_name,
-                address_updated=address_updated,
+                apt_house_no=apt_house_no,
+                street=street,
+                city=city,
+                province=province,
+                postal_code=postal_code,
+                open_to_outside_city=open_to_outside_city,
                 experience_level=experience_level,
                 shift_requested=shift_requested,
                 preferred_facility_name=preferred_facility_name,
@@ -152,25 +177,6 @@ class PlacementProfileView(View):
         except Exception as e:
             print(f"Error saving PlacementProfile: {e}")
             return render(request, 'placement_profile_form.html', {'error': 'Failed to save placement profile'})
-
-        documents_data = [
-            ('medical_certificate', 'Medical Certificate'),
-            ('covid_vaccination_certificate', 'Covid Vaccination Certificate'),
-            ('vulnerable_sector_check', 'Vulnerable Sector Check'),
-            ('cpr_or_first_aid', 'CPR or First Aid'),
-            ('mask_fit_certificate', 'Mask Fit Certificate'),
-            ('bls_certificate', 'Basic Life Support'),
-        ]
-
-        for file_field, doc_type in documents_data:
-            file = request.FILES.get(file_field)
-            if file:
-                try:
-                    document = Document(profile=profile, document_type=doc_type, file=file)
-                    document.save()
-                    print(f"Document saved: {doc_type} - {file.name}")
-                except Exception as e:
-                    print(f"Error saving document {doc_type}: {e}")
 
         try:
             send_mail(

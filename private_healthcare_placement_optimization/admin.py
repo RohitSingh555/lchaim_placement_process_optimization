@@ -2,10 +2,15 @@ from django.contrib import admin
 from .models import PlacementProfile, Document, Approver, ApprovalLog, FeeStatus, PlacementNotification
 
 class PlacementProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'college_email', 'first_name', 'last_name', 'address_updated', 'experience_level', 'shift_requested', 'created_at')
-    search_fields = ('user__username', 'college_email', 'first_name', 'last_name')
-    list_filter = ('address_updated', 'experience_level', 'shift_requested')
+    list_display = (
+        'user', 'college_email', 'first_name', 'last_name', 
+        'apt_house_no', 'street', 'city', 'province', 'postal_code', 
+        'open_to_outside_city', 'experience_level', 'shift_requested', 'created_at'
+    )
+    search_fields = ('user__username', 'college_email', 'first_name', 'last_name', 'city', 'province')
+    list_filter = ('experience_level', 'shift_requested', 'city', 'province', 'open_to_outside_city')
     readonly_fields = ('created_at',)
+
 
 class DocumentAdmin(admin.ModelAdmin):
     list_display = ('profile', 'document_type', 'status', 'uploaded_at', 'rejection_reason')
