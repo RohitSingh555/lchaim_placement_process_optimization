@@ -1,4 +1,5 @@
 import json
+import os
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views import View
@@ -446,7 +447,7 @@ def send_welcome_email(profile):
     except Exception as e:
         print(f"Error sending email: {e}")
     
-import zipfile
+
 from io import BytesIO  
 class SendDocumentsEmailView(View):
     def post(self, request, *args, **kwargs):
@@ -454,36 +455,104 @@ class SendDocumentsEmailView(View):
         profile = get_object_or_404(PlacementProfile, id=profile_id)
         documents = Document.objects.filter(profile=profile, file__isnull=False)
 
-        if not documents.exists():
-            return JsonResponse({"error": "No documents available for this profile"}, status=400)
+        valid_documents = []
+        for document in documents:
+            if document.file and document.file.name:  # Ensure the file exists
+                try:
+                    file_path = document.file.path
+                    valid_documents.append((file_path, os.path.basename(file_path)))
+                except ValueError:
+                    continue  # Skip documents without a valid file path
 
-        # Create a ZIP file in memory
-        zip_buffer = BytesIO()
-        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
-            for document in documents:
-                file_path = document.file.path
-                file_name = os.path.basename(file_path)
-                zip_file.write(file_path, file_name)
+        if not valid_documents:
+            return JsonResponse({"error": "No valid documents available for this profile"}, status=400)
 
-        zip_buffer.seek(0)
+        # Generate document list for email
+        document_list_html = "".join([f"<li>{file_name}</li>" for _, file_name in valid_documents])
 
-        # Send Email
+        # Email Content with HTML Formatting
         email_subject = f"Submitted Documents for {profile.first_name} {profile.last_name}"
-        email_body = (
-            f"Dear Documents Team,\n\n"
-            f"Attached are the submitted documents for {profile.first_name} {profile.last_name}.\n\n"
-            f"Best Regards,\nPeak College"
-        )
+        email_body = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body {{
+                    font-family: Arial, sans-serif;
+                    line-height: 1.6;
+                    color: #333;
+                    background-color: #f9f9f9;
+                    padding: 20px;
+                }}
+                .container {{
+                    max-width: 600px;
+                    margin: 0 auto;
+                    background: #ffffff;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                }}
+                h2 {{
+                    color: #2c3e50;
+                }}
+                p {{
+                    margin: 10px 0;
+                }}
+                .document-list {{
+                    background: #f3f3f3;
+                    padding: 10px;
+                    border-radius: 5px;
+                    list-style-type: none;
+                }}
+                .document-list li {{
+                    padding: 5px;
+                }}
+                .footer {{
+                    margin-top: 20px;
+                    font-size: 12px;
+                    color: #555;
+                }}
+                .highlight {{
+                    font-weight: bold;
+                    color: #2c3e50;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h2>Dear Documents Team,</h2>
+                <p>Please find attached the submitted documents for <span class="highlight">{profile.first_name} {profile.last_name}</span>.</p>
+                
+                <h3>List of Documents:</h3>
+                <ul class="document-list">
+                    {document_list_html}
+                </ul>
+
+                <p>If you have any questions or require further information, feel free to reach out.</p>
+                
+                <p class="footer">Best Regards, <br><strong>Peak College Admissions Team</strong></p>
+            </div>
+        </body>
+        </html>
+        """
 
         email = EmailMessage(
             subject=email_subject,
             body=email_body,
             from_email="no-reply@peakcollege.ca",
-            to=["documents@peakcollege.ca"],
+            to=["forrohitsingh99@gmail.com"],
         )
+        email.content_subtype = "html"  # Set the email content type to HTML
 
-        email.attach(f"{profile.first_name}_{profile.last_name}_documents.zip", zip_buffer.getvalue(), "application/zip")
-        
+        # Attach each document
+        for file_path, file_name in valid_documents:
+            try:
+                with open(file_path, "rb") as file:
+                    email.attach(file_name, file.read(), "application/octet-stream")
+            except Exception as e:
+                return JsonResponse({"error": f"Error attaching file {file_name}: {str(e)}"}, status=500)
+
+        # Send Email
         try:
             email.send()
             return JsonResponse({"message": "Email sent successfully"})

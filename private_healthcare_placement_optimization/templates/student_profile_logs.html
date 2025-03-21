@@ -138,13 +138,14 @@
                                 <span><strong>Facility Contact:</strong> {{ profile.preferred_facility_contact_person }}</span>
                             </p>
                         </div>
-                
                         <div class="mt-6 flex justify-center">
                             <button onclick="openModal('{{ forloop.counter }}')" class="text-white bg-teal-600 hover:bg-teal-700 font-semibold py-3 px-6 rounded-lg text-lg flex items-center space-x-2 transition">
                                 <i class="fas fa-file-alt"></i>
                                 <span>View Documents</span>
                             </button>
                         </div>
+                
+                        
                     </div>
                 </div>       
                 {% endfor %}         
@@ -156,83 +157,74 @@
         </div>
 
         {% for profile in profile_details %}
-<div id="documentModal-{{ forloop.counter }}" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-6">
-    <div class="bg-white rounded-lg shadow-lg max-w-2xl w-full p-4 relative">
-        <h3 class="text-2xl font-semibold text-gray-800 mb-4">Submitted Documents</h3>
-        {% comment %} {% if is_approver %}
-<button 
-    class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition"
-    onclick="sendDocumentsEmail('{{ profile.id }}')">
-    Send Documents to College
-</button>
-{% endif %} {% endcomment %}
+    <div id="documentModal-{{ forloop.counter }}" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-6">
+        <div class="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6 relative">
+            <div class="">
+            <h3 class="text-2xl font-semibold text-gray-800 mb-4">Submitted Documents</h3>
+            {% if is_approver %}
+            <a onclick="sendDocumentsEmail({{ profile.profile_id }})" 
+            class="flex pb-4 items-center gap-2 text-blue-600 hover:text-blue-800 hover:underline cursor-pointer transition duration-300 ease-in-out">
+                <i class="fas fa-envelope text-lg"></i> <!-- FontAwesome Email Icon -->
+                <span>Send Documents to Peak College document team</span>
+            </a>
+            {% endif %}
 
-        <button onclick="closeModal({{ forloop.counter }})" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl"><i class="fas fa-times"></i></button>
-        
-        <div class="space-y-4">
-            {% for document in profile.documents %}
-                <div class="bg-gray-100 p-4 rounded-lg flex items-center justify-between">
-                    <div>
-                        <p class="text-lg font-medium">{{ document.document_type }}</p>
-                        <p class="text-sm text-gray-600">{{ document.uploaded_at }}</p>
-                        <p class="text-sm text-gray-600">
-                            <span class="document-status {{ document.status|lower }}">
-                                {% if document.file %}{{ document.status }}{% else %}<span class="text-red-500">File Not Uploaded</span>{% endif %}
-                            </span>
-                        </p>
-                        {% if document.rejection_reason %}
-                            <p class="text-sm text-red-500 rejection-reason">Rejection Reason: {{ document.rejection_reason }}</p>
-                        {% endif %}
+
+        </div>
+            <button onclick="closeModal({{ forloop.counter }})" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="space-y-4">
+                {% for document in profile.documents %}
+                    <div class="bg-gray-100 p-2 rounded-lg flex items-center justify-between">
+                        <div>
+                            <p class="text-lg font-medium">{{ document.document_type }}</p>
+                            <p class="text-sm text-gray-600">{{ document.uploaded_at }}</p>
+                            <p class="text-sm text-gray-600">
+                                <span class="document-status {{ document.status|lower }}">
+                                    {% if document.file %}{{ document.status }}{% else %}<span class="text-red-500">File Not Uploaded</span>{% endif %}
+                                </span>
+                            </p>
+                            {% if document.rejection_reason %}
+                                <p class="text-sm text-red-500 rejection-reason">Rejection Reason: {{ document.rejection_reason }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="flex space-x-4 items-center">
+                            {% if is_approver %}
+                                <a href="documents/{{ document.file }}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">View</a>
+                                <a href="documents/{{ document.file }}" download class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition">Download</a>
+                                <select class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium" id="status-{{ document.id }}" onchange="openCommentModal('{{ document.id }}', this.value)">
+                                    <option value="In Review" {% if document.status == 'In Review' %} selected {% endif %}>In Review</option>
+                                    <option value="Approved" {% if document.status == 'Approved' %} selected {% endif %}>Approved</option>
+                                    <option value="Rejected" {% if document.status == 'Rejected' %} selected {% endif %}>Rejected</option>
+                                </select>
+                            {% elif document.status != 'Approved' %}
+                                {% if document.file %}
+                                    <a href="documents/{{ document.file }}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">View</a>
+                                    <button class="px-4 py-2 bg-teal-500 text-white rounded-lg text-sm font-medium hover:bg-teal-600 transition" onclick="openNewFileUploadModal('{{ document.id }}')">Submit New File</button>
+                                {% else %}
+                                    <button class="px-4 py-2 bg-teal-500 text-white rounded-lg text-sm font-medium hover:bg-teal-600 transition" onclick="openNewFileUploadModal('{{ document.id }}')">Upload File</button>
+                                {% endif %}
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="flex space-x-4 items-center">
-                        {% if is_approver %}
-                        <a href="documents/{{ document.file }}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">
-                            View
-                        </a> 
-                        <a href="documents/{{ document.file }}" download class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition">
-                            Download
-                        </a>
-                        <select class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium" id="status-{{ document.id }}" onchange="openCommentModal('{{ document.id }}', this.value)">
-                            <option value="In Review" {% if document.status == 'In Review' %} selected {% endif %}>In Review</option>
-                            <option value="Approved" {% if document.status == 'Approved' %} selected {% endif %}>Approved</option>
-                            <option value="Rejected" {% if document.status == 'Rejected' %} selected {% endif %}>Rejected</option>
-                        </select>
-                        {% elif document.status != 'Approved' %}
-                    </div>
-                    <div class="flex space-x-4 items-center">
-                        {% if document.file %}
-                        <a href="documents/{{ document.file }}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">
-                            View
-                        </a>
-                        <button class="px-4 py-2 bg-teal-500 text-white rounded-lg text-sm font-medium hover:bg-teal-600 transition"
-                        onclick="openNewFileUploadModal('{{ document.id }}')">
-                        Submit New File
-                    </button>
-                    {% else %}
-                    <button class="px-4 py-2 bg-teal-500 text-white rounded-lg text-sm font-medium hover:bg-teal-600 transition"
-                        onclick="openNewFileUploadModal('{{ document.id }}')">
-                        Upload File
-                    </button>
-                    {% endif %}
-                    </div>
-                    <div id="fileUploadModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
+                    
+                    <!-- Unique Upload Modal for Each Document -->
+                    <div id="fileUploadModal-{{ document.id }}" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
                         <div class="bg-white p-6 rounded-lg shadow-lg">
                             <h3 class="text-lg font-semibold mb-4">Upload New Document</h3>
-                            <input type="file" id="newFileInput" class="mb-4 border rounded p-2 w-full">
+                            <input type="file" id="newFileInput-{{ document.id }}" class="mb-4 border rounded p-2 w-full">
                             <div class="flex justify-end space-x-4">
-                                <button onclick="closeNewFileUploadModal()" class="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500">Cancel</button>
-                                <button onclick="submitNewFile(); sendEmailAction('{{ profile.profile_id }}', 'resubmit');" class="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600">Upload</button>
+                                <button onclick="closeNewFileUploadModal('{{ document.id }}')" class="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500">Cancel</button>
+                                <button onclick="submitNewFile('{{ document.id }}'); sendEmailAction('{{ profile.profile_id }}', 'resubmit');" class="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600">Upload</button>
                             </div>
                         </div>
                     </div>
-                    {% endif %}
-                    
-                </div>
-            {% endfor %}
-            
+                {% endfor %}
+            </div>
         </div>
     </div>
-</div>
 {% endfor %}
 
         
@@ -272,14 +264,22 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             function openModal(profileIndex) {
-                const modal = document.getElementById('documentModal-' + profileIndex);
-                modal.classList.remove('hidden');
-            }
-            
-            function closeModal(profileIndex) {
-                const modal = document.getElementById('documentModal-' + profileIndex);
-                modal.classList.add('hidden');
-            }
+    const modal = document.getElementById('documentModal-' + profileIndex);
+    modal.classList.remove('hidden');
+
+    // Close modal when clicking outside of its content
+    modal.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            closeModal(profileIndex);
+        }
+    });
+}
+
+function closeModal(profileIndex) {
+    const modal = document.getElementById('documentModal-' + profileIndex);
+    modal.classList.add('hidden');
+}
+
             
 
             function deleteProfile(profileId) {
@@ -562,8 +562,19 @@ function updateRejectionReason(documentData) {
     });
 }
 
-
 function sendDocumentsEmail(profileId) {
+    if (!profileId) {
+        console.error("Error: Profile ID is missing.");
+        showMessage("❌ Error: Profile ID is missing.", "error");
+        return;
+    }
+
+    console.log("Sending profile ID:", profileId);
+
+    // Show the loading overlay and disable interactions
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    document.body.style.pointerEvents = 'none'; // Disable clicks
+
     fetch("{% url 'send_documents_email' %}", {
         method: "POST",
         headers: {
@@ -574,14 +585,28 @@ function sendDocumentsEmail(profileId) {
     })
     .then(response => response.json())
     .then(data => {
+        // Hide the loading overlay and re-enable interactions
+        document.getElementById('loadingOverlay').style.display = 'none';
+        document.body.style.pointerEvents = 'auto'; // Re-enable clicks
+
+        console.log(data);
+
         if (data.message) {
-            alert("Documents sent successfully!");
+            showMessage(`✅ ${data.message}`, "success");
         } else {
-            alert("Error: " + data.error);
+            showMessage(`❌ ${data.error || "Failed to send documents."}`, "error");
         }
     })
-    .catch(error => alert("Request failed: " + error));
+    .catch(error => {
+        // Hide the loading overlay and re-enable interactions
+        document.getElementById('loadingOverlay').style.display = 'none';
+        document.body.style.pointerEvents = 'auto'; // Re-enable clicks
+
+        showMessage("❌ An error occurred while sending documents.", "error");
+        console.error("Request failed:", error);
+    });
 }
+
 
 </script>
 
