@@ -103,6 +103,69 @@ class StudentLoginView(View):
             'error_message': 'Invalid college email or password'
         })
         
+
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.template.loader import render_to_string
+from django.contrib import messages
+
+def password_reset_request(request):
+    """Handles password reset form submission"""
+    if request.method == "POST":
+        email = request.POST.get("email")
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            messages.error(request, "Email address not found.")
+            return redirect("password_reset")
+
+        # Generate password reset link
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        reset_link = request.build_absolute_uri(f"/reset/{uid}/{token}/")
+
+        # Send email
+        email_subject = "Password Reset Request"
+        email_body = render_to_string("password_reset_email.html", {"reset_link": reset_link, "user": user})
+        send_mail(email_subject, email_body, settings.DEFAULT_FROM_EMAIL, [email])
+
+        messages.success(request, "Password reset link sent to your email.")
+        return redirect("password_reset_done")
+
+    return render(request, "password_reset_form.html")
+
+
+def password_reset_confirm(request, uidb64, token):
+    """Handles setting a new password"""
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (User.DoesNotExist, ValueError, TypeError):
+        messages.error(request, "Invalid password reset link.")
+        return redirect("login")
+
+    if request.method == "POST":
+        password = request.POST.get("password")
+        confirm_password = request.POST.get("confirm_password")
+
+        if password != confirm_password:
+            messages.error(request, "Passwords do not match.")
+            return redirect(request.path)
+
+        user.set_password(password)
+        user.save()
+        messages.success(request, "Password reset successfully. You can now log in.")
+        return redirect("login")
+
+    return render(request, "password_reset_confirm.html")
+
+
+def password_reset_complete(request):
+    """Displays a success message after password reset"""
+    return render(request, "password_reset_complete.html")        
+
+        
 def logout_view(request):
     logout(request)
     return redirect('login') 
@@ -113,22 +176,18 @@ def profile_view(request):
 
 class PlacementProfileView(View):
     def get(self, request):
-        # Get user-related details
         user = request.user
-        first_name = user.first_name if user.first_name else ''
-        last_name = user.last_name if user.last_name else ''
-        college_email = user.email if user.email else ''
-
         return render(request, 'placement_profile_form.html', {
             'user': user,
-            'first_name': first_name,
-            'last_name': last_name,
-            'college_email': college_email
+            'first_name': user.first_name or '',
+            'last_name': user.last_name or '',
+            'college_email': user.email or ''
         })
+
     def post(self, request):
         print("POST Data:", request.POST)
         print("FILES Data:", request.FILES)
-        
+
         user = request.user
         college_email = user.email 
         first_name = user.first_name
@@ -145,18 +204,9 @@ class PlacementProfileView(View):
         preferred_facility_address = request.POST.get('preferred_facility_address')
         preferred_facility_contact_person = request.POST.get('preferred_facility_contact_person')
 
-        # email_validator = EmailValidator()
-        # try:
-        #     email_validator(college_email)
-        #     if not college_email.endswith('@peakcollege.ca'):
-        #         raise ValidationError('Must use @peakcollege.ca email')
-        # except ValidationError as e:
-        #     print(f"Email validation failed: {e}")
-        #     return render(request, 'placement_profile_form.html', {'error': str(e)})
-
         try:
-            profile = PlacementProfile(
-                user=request.user,
+            profile = PlacementProfile.objects.create(
+                user=user,
                 college_email=college_email,
                 first_name=first_name,
                 last_name=last_name,
@@ -172,44 +222,273 @@ class PlacementProfileView(View):
                 preferred_facility_address=preferred_facility_address,
                 preferred_facility_contact_person=preferred_facility_contact_person,
             )
-            profile.save()
             print("PlacementProfile saved:", profile)
         except Exception as e:
             print(f"Error saving PlacementProfile: {e}")
             return render(request, 'placement_profile_form.html', {'error': 'Failed to save placement profile'})
 
-        documents_data = [
-            ('medical_certificate', 'Medical Certificate'),
-            ('covid_vaccination_certificate', 'Covid Vaccination Certificate'),
-            ('vulnerable_sector_check', 'Vulnerable Sector Check'),
-            ('cpr_or_first_aid', 'CPR or First Aid'),
-            ('mask_fit_certificate', 'Mask Fit Certificate'),
-            ('bls_certificate', 'Basic Life Support'),
-            ('experience_document', 'Experience Document'),
-        ]
+        # All required and optional documents
+        documents_data = {
+            'medical_certificate': 'Medical Certificate',
+            'covid_vaccination_certificate': 'Covid Vaccination Certificate',
+            'vulnerable_sector_check': 'Vulnerable Sector Check',
+            'cpr_or_first_aid': 'CPR or First Aid',
+            'mask_fit_certificate': 'Mask Fit Certificate',
+            'bls_certificate': 'Basic Life Support',
+            'experience_document': 'Experience Document'
+        }
 
-        for file_field, doc_type in documents_data:
+        missing_documents = []
+        for file_field, doc_name in documents_data.items():
             file = request.FILES.get(file_field)
-            if file:
-                try:
-                    document = Document(profile=profile, document_type=doc_type, file=file)
-                    document.save()
-                    print(f"Document saved: {doc_type} - {file.name}")
-                except Exception as e:
-                    print(f"Error saving document {doc_type}: {e}")
 
-        try:
-            send_mail(
-                'Placement Profile: Documents Under Review',
-                'Your placement profile has been submitted successfully. Documents are under review.',
-                settings.DEFAULT_FROM_EMAIL,
-                [profile.college_email],
-            )
-            print(f"Email sent to {profile.college_email}")
-        except Exception as e:
-            print(f"Error sending email: {e}")
+            try:
+                document_entry = Document.objects.create(
+                    profile=profile,
+                    document_type=doc_name,
+                    file=file if file else None  # Store None if the file is missing
+                )
+                if not file:
+                    missing_documents.append(doc_name)  # Track missing documents
+                    print(f"Document entry created for missing: {doc_name}")
+                else:
+                    print(f"Document saved: {doc_name} - {file.name}")
+            except Exception as e:
+                print(f"Error saving document {doc_name}: {e}")
+
+        # Determine which email to send
+        required_document_keys = {'medical_certificate', 'covid_vaccination_certificate', 
+                                  'vulnerable_sector_check', 'cpr_or_first_aid', 
+                                  'mask_fit_certificate', 'bls_certificate'}
+        
+        missing_required_docs = [documents_data[key] for key in required_document_keys if key in missing_documents]
+
+        if not missing_required_docs:
+            try:
+                send_welcome_email(profile)
+                print(f"Welcome email sent to {profile.college_email}")
+            except Exception as e:
+                print(f"Error sending welcome email: {e}")
+        else:
+            try:
+                send_documents_incomplete_email(profile, missing_required_docs)
+                print(f"Documents incomplete email sent to {profile.college_email}")
+            except Exception as e:
+                print(f"Error sending incomplete documents email: {e}")
 
         return redirect('student_profile_logs')
+    
+    
+def send_documents_incomplete_email(profile, missing_documents):
+    """Send an email notifying the student about missing documents dynamically."""
+    subject = "Placement Profile: Documents Incomplete"
+
+    remaining_documents_html = "".join([f"<li>{doc}</li>" for doc in missing_documents])
+
+    message = f"""
+    <html>
+    <head>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                background: linear-gradient(to bottom, rgba(0, 128, 128, 0.1), #ffffff);
+                padding: 20px;
+                color: #333;
+            }}
+            .container {{
+                background-color: #ffffff;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                width: 100%;
+                margin: auto;
+            }}
+            h2 {{
+                color: #008080;
+                font-size: 24px;
+            }}
+            p {{
+                line-height: 1.6;
+                font-size: 16px;
+            }}
+            .footer {{
+                margin-top: 20px;
+                font-size: 14px;
+                color: #555;
+            }}
+            .footer a {{
+                color: #008080;
+                text-decoration: none;
+            }}
+            .highlight {{
+                color: #008080;
+            }}
+            img {{
+                width: 250px;
+                height: 120px;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Placement Profile: Documents Incomplete</h2>
+            <p>Greetings!</p>
+            <p>Thank you for creating your profile.</p>
+            <p>To submit the remaining requirements, please log in to your profile again and complete the submission process.</p>
+            <p>The placement coordinators will begin reviewing your documents only once all requirements are submitted and your balance is cleared.</p>
+            <p><b>Remaining documents to submit:</b></p>
+            <ul>
+                {remaining_documents_html}
+            </ul>
+            <p><a href="https://www.peakcollege.ca/student-view" class="highlight">Placement Link: Click here.</a></p>
+            <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
+            <div class="footer">
+                <p>Warm regards, <br> The Peak Healthcare Team</p>
+                <p>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></p>
+                <img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg"></img>
+                <p>1140 Sheppard Ave West - Unit #12, North York, ON, M3K 2A2</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+    try:
+        send_mail(
+            subject,
+            "",  # Empty text version
+            settings.DEFAULT_FROM_EMAIL,
+            [profile.college_email],
+            html_message=message,
+        )
+        print(f"Documents incomplete email sent to {profile.college_email}")
+    except Exception as e:
+        print(f"Error sending email: {e}")
+    
+def send_welcome_email(profile):
+    """Send a welcome email when a student's documents are under review."""
+    subject = "Placement Profile: Documents Under Review"
+    
+    message = f"""
+    <html>
+    <head>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                background: linear-gradient(to bottom, rgba(0, 128, 128, 0.1), #ffffff);
+                padding: 20px;
+                color: #333;
+            }}
+            .container {{
+                background-color: #ffffff;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                width: 100%;
+                margin: auto;
+            }}
+            h2 {{
+                color: #008080;
+                font-size: 24px;
+            }}
+            p {{
+                line-height: 1.6;
+                font-size: 16px;
+            }}
+            .footer {{
+                margin-top: 20px;
+                font-size: 14px;
+                color: #555;
+            }}
+            .footer a {{
+                color: #008080;
+                text-decoration: none;
+            }}
+            .bold {{
+                font-weight: bold;
+            }}
+            .highlight {{
+                color: #008080;
+            }}
+            img {{
+                width: 250px;
+                height: 120px;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Placement Profile: Documents Under Review</h2>
+            <p>Greetings!</p>
+            <p>Your documents are now <span class="bold">UNDER REVIEW</span> by our team.</p>
+            <p>Next step: wait for the approval of your submitted documents. You’ll receive another email once all are approved.</p>
+            <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
+            <div class="footer">
+                <p>Warm regards, <br> The Peak Healthcare Team</p>
+                <p>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></p>
+                <img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg"></img>
+                <p>1140 Sheppard Ave West - Unit #12, North York, ON, M3K 2A2</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+    try:
+        send_mail(
+            subject,
+            "",  # Empty text version
+            settings.DEFAULT_FROM_EMAIL,
+            [profile.college_email],
+            html_message=message,
+        )
+        print(f"Email sent to {profile.college_email}")
+    except Exception as e:
+        print(f"Error sending email: {e}")
+    
+import zipfile
+from io import BytesIO  
+class SendDocumentsEmailView(View):
+    def post(self, request, *args, **kwargs):
+        profile_id = request.POST.get("profile_id")
+        profile = get_object_or_404(PlacementProfile, id=profile_id)
+        documents = Document.objects.filter(profile=profile, file__isnull=False)
+
+        if not documents.exists():
+            return JsonResponse({"error": "No documents available for this profile"}, status=400)
+
+        # Create a ZIP file in memory
+        zip_buffer = BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+            for document in documents:
+                file_path = document.file.path
+                file_name = os.path.basename(file_path)
+                zip_file.write(file_path, file_name)
+
+        zip_buffer.seek(0)
+
+        # Send Email
+        email_subject = f"Submitted Documents for {profile.first_name} {profile.last_name}"
+        email_body = (
+            f"Dear Documents Team,\n\n"
+            f"Attached are the submitted documents for {profile.first_name} {profile.last_name}.\n\n"
+            f"Best Regards,\nPeak College"
+        )
+
+        email = EmailMessage(
+            subject=email_subject,
+            body=email_body,
+            from_email="no-reply@peakcollege.ca",
+            to=["documents@peakcollege.ca"],
+        )
+
+        email.attach(f"{profile.first_name}_{profile.last_name}_documents.zip", zip_buffer.getvalue(), "application/zip")
+        
+        try:
+            email.send()
+            return JsonResponse({"message": "Email sent successfully"})
+        except Exception as e:
+            return JsonResponse({"error": f"Failed to send email: {str(e)}"}, status=500)
     
 class StudentProfileLogsView(View):
     def get(self, request):

@@ -27,5 +27,9 @@ urlpatterns = [
     path("404/", custom_404, name="custom_404"),
     path('delete-profile/<int:profile_id>/', delete_profile, name='delete_profile'),
     path('profile/', profile_view, name='profile'),
+    path("password-reset/", password_reset_request, name="password_reset"),
+    path("password-reset/done/", password_reset_complete, name="password_reset_done"),
+    path("reset/<uidb64>/<token>/", password_reset_confirm, name="password_reset_confirm"),
+    path("send-documents-email/", SendDocumentsEmailView.as_view(), name="send_documents_email"),
 ]
 handler404 = 'private_healthcare_placement_optimization.views.custom_404'
