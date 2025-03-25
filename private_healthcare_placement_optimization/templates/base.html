@@ -21,7 +21,7 @@
                 {% if user.is_authenticated %}
                 <a href="{% url 'create_placement_profile' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
                     <i class="fas fa-id-card"></i>
-                    <span>Placement Profile</span>
+                    <span>Create Placement Profile</span>
                 </a>
                 {% if user.is_superuser %}
                     <a href="{% url 'approvers_view' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
@@ -31,7 +31,7 @@
                 {% endif %}
                 <a href="/" class="hover:text-turquoise-300 flex items-center space-x-2">
                     <i class="fas fa-clipboard-list"></i>
-                    <span>Approval Logs</span>
+                    <span>Placement Profile</span>
                 </a>
                 
                 {% endif %}
@@ -79,7 +79,7 @@
         <div class="px-6 py-4 space-y-4">
             <a href="{% url 'create_placement_profile' %}" class="flex items-center space-x-2">
                 <i class="fas fa-id-card"></i>
-                <span>Placement Profile</span>
+                <span>Create Placement Profile</span>
             </a>
             {% if user.is_superuser %}
         <a href="{% url 'approvers_view' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
