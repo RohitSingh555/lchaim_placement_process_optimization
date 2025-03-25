@@ -4,43 +4,76 @@
 <div class="max-w-lg mx-auto p-6">
     <h2 class="text-2xl font-semibold text-center mb-4">Sign Up</h2>
     
+    {% if messages %}
+        {% for message in messages %}
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <span class="block sm:inline">{{ message }}</span>
+            </div>
+        {% endfor %}
+    {% endif %}
+
     <form method="POST" class="space-y-4">
         {% csrf_token %}
 
         <!-- First Name -->
         <div>
             <label for="id_first_name" class="block text-sm font-medium text-gray-700">First Name</label>
-            <input type="text" name="first_name" id="id_first_name" 
-                class="block w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+            <input type="text" name="first_name" id="id_first_name" autocomplete="off"
+                class="block w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                value="{{ form.first_name.value|default_if_none:'' }}" required>
+            {% if form.first_name.errors %}
+                <p class="text-red-500 text-s italic">{{ form.first_name.errors.0 }}</p>
+            {% endif %}
         </div>
 
         <!-- Last Name -->
         <div>
             <label for="id_last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
-            <input type="text" name="last_name" id="id_last_name" 
-                class="block w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+            <input type="text" name="last_name" id="id_last_name" autocomplete="off"
+                class="block w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                value="{{ form.last_name.value|default_if_none:'' }}" required>
+            {% if form.last_name.errors %}
+                <p class="text-red-500 text-s italic">{{ form.last_name.errors.0 }}</p>
+            {% endif %}
         </div>
 
         <!-- College Email -->
         <div>
             <label for="id_email" class="block text-sm font-medium text-gray-700">College Email</label>
-            <input type="email" name="email" id="id_email" 
-                class="block w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+            <input type="email" name="email" id="id_email" autocomplete="off"
+                class="block w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                value="{{ form.email.value|default_if_none:'' }}" required>
+            {% if form.email.errors %}
+                <p class="text-red-500 text-s italic">{{ form.email.errors.0 }}</p>
+            {% endif %}
         </div>
 
-        <!-- Password -->
-        <div>
+        <div class="relative">
             <label for="id_password1" class="block text-sm font-medium text-gray-700">Password</label>
-            <input type="password" name="password1" id="id_password1" 
-                class="block w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+            <input type="password" name="password1" id="id_password1" autocomplete="new-password"
+                class="block w-full px-4 py-2 pr-10 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                required>
+            <span class="absolute right-4 top-1/2 transform -translate-y-0 cursor-pointer" onclick="togglePassword('id_password1', 'togglePasswordIcon1')">
+                <i id="togglePasswordIcon1" class="fa fa-eye-slash text-gray-500"></i>
+            </span>
+            {% if form.password1.errors %}
+                <p class="text-red-500 text-s italic">{{ form.password1.errors.0 }}</p>
+            {% endif %}
         </div>
-
-        <!-- Confirm Password -->
-        <div>
+        
+        <div class="relative">
             <label for="id_password2" class="block text-sm font-medium text-gray-700">Confirm Password</label>
-            <input type="password" name="password2" id="id_password2" 
-                class="block w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+            <input type="password" name="password2" id="id_password2" autocomplete="new-password"
+                class="block w-full px-4 py-2 pr-10 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                required>
+            <span class="absolute right-4 top-1/2 transform -translate-y-0 cursor-pointer" onclick="togglePassword('id_password2', 'togglePasswordIcon2')">
+                <i id="togglePasswordIcon2" class="fa fa-eye-slash text-gray-500"></i>
+            </span>
+            {% if form.password2.errors %}
+                <p class="text-red-500 text-s italic">{{ form.password2.errors.0 }}</p>
+            {% endif %}
         </div>
+        
 
         <!-- Submit Button -->
         <button type="submit" class="w-full py-2 bg-green-500 text-white rounded hover:bg-green-600">Sign Up</button>
@@ -51,12 +84,12 @@
     </div>
 </div>
 
+<!-- Password Toggle Script -->
 <script>
-    // Function to toggle password visibility
     function togglePassword(passwordFieldId, iconId) {
         const passwordField = document.getElementById(passwordFieldId);
         const icon = document.getElementById(iconId);
-        
+
         if (passwordField.type === "password") {
             passwordField.type = "text";
             icon.classList.remove("fa-eye-slash");
@@ -68,4 +101,8 @@
         }
     }
 </script>
+
+<!-- FontAwesome for Eye Icons -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+
 {% endblock %}

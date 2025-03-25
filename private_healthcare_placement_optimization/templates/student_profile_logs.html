@@ -37,69 +37,74 @@
             </div>
             <div class="overflow-x-auto custom-scrollbar">
                 {% if is_approver %}
-                <table class="bg-white shadow-lg min-w-full table-auto border-collapse border border-gray-300">
-                    <thead class="bg-gradient-to-r from-teal-400 to-teal-700">
-                        <tr class="border border-gray-300">
-                            <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300">Sr No.</th>
-                            <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300">Name</th>
-                            <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300">College Email</th>
-                            <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300">Experience Level</th>
-                            <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300">Shift Requested</th>
-                            <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300">Address Updated</th>
-                            <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300">Preferred Facility</th>
-                            <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300">Facility Contact</th>
-                            <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300">Actions</th>
-                        </tr>
-                    </thead>
-                    {% for profile in profile_details %}
-                    <tbody>
-                        <tr class="border border-gray-300 hover:bg-teal-50 transition-colors duration-200">
-                            <td class="px-6 py-4 border border-gray-300">{{ forloop.counter }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap border border-gray-300">{{ profile.first_name }} {{ profile.last_name }}</td>
-                            <td class="px-6 py-4 border border-gray-300">{{ profile.college_email }}</td>
-                            <td class="px-6 py-4 border border-gray-300">{{ profile.experience_level }}</td>
-                            <td class="px-6 py-4 border border-gray-300">{{ profile.shift_requested }}</td>
-                            <td class="px-6 py-4 border border-gray-300">{{ profile.address_updated|yesno:"Yes,No" }}</td>
-                            <td class="px-6 py-4 border border-gray-300">{{ profile.preferred_facility_name }}</td>
-                            <td class="px-6 py-4 border border-gray-300">{{ profile.preferred_facility_contact_person }}</td>
-                            <td class="px-6 py-4 flex justify-between items-center space-x-2">
-                                <!-- Action buttons with icons -->
-                                <button onclick="openModal('{{ forloop.counter }}')" class="text-teal-600 hover:text-teal-800 font-semibold py-1 px-3 rounded-md text-sm border border-teal-300 hover:border-teal-500 flex items-center space-x-2 whitespace-nowrap">
-                                    <i class="fas fa-eye"></i>
-                                    <span>View Documents</span>
-                                </button>
-                                {% if is_approver %}
-                                <button onclick="sendEmailAction('{{ profile.profile_id }}', 'remind_fee')" class="bg-yellow-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-yellow-600 flex items-center space-x-2 whitespace-nowrap">
-                                    <i class="fas fa-credit-card"></i>
-                                    <span>Remind Fee</span>
-                                </button>
-                                <button onclick="sendEmailAction('{{ profile.profile_id }}', 'notify_result')" class="bg-blue-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-blue-600 flex items-center space-x-2 whitespace-nowrap">
-                                    <i class="fas fa-bell"></i>
-                                    <span>Notify Result</span>
-                                </button>
-                                <button onclick="sendEmailAction('{{ profile.profile_id }}', 'done')" class="bg-green-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-green-600 flex items-center space-x-2 whitespace-nowrap">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Done</span>
-                                </button>
-                                <button onclick="sendEmailAction('{{ profile.profile_id }}', 'resubmit')" class="bg-orange-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-green-600 flex items-center space-x-2 whitespace-nowrap">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Resubmit</span>
-                                </button>
-                                {% endif %}
+                <div class="overflow-x-auto w-full">
+                    <div class="relative max-w-full">
+                        <table class="bg-white shadow-lg min-w-full table-auto border-collapse border border-gray-300">
+                            <thead class="bg-gradient-to-r from-teal-400 to-teal-700 text-white">
+                                <tr class="border border-gray-300">
+                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 sticky left-0 bg-teal-600 z-12">Sr No.</th>
+                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 sticky left-16 bg-teal-600 z-12">Name</th>
+                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 sticky left-40 bg-teal-600 z-12">College Email</th>
+                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300">Experience Level</th>
+                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300">Shift Requested</th>
+                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300">Address Updated</th>
+                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300">Preferred Facility</th>
+                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300">Facility Contact</th>
+                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
                                 {% for profile in profile_details %}
-       
-{% endfor %}
-{% if is_superuser %}
-<button onclick="deleteProfile({{ profile.profile_id }})" class="delete-btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-red-600 flex items-center space-x-2 whitespace-nowrap">
-    <i class="fas fa-trash"></i>
-    <span>Delete</span>
-</button>
-{% endif %}
-                            </td>
-                        </tr>
-                    </tbody>
-                    {% endfor %}
-                </table>
+                                <tr class="border border-gray-300 hover:bg-teal-50 transition-colors duration-200">
+                                    <!-- Pinned Columns -->
+                                    <td class="px-6 py-4 border border-gray-300 sticky left-0 bg-white z-10">{{ forloop.counter }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap border border-gray-300 sticky left-16 bg-white z-10">{{ profile.first_name }} {{ profile.last_name }}</td>
+                                    <td class="px-6 py-4 border border-gray-300 sticky left-40 bg-white z-10">{{ profile.college_email }}</td>
+                
+                                    <!-- Scrollable Columns -->
+                                    <td class="px-6 py-4 border border-gray-300">{{ profile.experience_level }}</td>
+                                    <td class="px-6 py-4 border border-gray-300">{{ profile.shift_requested }}</td>
+                                    <td class="px-6 py-4 border border-gray-300">{{ profile.address_updated|yesno:"Yes,No" }}</td>
+                                    <td class="px-6 py-4 border border-gray-300">{{ profile.preferred_facility_name }}</td>
+                                    <td class="px-6 py-4 border border-gray-300">{{ profile.preferred_facility_contact_person }}</td>
+                                    <td class="px-6 py-4 flex justify-between items-center space-x-2">
+                                        <!-- Action Buttons -->
+                                        <button onclick="openModal('{{ forloop.counter }}')" class="text-teal-600 hover:text-teal-800 font-semibold py-1 px-3 rounded-md text-sm border border-teal-300 hover:border-teal-500 flex items-center space-x-2 whitespace-nowrap">
+                                            <i class="fas fa-eye"></i>
+                                            <span>View Documents</span>
+                                        </button>
+                                        {% if is_approver %}
+                                        <button onclick="sendEmailAction('{{ profile.profile_id }}', 'remind_fee')" class="bg-yellow-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-yellow-600 flex items-center space-x-2 whitespace-nowrap">
+                                            <i class="fas fa-credit-card"></i>
+                                            <span>Remind Fee</span>
+                                        </button>
+                                        <button onclick="sendEmailAction('{{ profile.profile_id }}', 'notify_result')" class="bg-blue-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-blue-600 flex items-center space-x-2 whitespace-nowrap">
+                                            <i class="fas fa-bell"></i>
+                                            <span>Notify Result</span>
+                                        </button>
+                                        <button onclick="sendEmailAction('{{ profile.profile_id }}', 'done')" class="bg-green-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-green-600 flex items-center space-x-2 whitespace-nowrap">
+                                            <i class="fas fa-check-circle"></i>
+                                            <span>Done</span>
+                                        </button>
+                                        <button onclick="sendEmailAction('{{ profile.profile_id }}', 'resubmit')" class="bg-orange-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-green-600 flex items-center space-x-2 whitespace-nowrap">
+                                            <i class="fas fa-check-circle"></i>
+                                            <span>Resubmit</span>
+                                        </button>
+                                        {% endif %}
+                                        {% if is_superuser %}
+                                        <button onclick="deleteProfile({{ profile.profile_id }})" class="delete-btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-red-600 flex items-center space-x-2 whitespace-nowrap">
+                                            <i class="fas fa-trash"></i>
+                                            <span>Delete</span>
+                                        </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
                 {% else %}
                 {% for profile in profile_details %}
                 <div class="flex items-center justify-center p-6">
@@ -185,11 +190,34 @@
                         <div>
                             <p class="text-lg font-medium">{{ document.document_type }}</p>
                             <p class="text-sm text-gray-600">{{ document.uploaded_at }}</p>
-                            <p class="text-sm text-gray-600">
+                            <div class="flex flex-row-reverse justify-end items-center">
+                                {% if document.approval_logs %}
+                                {% with latest_approval=document.approval_logs|last %}
+                                    <div class="relative group inline-block">
+                                        <!-- Info Icon -->
+                                        <i class="fas fa-info-circle text-gray-500 hover:text-gray-700 cursor-pointer"></i>
+                            
+                                        <!-- Tooltip Content (Hidden by Default) -->
+                                        <div class="absolute left-1/2 transform -translate-x-1/2 mt-2 w-64 p-3 bg-white shadow-lg border border-gray-200 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-300 z-10">
+                                            <p class="text-sm text-gray-700 font-medium flex items-center space-x-2">
+                                                <i class="fas fa-user-check text-green-500"></i>
+                                                <span class="text-gray-800"><strong>Approved By:</strong> {{ latest_approval.approver }}</span>
+                                            </p>
+                                            <p class="text-xs text-gray-500 mt-1 flex items-center space-x-2">
+                                                <i class="far fa-calendar-alt text-gray-400"></i>
+                                                <span class="text-gray-600"><strong>Date:</strong> {{ latest_approval.timestamp }}</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                {% endwith %}
+                            {% endif %}
+                            <p class="text-sm text-gray-600 px-2">
                                 <span class="document-status {{ document.status|lower }}">
                                     {% if document.file %}{{ document.status }}{% else %}<span class="text-red-500">File Not Uploaded</span>{% endif %}
                                 </span>
                             </p>
+                        </div>
+
                             {% if document.rejection_reason %}
                                 <p class="text-sm text-red-500 rejection-reason">Rejection Reason: {{ document.rejection_reason }}</p>
                             {% endif %}
@@ -348,39 +376,58 @@ function closeModal(profileIndex) {
                 modal.classList.add("hidden");
             }
         
-            function submitNewFile() {
-                let fileInput = document.getElementById("newFileInput");
-                if (!fileInput.files.length) {
-                    alert("Please select a file to upload.");
-                    return;
-                }
-            
-                let formData = new FormData();
-                formData.append("file", fileInput.files[0]);
-                formData.append("document_id", selectedDocumentId);
-            
-                fetch("/submit-new-file/", {
-                    method: "POST",
-                    body: formData,
-                    headers: {
-                        "X-CSRFToken": "{{ csrf_token }}"
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showMessage("File uploaded successfully!", 'success');
-                        setTimeout(() => {
-                            location.reload(); // Reloads the current page
-                        }, 1000);
-                        
-                    } else {
-                        showMessage(data.error, 'error');
-                    }
-                })
-                .catch(error => alert("Something went wrong."));
-            }
-            
+            function submitNewFile(documentId, profileId) {
+    let fileInput = document.getElementById(`newFileInput-${documentId}`);
+    
+    // Ensure file input exists
+    if (!fileInput) {
+        showMessage("File input not found.", "error");
+        return;
+    }
+
+    // Ensure a file is selected
+    if (!fileInput.files.length) {
+        showMessage("Please select a file to upload.", "error");
+        return;
+    }
+
+    let formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+    formData.append("document_id", documentId);
+
+    fetch("/submit-new-file/", {
+        method: "POST",
+        body: formData,
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}"
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showMessage("File uploaded successfully!", "success");
+
+            // Ensure profileId is valid before calling sendEmailAction
+            // if (profileId) {
+            //     sendEmailAction(profileId, "resubmit");
+            // } else {
+            //     showMessage("Profile ID not found, skipping email action.", "warning");
+            // }
+
+            // Reload page after a short delay
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            showMessage(data.error, "error");
+        }
+    })
+    .catch(error => {
+        console.error("Upload error:", error);
+        showMessage("Something went wrong.", "error");
+    });
+}
+
         </script>
 
     {% else %}

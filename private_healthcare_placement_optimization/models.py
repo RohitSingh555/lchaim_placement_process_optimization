@@ -64,6 +64,7 @@ class Document(models.Model):
             ("Basic Life Support", "Basic Life Support"),
         ]
     )
+    file_name = models.CharField(max_length=255, blank=True, null=True)
     file = models.FileField(upload_to=document_upload_path)
     status = models.CharField(
         max_length=20,

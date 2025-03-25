@@ -1,26 +1,39 @@
 import json
 import os
-from django.shortcuts import render, redirect
-from django.http import JsonResponse
-from django.views import View
-from django.core.mail import EmailMessage
-from private_healthcare_placement_optimization.enums import DocumentStatus
-from .models import PlacementProfile, Document, Approver, ApprovalLog, FeeStatus, PlacementNotification
-from .forms import CustomUserCreationForm, CustomUserCreationForm, DocumentForm
-from django.core.mail import send_mail
+
 from django.conf import settings
-from django.core.exceptions import ValidationError
-from django.core.validators import EmailValidator
-from django.contrib.auth.decorators import login_required
-from django.views.generic import TemplateView
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.decorators import user_passes_test
-from django.contrib.auth.forms import AuthenticationForm
-from django.shortcuts import get_object_or_404
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+from django.contrib.auth import authenticate, get_user, login, logout
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
+from django.contrib.auth.tokens import default_token_generator
+from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from django.core.mail import EmailMessage, send_mail
+from django.core.validators import EmailValidator
+from django.http import HttpResponseRedirect, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
+from django.urls import reverse
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.views import View
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import TemplateView
+
+from private_healthcare_placement_optimization.enums import DocumentStatus
+from .forms import CustomUserCreationForm, DocumentForm
+from .models import (
+    Approver,
+    ApprovalLog,
+    Document,
+    FeeStatus,
+    PlacementNotification,
+    PlacementProfile,
+)
+
 
 def staff_required(view_func):
     return user_passes_test(lambda u: u.is_staff)(view_func)
@@ -35,7 +48,10 @@ def signup(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('student_profile_logs')  # Redirect to the correct page after signup
+            messages.success(request, "Account created successfully! You are now logged in.")
+            return redirect('student_profile_logs')  # Redirect to the desired page after signup
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
         form = CustomUserCreationForm()
 
@@ -105,11 +121,6 @@ class StudentLoginView(View):
         })
         
 
-from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
-from django.template.loader import render_to_string
-from django.contrib import messages
 
 def password_reset_request(request):
     """Handles password reset form submission"""
@@ -175,6 +186,7 @@ def logout_view(request):
 def profile_view(request):
     return render(request, 'profile.html', {'user': request.user})
 
+
 class PlacementProfileView(View):
     def get(self, request):
         user = request.user
@@ -228,7 +240,7 @@ class PlacementProfileView(View):
             print(f"Error saving PlacementProfile: {e}")
             return render(request, 'placement_profile_form.html', {'error': 'Failed to save placement profile'})
 
-        # All required and optional documents
+        # Define required and optional documents
         documents_data = {
             'medical_certificate': 'Medical Certificate',
             'covid_vaccination_certificate': 'Covid Vaccination Certificate',
@@ -240,33 +252,51 @@ class PlacementProfileView(View):
         }
 
         missing_documents = []
+        submitted_documents = []
         for file_field, doc_name in documents_data.items():
             file = request.FILES.get(file_field)
+
+            if file:
+                # Rename the file using "First Name, Last Name, Document Name"
+                file_extension = file.name.split('.')[-1]
+                new_file_name = f"{first_name}_{last_name}_{doc_name}.{file_extension}"
+
+                # Save the file manually with the new filename
+                file_path = os.path.join("documents/uploads", new_file_name)
+                saved_path = default_storage.save(file_path, ContentFile(file.read()))
+
+                submitted_documents.append(doc_name)
+            else:
+                missing_documents.append(doc_name)
+                saved_path = None  # No file uploaded
 
             try:
                 document_entry = Document.objects.create(
                     profile=profile,
                     document_type=doc_name,
-                    file=file if file else None  # Store None if the file is missing
+                    file=saved_path if saved_path else None,  # Save file path
+                    file_name=new_file_name if file else None
                 )
-                if not file:
-                    missing_documents.append(doc_name)  # Track missing documents
-                    print(f"Document entry created for missing: {doc_name}")
+
+                if file:
+                    print(f"Document saved: {doc_name} - {new_file_name}")
                 else:
-                    print(f"Document saved: {doc_name} - {file.name}")
+                    print(f"Document entry created for missing: {doc_name}")
+
             except Exception as e:
                 print(f"Error saving document {doc_name}: {e}")
 
-        # Determine which email to send
+        # Check for missing required documents
         required_document_keys = {'medical_certificate', 'covid_vaccination_certificate', 
                                   'vulnerable_sector_check', 'cpr_or_first_aid', 
                                   'mask_fit_certificate', 'bls_certificate'}
         
         missing_required_docs = [documents_data[key] for key in required_document_keys if key in missing_documents]
 
+        # Send appropriate email based on document submission status
         if not missing_required_docs:
             try:
-                send_welcome_email(profile)
+                send_welcome_email(profile, submitted_documents)
                 print(f"Welcome email sent to {profile.college_email}")
             except Exception as e:
                 print(f"Error sending welcome email: {e}")
@@ -366,9 +396,11 @@ def send_documents_incomplete_email(profile, missing_documents):
     except Exception as e:
         print(f"Error sending email: {e}")
     
-def send_welcome_email(profile):
+def send_welcome_email(profile, submitted_documents):
     """Send a welcome email when a student's documents are under review."""
     subject = "Placement Profile: Documents Under Review"
+    
+    document_list_html = "".join(f"<li>{doc}</li>" for doc in submitted_documents)
     
     message = f"""
     <html>
@@ -422,6 +454,10 @@ def send_welcome_email(profile):
             <h2>Placement Profile: Documents Under Review</h2>
             <p>Greetings!</p>
             <p>Your documents are now <span class="bold">UNDER REVIEW</span> by our team.</p>
+            <p>The following documents have been submitted:</p>
+            <ul>
+                {document_list_html}
+            </ul>
             <p>Next step: wait for the approval of your submitted documents. You’ll receive another email once all are approved.</p>
             <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
             <div class="footer">
@@ -448,7 +484,6 @@ def send_welcome_email(profile):
         print(f"Error sending email: {e}")
     
 
-from io import BytesIO  
 class SendDocumentsEmailView(View):
     def post(self, request, *args, **kwargs):
         profile_id = request.POST.get("profile_id")
@@ -540,9 +575,9 @@ class SendDocumentsEmailView(View):
             subject=email_subject,
             body=email_body,
             from_email="no-reply@peakcollege.ca",
-            to=["forrohitsingh99@gmail.com"],
+            to=["documents@peakcollege.ca"],
         )
-        email.content_subtype = "html"  # Set the email content type to HTML
+        email.content_subtype = "html" 
 
         # Attach each document
         for file_path, file_name in valid_documents:
@@ -567,16 +602,38 @@ class StudentProfileLogsView(View):
 
         is_approver = Approver.objects.filter(user=request.user).exists()
         is_superuser = request.user.is_superuser  # Check if user is superuser
-        print("Is Approver:", is_approver)
-        print("Is Superuser:", is_superuser)
 
         if is_approver:
             profiles = PlacementProfile.objects.prefetch_related('documents').all()
         else:
             profiles = PlacementProfile.objects.filter(user=request.user).prefetch_related('documents')
 
-        profile_details = [
-            {
+        profile_details = []
+        for profile in profiles:
+            document_details = []
+            for document in profile.documents.all():
+                approval_logs = ApprovalLog.objects.filter(document=document)
+                approver_actions = [
+                    {
+                        "approver": log.approver.full_name if log.approver else "Unknown",
+                        "action": log.action,
+                        "reason": log.reason,
+                        "timestamp": log.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                    for log in approval_logs
+                ]
+                
+                document_details.append({
+                    'id': document.id,
+                    'status': document.status,
+                    'document_type': document.document_type,
+                    'file': document.file.url if document.file else None,
+                    'rejection_reason': document.rejection_reason,
+                    'uploaded_at': document.uploaded_at.strftime("%Y-%m-%d %H:%M:%S"),
+                    'approval_logs': approver_actions
+                })
+            
+            profile_details.append({
                 'profile_id': profile.id,
                 'first_name': profile.first_name,
                 'last_name': profile.last_name,
@@ -586,26 +643,15 @@ class StudentProfileLogsView(View):
                 'preferred_facility_name': profile.preferred_facility_name,
                 'preferred_facility_address': profile.preferred_facility_address,
                 'preferred_facility_contact_person': profile.preferred_facility_contact_person,
-                'documents': [
-                    {
-                        'id': document.id,
-                        'status': document.status,
-                        'document_type': document.document_type,
-                        'file': document.file.url if document.file else None,
-                        'rejection_reason': document.rejection_reason,
-                        'uploaded_at': document.uploaded_at
-                    }
-                    for document in profile.documents.all()
-                ]
-            }
-            for profile in profiles
-        ]
+                'documents': document_details
+            })
 
         return render(request, 'student_profile_logs.html', {
             'profile_details': profile_details,
             'is_approver': is_approver,
             'is_superuser': is_superuser  # Pass to the template
         })
+
 
 @user_passes_test(lambda u: u.is_superuser)  # Only allow superusers
 def delete_profile(request, profile_id):
@@ -914,6 +960,103 @@ def send_email_done(profile, documents):
 
     email.send()
 
+def send_placement_email(profile):
+    subject = f'{profile.first_name} {profile.last_name} - Placement Profile Completed'
+    message = f'''
+    <html>
+    <head>
+        <style>
+            body {{ font-family: Arial, sans-serif; color: #333; background-color: #f9f9f9; padding: 20px; }}
+            .container {{ background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }}
+            h2 {{ color: #008080; }}
+            p {{ font-size: 16px; line-height: 1.5; }}
+            .footer {{ margin-top: 20px; font-size: 14px; color: #555; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Placement Profile Completed</h2>
+            <h2>{profile.first_name} {profile.last_name} is now ready for placement.</h2>
+            <p>Dear Placement Team,</p>
+            <p>This is to inform you that <strong>{profile.first_name} {profile.last_name}</strong> has successfully completed their placement profile.</p>
+            <p>All required documents have been submitted and approved. Please proceed with the necessary steps to coordinate their placement at an appropriate facility.</p>
+            <p>If any additional information is needed, feel free to reach out.</p>
+            <div class="footer">
+                <p>Best regards,</p>
+                <p><strong>[Your Name]</strong><br>
+                Peak College Placement Coordinator<br>
+                <a href="mailto:placement@peakcollege.ca">placement@peakcollege.ca</a></p>
+            </div>
+        </div>
+    </body>
+    </html>
+'''
+    
+    email = EmailMessage(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        ["placement@peakcollege.ca"]
+    )
+    email.content_subtype = "html" 
+    email.send()
+
+def send_documents_email(profile, documents):
+    subject = f'{profile.first_name} {profile.last_name} - Documents Completed'
+    message = f'''
+    <html>
+    <head>
+        <style>
+            body {{ font-family: Arial, sans-serif; color: #333; background-color: #f9f9f9; padding: 20px; }}
+            .container {{ background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }}
+            h2 {{ color: #008080; }}
+            p {{ font-size: 16px; line-height: 1.5; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Documents Completed</h2>
+            <h2>{profile.first_name}'s Complete Files for Placement</h2>
+            <p>Greetings!</p>
+            <p>Student's all necessary documents have been completed for placement. Please find the attached documents.</p>
+            <p>Thank you!</p>
+        </div>
+    </body>
+    </html>
+    '''
+    
+    email = EmailMessage(
+        subject=subject,
+        body=message,
+        from_email="no-reply@peakcollege.ca",
+        to=["documents@peakcollege.ca"],
+    )
+    email.content_subtype = "html"
+
+    valid_documents = []
+    for document in documents:
+        if document.file and document.file.name:
+            try:
+                file_path = document.file.path
+                valid_documents.append((file_path, os.path.basename(file_path)))
+            except ValueError:
+                continue  # Skip documents without a valid file path
+
+    # Attach each document
+    for file_path, file_name in valid_documents:
+        try:
+            with open(file_path, "rb") as file:
+                email.attach(file_name, file.read(), "application/octet-stream")
+        except Exception as e:
+            print(f"Error attaching file {file_name}: {str(e)}")
+
+    try:
+        email.send()
+        return {"message": "Email sent successfully"}
+    except Exception as e:
+        return {"error": f"Failed to send email: {str(e)}"}
+    
+
 def send_email_resubmit(profile, documents):
     # Fetch all approvers (linked to User model)
     approvers = Approver.objects.select_related('user').all()
@@ -1007,6 +1150,8 @@ def handle_button_action(request, profile_id, action):
             send_email_notify_result(profile, rejected_documents)
         elif action == 'done':
             send_email_done(profile, documents)
+            send_placement_email(profile)
+            send_documents_email(profile, documents)
         elif action == 'resubmit':
             send_email_resubmit(profile, documents)
 
@@ -1118,7 +1263,6 @@ def remove_from_approver(request, user_id):
             'message': str(e)
         })
         
-@csrf_exempt  # Disable CSRF protection for now (use proper authentication in production)
 def submit_new_file(request):
     if request.method == "POST":
         document_id = request.POST.get("document_id")
@@ -1127,27 +1271,30 @@ def submit_new_file(request):
         if not document_id or not new_file:
             return JsonResponse({"success": False, "error": "Missing document ID or file."})
 
-        # Get the existing document
         existing_document = get_object_or_404(Document, id=document_id)
+        profile = existing_document.profile
+        document_type = existing_document.document_type
+        file_extension = new_file.name.split('.')[-1]
+        new_file_name = f"{profile.first_name}_{profile.last_name}_{document_type}.{file_extension}"
+        file_path = os.path.join("documents/uploads", new_file_name)
 
-        # Create a new document entry with the updated file
+        saved_path = default_storage.save(file_path, ContentFile(new_file.read()))
+        
         new_document = Document.objects.create(
-            profile=existing_document.profile,
-            document_type=existing_document.document_type,
-            file=new_file,
-            status="In Review"  # Reset status to "In Review"
+            profile=profile,
+            document_type=document_type,
+            file=saved_path,
+            file_name=new_file_name,
+            status="In Review"
         )
-
-        # Delete the old document entry
+        
         existing_document.delete()
 
         return JsonResponse({"success": True, "new_document_id": new_document.id})
-
+    
     return JsonResponse({"success": False, "error": "Invalid request method."})
 
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import get_user
+
 @csrf_exempt  # Optional: For local testing. Remove or replace with CSRF handling in production.
 @login_required  # Ensure only authenticated users can access this endpoint
 def validate_password(request):
@@ -1169,8 +1316,6 @@ def validate_password(request):
     else:
         return JsonResponse({"error": "Invalid method"}, status=405)
     
-from django.urls import reverse
-from django.http import HttpResponseRedirect
 
 def custom_login_required(function=None, login_url=None):
     actual_decorator = user_passes_test(
