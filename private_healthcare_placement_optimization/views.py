@@ -46,10 +46,9 @@ def signup(request):
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            messages.success(request, "Account created successfully! You are now logged in.")
-            return redirect('student_profile_logs')  # Redirect to the desired page after signup
+            form.save()  # Save the user but do not log them in
+            messages.success(request, "Account created successfully! Please log in.")
+            return redirect('login')  # Redirect to login page
         else:
             messages.error(request, "Please correct the errors below.")
     else:

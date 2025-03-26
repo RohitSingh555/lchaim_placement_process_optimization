@@ -24,22 +24,46 @@
                 class="block w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 required>
         </div>
+
         <!-- Display error message if authentication fails -->
         {% if error_message %}
             <p class="text-red-600 text-center">{{ error_message }}</p>
         {% endif %}
-    
 
         <!-- Submit Button -->
         <button type="submit" class="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Login</button>
     </form>
 
-        <div class="mt-6 text-center">
-            <p>Don't have an account? <a href="{% url 'signup' %}" class="text-blue-600 hover:underline">Sign up</a></p>
-            <p class="mt-2"><a href="{% url 'password_reset' %}" class="text-blue-600 hover:underline">Forgot Password?</a></p>
-        </div>
+    <div class="mt-6 text-center">
+        <p>Don't have an account? <a href="{% url 'signup' %}" class="text-blue-600 hover:underline">Sign up</a></p>
+        <p class="mt-2"><a href="{% url 'password_reset' %}" class="text-blue-600 hover:underline">Forgot Password?</a></p>
     </div>
 </div>
+
+<!-- Message Popup (Only visible when there are messages) -->
+{% if messages %}
+    <div id="popup-message"
+         class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-3 transition-opacity duration-300">
+        <i class="fas fa-check-circle text-lg"></i>
+        <p class="text-sm font-medium">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </p>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const popup = document.getElementById("popup-message");
+            if (popup) {
+                setTimeout(() => {
+                    popup.classList.add("opacity-0");
+                    setTimeout(() => popup.remove(), 500);
+                }, 2000);
+            }
+        });
+    </script>
+{% endif %}
 
 <script>
     // Function to toggle password visibility
