@@ -86,10 +86,10 @@
                                             <i class="fas fa-check-circle"></i>
                                             <span>Done</span>
                                         </button>
-                                        <button onclick="sendEmailAction('{{ profile.profile_id }}', 'resubmit')" class="bg-orange-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-green-600 flex items-center space-x-2 whitespace-nowrap">
+                                        {% comment %} <button onclick="sendEmailAction('{{ profile.profile_id }}', 'resubmit')" class="bg-orange-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-green-600 flex items-center space-x-2 whitespace-nowrap">
                                             <i class="fas fa-check-circle"></i>
                                             <span>Resubmit</span>
-                                        </button>
+                                        </button> {% endcomment %}
                                         {% endif %}
                                         {% if is_superuser %}
                                         <button onclick="deleteProfile({{ profile.profile_id }})" class="delete-btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-red-600 flex items-center space-x-2 whitespace-nowrap">
@@ -170,15 +170,7 @@
         <div class="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6 relative">
             <div class="">
             <h3 class="text-2xl font-semibold text-gray-800 mb-4">Submitted Documents</h3>
-            {% if is_approver %}
-            <a onclick="sendDocumentsEmail({{ profile.profile_id }})" 
-            class="flex pb-4 items-center gap-2 text-blue-600 hover:text-blue-800 hover:underline cursor-pointer transition duration-300 ease-in-out">
-                <i class="fas fa-envelope text-lg"></i> <!-- FontAwesome Email Icon -->
-                <span>Send Documents to Peak College document team</span>
-            </a>
-            {% endif %}
-
-
+          
         </div>
             <button onclick="closeModal({{ forloop.counter }})" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl">
                 <i class="fas fa-times"></i>
@@ -191,6 +183,8 @@
                             <p class="text-lg font-medium">{{ document.document_type }}</p>
                             <p class="text-sm text-gray-600">{{ document.uploaded_at }}</p>
                             <div class="flex flex-row-reverse justify-end items-center">
+                                
+                                {% if is_approver %}
                                 {% if document.approval_logs %}
                                 {% with latest_approval=document.approval_logs|last %}
                                     <div class="relative group inline-block">
@@ -200,8 +194,13 @@
                                         <!-- Tooltip Content (Hidden by Default) -->
                                         <div class="absolute left-1/2 transform -translate-x-1/2 mt-2 w-64 p-3 bg-white shadow-lg border border-gray-200 rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-300 z-10">
                                             <p class="text-sm text-gray-700 font-medium flex items-center space-x-2">
+                                                {% if latest_approval.action == 'Approved' %}
                                                 <i class="fas fa-user-check text-green-500"></i>
                                                 <span class="text-gray-800"><strong>Approved By:</strong> {{ latest_approval.approver }}</span>
+                                                {% else %}
+                                                <i class="fas fa-user-times text-red-500"></i>
+                                                <span class="text-gray-800"><strong>Rejected By:</strong> {{ latest_approval.approver }}</span>
+                                                {% endif %}
                                             </p>
                                             <p class="text-xs text-gray-500 mt-1 flex items-center space-x-2">
                                                 <i class="far fa-calendar-alt text-gray-400"></i>
@@ -210,6 +209,7 @@
                                         </div>
                                     </div>
                                 {% endwith %}
+                            {% endif %}
                             {% endif %}
                             <p class="text-sm text-gray-600 px-2">
                                 <span class="document-status {{ document.status|lower }}">

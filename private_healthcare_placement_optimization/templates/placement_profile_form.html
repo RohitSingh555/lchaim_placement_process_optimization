@@ -94,8 +94,8 @@
                 <i class="fas fa-info-circle text-teal-600 text-3xl flex-shrink-0"></i>
         
                 <div class="flex-1">
-                    <h3 class="text-lg font-semibold text-teal-700">Peak College Student Responsibilities</h3>
-                    <ul class="list-none text-gray-700 mt-2 space-y-2">
+                    <h3 class="text-xl font-semibold text-teal-700">Peak College Student Responsibilities</h3>
+                    <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
                         <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Ensure my tuition fee is settled to avoid delays.</li>
                         <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Submit clear and readable placement documents for approval by the Placement Coordinator.</li>
                         <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Resubmit documents that were rejected due to unclear submission.</li>
@@ -103,18 +103,19 @@
                         <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Regularly check my email for document approval notifications and coordinate with the Placement Coordinator.</li>
                         <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Wait for an email confirmation once all required documents are approved and tuition fee is fully paid.</li>
                     </ul>
-        
+                
                     <!-- Mandatory Checkbox -->
-                    <div class="mt-4 flex items-center">
-                        <input type="checkbox" id="responsibilitiesCheckbox" class="w-5 h-5 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
-                        <label for="responsibilitiesCheckbox" class="ml-2 text-gray-700 text-sm">
+                    <div class="mt-5 flex items-center">
+                        <input type="checkbox" id="responsibilitiesCheckbox" class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
+                        <label for="responsibilitiesCheckbox" class="ml-3 text-gray-800 text-lg">
                             I have read and understood my responsibilities listed for placement.
                         </label>
                     </div>
-        
+                
                     <!-- Validation Message -->
-                    <p id="checkboxError" class="text-red-600 text-sm mt-2 hidden">You must acknowledge your responsibilities before proceeding.</p>
+                    <p id="checkboxError" class="text-red-600 text-lg mt-2 hidden">You must acknowledge your responsibilities before proceeding.</p>
                 </div>
+                
             </div>
         
             <div class="flex justify-center mt-4">
@@ -183,10 +184,27 @@
                 </div>
         
                 <div class="flex flex-col">
-                    <label for="province" class="text-lg font-medium text-gray-700">Province <strong  style="color:red">*</strong></label>
-                    <input type="text" name="province" id="province" required
+                    <label for="province" class="text-lg font-medium text-gray-700">
+                        Province <strong style="color:red">*</strong>
+                    </label>
+                    <select name="province" id="province" required
                         class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
+                        <option value="" disabled selected>Select your province</option>
+                        <option value="Alberta (AB)">Alberta (AB)</option>
+                        <option value="British Columbia (BC)">British Columbia (BC)</option>
+                        <option value="Manitoba (MB)">Manitoba (MB)</option>
+                        <option value="New Brunswick (NB)">New Brunswick (NB)</option>
+                        <option value="Newfoundland and Labrador (NL)">Newfoundland and Labrador (NL)</option>
+                        <option value="Nova Scotia (NS)">Nova Scotia (NS)</option>
+                        <option value="Ontario (ON)">Ontario (ON)</option>
+                        <option value="Prince Edward Island (PE)">Prince Edward Island (PE)</option>
+                        <option value="Quebec (QC)">Quebec (QC)</option>
+                        <option value="Saskatchewan (SK)">Saskatchewan (SK)</option>
+                        <option value="Northwest Territories (NT)">Northwest Territories (NT)</option>
+                        <option value="Nunavut (NU)">Nunavut (NU)</option>
+                        <option value="Yukon (YT)">Yukon (YT)</option>
+                    </select>
+                </div>                
         
                 <div class="flex flex-col">
                     <label for="postal_code" class="text-lg font-medium text-gray-700">Postal Code <strong  style="color:red">*</strong></label>
@@ -237,7 +255,7 @@
 
         <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
                 hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300" 
-                onclick="nextStep(5)">
+                onclick="nextStep(5); handleExperienceChange()">
             Next <i class="fas fa-arrow-right ml-2"></i>
         </button>
     </div>
@@ -297,15 +315,14 @@
     </div>
     <div class="flex flex-col">
         
-        <label for="shift_requested" class="text-lg font-medium text-gray-700 mb-2">Shift Requested</label>
-        <select name="shift_requested" id="shift_requested" 
-                class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <label for="shift_requested" class="text-lg font-medium text-gray-700 mb-2 after:content-['*'] after:text-red-500 after:ml-1">Shift Requested</label>
+        <select name="shift_requested" id="shift_requested" required class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="Select your shift request">Select your shift request</option>
             <option value="Morning">Morning - Mon to Fri - 7AM to 3PM</option>
             <option value="Evening">Evening - Mon to Fri - 3PM to 11PM</option>
             <!-- <option value="Night">Night - Mon to Fri - 11PM to 7AM</option> -->
-            <option value="Weekend Morning">Weekend Morning - Sat & Sun</option>
-            <option value="Weekend Evening">Weekend Evening - Sat & Sun</option>
+            <option value="Weekend Morning">Weekend Morning - Sat & Sun - 7AM to 3PM </option>
+            <option value="Weekend Evening">Weekend Evening - Sat & Sun - 3PM to 11PM</option>
             <option value="Weekend Day">Weekend Sat & Sun - 7AM to 7PM</option>
             <!-- <option value="Weekend Night">Weekend Night - Sat & Sun</option> -->
         </select>
@@ -458,6 +475,12 @@
                 const experience = document.getElementById("experience_level").value;
                 const uploadDiv = document.getElementById("document_upload");
                 const uploadLabel = document.getElementById("document_label");
+                var experienceNextButton = document.querySelector(".next-button-experience"); // Select button by class
+                    console.log(experience)
+                    console.log(experience == "No Experience")
+                    if (experience == "No Experience") {
+                        experienceNextButton.click();  // Simulate a click on the "Next" button
+                    }
         
                 if (experience === "No Experience") {
                     uploadDiv.classList.add("hidden"); // No upload required
@@ -613,6 +636,7 @@ function validateStep(step) {
         }
     }
 
+
     return isValid;
 }
 
@@ -688,6 +712,29 @@ document.addEventListener("DOMContentLoaded", () => updateStep());
             if (!valid) event.preventDefault();
         });
     });
+    
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const nextButton = document.querySelector("button[onclick='nextStep(7)']");
+        const shiftSelect = document.getElementById("shift_requested");
+    
+        // Initially disable the button
+        nextButton.disabled = true;
+        nextButton.classList.add("opacity-50", "cursor-not-allowed");
+    
+        // Listen for changes in the dropdown
+        shiftSelect.addEventListener("change", function () {
+            if (shiftSelect.value !== "Select your shift request") {
+                nextButton.disabled = false;
+                nextButton.classList.remove("opacity-50", "cursor-not-allowed");
+            } else {
+                nextButton.disabled = true;
+                nextButton.classList.add("opacity-50", "cursor-not-allowed");
+            }
+        });
+    });
+    
     
 </script>
 {% endblock %}

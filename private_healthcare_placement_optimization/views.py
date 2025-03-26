@@ -239,7 +239,6 @@ class PlacementProfileView(View):
             print(f"Error saving PlacementProfile: {e}")
             return render(request, 'placement_profile_form.html', {'error': 'Failed to save placement profile'})
 
-        # Define required and optional documents
         documents_data = {
             'medical_certificate': 'Medical Certificate',
             'covid_vaccination_certificate': 'Covid Vaccination Certificate',
@@ -256,24 +255,22 @@ class PlacementProfileView(View):
             file = request.FILES.get(file_field)
 
             if file:
-                # Rename the file using "First Name, Last Name, Document Name"
                 file_extension = file.name.split('.')[-1]
                 new_file_name = f"{first_name}_{last_name}_{doc_name}.{file_extension}"
 
-                # Save the file manually with the new filename
                 file_path = os.path.join("documents/uploads", new_file_name)
                 saved_path = default_storage.save(file_path, ContentFile(file.read()))
 
                 submitted_documents.append(doc_name)
             else:
-                missing_documents.append(doc_name)
-                saved_path = None  # No file uploaded
+                missing_documents.append(file_field)
+                saved_path = None 
 
             try:
                 document_entry = Document.objects.create(
                     profile=profile,
                     document_type=doc_name,
-                    file=saved_path if saved_path else None,  # Save file path
+                    file=saved_path if saved_path else None, 
                     file_name=new_file_name if file else None
                 )
 
@@ -285,14 +282,12 @@ class PlacementProfileView(View):
             except Exception as e:
                 print(f"Error saving document {doc_name}: {e}")
 
-        # Check for missing required documents
         required_document_keys = {'medical_certificate', 'covid_vaccination_certificate', 
-                                  'vulnerable_sector_check', 'cpr_or_first_aid', 
-                                  'mask_fit_certificate', 'bls_certificate'}
+                                  'vulnerable_sector_check', 'cpr_or_first_aid',
+                                  'mask_fit_certificate', }
         
         missing_required_docs = [documents_data[key] for key in required_document_keys if key in missing_documents]
 
-        # Send appropriate email based on document submission status
         if not missing_required_docs:
             try:
                 send_welcome_email(profile, submitted_documents)
@@ -361,10 +356,9 @@ def send_documents_incomplete_email(profile, missing_documents):
     </head>
     <body>
         <div class="container">
-            <h2>Placement Profile: Documents Incomplete</h2>
             <p>Greetings!</p>
             <p>Thank you for creating your profile.</p>
-            <p>To submit the remaining requirements, please log in to your profile again and complete the submission process.</p>
+            <b>To submit the remaining requirements, please log in to your profile again and complete the submission process.</b>
             <p>The placement coordinators will begin reviewing your documents only once all requirements are submitted and your balance is cleared.</p>
             <p><b>Remaining documents to submit:</b></p>
             <ul>
@@ -399,7 +393,6 @@ def send_welcome_email(profile, submitted_documents):
     """Send a welcome email when a student's documents are under review."""
     subject = "Placement Profile: Documents Under Review"
     
-    document_list_html = "".join(f"<li>{doc}</li>" for doc in submitted_documents)
     
     message = f"""
     <html>
@@ -450,14 +443,9 @@ def send_welcome_email(profile, submitted_documents):
     </head>
     <body>
         <div class="container">
-            <h2>Placement Profile: Documents Under Review</h2>
             <p>Greetings!</p>
             <p>Your documents are now <span class="bold">UNDER REVIEW</span> by our team.</p>
-            <p>The following documents have been submitted:</p>
-            <ul>
-                {document_list_html}
-            </ul>
-            <p>Next step: wait for the approval of your submitted documents. You’ll receive another email once all are approved.</p>
+            <p>Next step, wait for the approval of your submitted documents. You’ll receive another email once all are approved.</p>
             <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
             <div class="footer">
                 <p>Warm regards, <br> The Peak Healthcare Team</p>
@@ -974,12 +962,7 @@ def send_placement_email(profile):
     </head>
     <body>
         <div class="container">
-            <h2>Placement Profile Completed</h2>
             <h2>{profile.first_name} {profile.last_name} is now ready for placement.</h2>
-            <p>Dear Placement Team,</p>
-            <p>This is to inform you that <strong>{profile.first_name} {profile.last_name}</strong> has successfully completed their placement profile.</p>
-            <p>All required documents have been submitted and approved. Please proceed with the necessary steps to coordinate their placement at an appropriate facility.</p>
-            <p>If any additional information is needed, feel free to reach out.</p>
             <div class="footer">
                 <p>Best regards,</p>
                 <p><strong>[Your Name]</strong><br>
@@ -1014,11 +997,8 @@ def send_documents_email(profile, documents):
     </head>
     <body>
         <div class="container">
-            <h2>Documents Completed</h2>
             <h2>{profile.first_name}'s Complete Files for Placement</h2>
-            <p>Greetings!</p>
-            <p>Student's all necessary documents have been completed for placement. Please find the attached documents.</p>
-            <p>Thank you!</p>
+            <p>(Note: Attach all submitted documents)</p>
         </div>
     </body>
     </html>
