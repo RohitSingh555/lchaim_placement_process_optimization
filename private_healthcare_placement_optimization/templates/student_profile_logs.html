@@ -293,6 +293,34 @@
         <div id="loadingOverlay" class="hidden">
             <div class="loader"></div>
         </div>
+        <!-- Message Popup (Only visible when there are messages) -->
+{% if messages %}
+<div id="popup-message"
+     class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-start space-x-3 transition-opacity duration-300">
+    <i class="fas fa-check-circle text-lg"></i>
+    <p class="text-lg font-medium">
+        {% for message in messages %}
+            {{ message|safe }}
+        {% endfor %}
+    </p>
+    <!-- Close Button -->
+    <button id="close-popup" class="ml-4 text-2xl font-bold focus:outline-none">&times;</button>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const popup = document.getElementById("popup-message");
+    const closeBtn = document.getElementById("close-popup");
+
+    // Remove the automatic fade-out; the message stays until the user clicks the close button.
+    closeBtn.addEventListener("click", function () {
+        popup.classList.add("opacity-0");
+        // Optionally remove after fade-out animation completes
+        setTimeout(() => popup.remove(), 500);
+    });
+});
+</script>
+{% endif %}
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             function openModal(profileIndex) {
