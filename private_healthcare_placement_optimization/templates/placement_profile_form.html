@@ -479,9 +479,10 @@
                     console.log(experience)
                     console.log(experience == "No Experience")
                     if (experience == "No Experience") {
+                        localStorage.setItem("user_experience", "No Experience");  // Save in local storage
                         experienceNextButton.click();  // Simulate a click on the "Next" button
                     }
-        
+                            
                 if (experience === "No Experience") {
                     uploadDiv.classList.add("hidden"); // No upload required
                     const nextButtons = document.querySelectorAll(".next-button-experience"); // Select all buttons
@@ -590,10 +591,21 @@ function nextStep() {
 
 function prevStep() {
     if (currentStep > 1) {
-        currentStep--;
-        updateStep();
+        // Check if "user_experience" exists and equals "No Experience"
+        let userExperience = localStorage.getItem("user_experience");
+
+        if (userExperience === "No Experience" && currentStep === 6) {
+            currentStep = 4;  // Skip step 5 and go directly to step 4
+            localStorage.removeItem("user_experience"); // Clear the stored experience
+        } else {
+            currentStep--;  // Normal behavior
+        }
+
+        updateStep();  // Update the step display
     }
 }
+
+
 
 function updateStep() {
     const steps = document.querySelectorAll('.form-step');
@@ -737,4 +749,23 @@ document.addEventListener("DOMContentLoaded", () => updateStep());
     
     
 </script>
+<script>
+    function handleExperienceChange() {
+        let experienceSelect = document.getElementById("experience_level");
+        let nextButton = document.querySelector("#step4 button");
+    
+        if (experienceSelect.value !== "No Experience") {
+            nextButton.disabled = false;
+            nextButton.classList.remove("opacity-50", "cursor-not-allowed");
+        } else {
+            nextButton.disabled = true;
+            nextButton.classList.add("opacity-50", "cursor-not-allowed");
+        }
+    }
+    
+    // Ensure the validation is checked when the page loads
+    document.addEventListener("DOMContentLoaded", function () {
+        handleExperienceChange(); // Initialize button state
+    });
+    </script>
 {% endblock %}
