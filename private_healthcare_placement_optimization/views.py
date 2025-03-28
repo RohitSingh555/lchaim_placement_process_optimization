@@ -186,6 +186,7 @@ def profile_view(request):
     return render(request, 'profile.html', {'user': request.user})
 
 
+
 class PlacementProfileView(View):
     def get(self, request):
         user = request.user
@@ -289,13 +290,23 @@ class PlacementProfileView(View):
         missing_required_docs = [documents_data[key] for key in required_document_keys if key in missing_documents]
 
         if not missing_required_docs:
-            try:
+            try:                
+                messages.error(
+                    request, 
+                    "Your documents are now <strong>UNDER REVIEW</strong> by our team.<br><br>Next step, wait for the approval of your submitted documents.<br><br>You’ll receive another email once all are approved."
+                )
                 send_welcome_email(profile, submitted_documents)
                 print(f"Welcome email sent to {profile.college_email}")
             except Exception as e:
                 print(f"Error sending welcome email: {e}")
         else:
-            try:
+            try: 
+                messages.success(
+                request,
+                "Thank you for creating your profile.<br><br>"
+                "To submit the remaining requirements, please log in to your profile again and complete the submission process.<br><br>"
+                "The placement coordinators will begin reviewing your documents only once all requirements are submitted and your balance is cleared."
+            )
                 send_documents_incomplete_email(profile, missing_required_docs)
                 print(f"Documents incomplete email sent to {profile.college_email}")
             except Exception as e:
@@ -349,8 +360,8 @@ def send_documents_incomplete_email(profile, missing_documents):
                 color: #008080;
             }}
             img {{
-                width: 250px;
-                height: 120px;
+                width: 240px;
+                height: 90px;
             }}
         </style>
     </head>
@@ -358,7 +369,7 @@ def send_documents_incomplete_email(profile, missing_documents):
         <div class="container">
             <p>Greetings!</p>
             <p>Thank you for creating your profile.</p>
-            <b>To submit the remaining requirements, please log in to your profile again and complete the submission process.</b>
+            <p>To submit the remaining requirements, please log in to your profile again and complete the submission process.</p>
             <p>The placement coordinators will begin reviewing your documents only once all requirements are submitted and your balance is cleared.</p>
             <p><b>Remaining documents to submit:</b></p>
             <ul>
@@ -367,10 +378,20 @@ def send_documents_incomplete_email(profile, missing_documents):
             <p><a href="https://www.peakcollege.ca/student-view" class="highlight">Placement Link: Click here.</a></p>
             <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
             <div class="footer">
-                <p>Warm regards, <br> The Peak Healthcare Team</p>
-                <p>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></p>
+                <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
+                <span>Warm regards, </span>
+                <br>
+                <span> The Peak Healthcare Team</span>
+                <br>
+                <span>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></span>
+                <br>
                 <img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg"></img>
-                <p>1140 Sheppard Ave West - Unit #12, North York, ON, M3K 2A2</p>
+                <br>
+                <span>1140 Sheppard Ave West</span>
+                <br>
+                <span>Unit #12, North York, ON</span>
+                <br>
+                <span>M3K 2A2</span>
             </div>
         </div>
     </body>
@@ -436,8 +457,8 @@ def send_welcome_email(profile, submitted_documents):
                 color: #008080;
             }}
             img {{
-                width: 250px;
-                height: 120px;
+                width: 240px;
+                height: 90px;
             }}
         </style>
     </head>
@@ -448,10 +469,20 @@ def send_welcome_email(profile, submitted_documents):
             <p>Next step, wait for the approval of your submitted documents. You’ll receive another email once all are approved.</p>
             <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
             <div class="footer">
-                <p>Warm regards, <br> The Peak Healthcare Team</p>
-                <p>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></p>
+                <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
+                <span>Warm regards, </span>
+                <br>
+                <span> The Peak Healthcare Team</span>
+                <br>
+                <span>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></span>
+                <br>
                 <img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg"></img>
-                <p>1140 Sheppard Ave West - Unit #12, North York, ON, M3K 2A2</p>
+                <br>
+                <span>1140 Sheppard Ave West</span>
+                <br>
+                <span>Unit #12, North York, ON</span>
+                <br>
+                <span>M3K 2A2</span>
             </div>
         </div>
     </body>
@@ -538,6 +569,11 @@ class SendDocumentsEmailView(View):
                     font-weight: bold;
                     color: #2c3e50;
                 }}
+                img {{
+                    width: 240px;
+                    height: 90px;
+                }}
+
             </style>
         </head>
         <body>
@@ -552,7 +588,22 @@ class SendDocumentsEmailView(View):
 
                 <p>If you have any questions or require further information, feel free to reach out.</p>
                 
-                <p class="footer">Best Regards, <br><strong>Peak College Admissions Team</strong></p>
+                <div class="footer">
+                <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
+                <span>Warm regards, </span>
+                <br>
+                <span> The Peak Healthcare Team</span>
+                <br>
+                <span>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></span>
+                <br>
+                <img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg"></img>
+                <br>
+                <span>1140 Sheppard Ave West</span>
+                <br>
+                <span>Unit #12, North York, ON</span>
+                <br>
+                <span>M3K 2A2</span>
+            </div>
             </div>
         </body>
         </html>
@@ -642,9 +693,27 @@ class StudentProfileLogsView(View):
 
 @user_passes_test(lambda u: u.is_superuser)  # Only allow superusers
 def delete_profile(request, profile_id):
+    # Get the profile to delete
     profile = get_object_or_404(PlacementProfile, id=profile_id)
+    
+    # Delete associated document files
+    for document in profile.documents.all():
+        if document.file:
+            document.file.delete(save=False)  # Deletes the file from storage without saving the model
+        document.delete()  # Delete the Document record from the database
+
+    # Optionally, if there are other related objects that need special deletion, handle them here
+
+    # Get the associated user before deleting the profile.
+    user = profile.user
+
+    # Delete the profile.
     profile.delete()
-    return JsonResponse({'message': 'Profile deleted successfully!'})
+
+    # Delete the associated user.
+    user.delete()
+
+    return JsonResponse({'message': 'Profile, associated documents (with files) and user deleted successfully!'})
 
 @csrf_exempt
 @login_required
@@ -741,11 +810,14 @@ def send_email_remind_fee(profile):
             .highlight {{
                 color: #008080;
             }}
+            img {{
+                width: 240px;
+                height: 90px;
+            }}
         </style>
     </head>
     <body>
         <div class="container">
-            <h2>Placement Profile: Settle Tuition Fee Balance</h2>
             <p>Greetings!</p>
             <p>Thank you for creating your Placement Profile! You still have an outstanding balance. Please pay your tuition fee to avoid any delays in the process. This will help us move forward smoothly with your placement.</p>
             <h3>Payment Options:</h3>
@@ -758,10 +830,19 @@ def send_email_remind_fee(profile):
             <p><span class="bold">Saturday:</span> 9:30 AM to 4:00 PM</p>
             <div class="footer">
                 <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
-                <p>Warm regards, <br> The Peak Healthcare Team</p>
-                <p>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></p>
+                <span>Warm regards, </span>
+                <br>
+                <span> The Peak Healthcare Team</span>
+                <br>
+                <span>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></span>
+                <br>
                 <img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg"></img>
-                <p>1140 Sheppard Ave West - Unit #12, North York, ON, M3K 2A2</p>
+                <br>
+                <span>1140 Sheppard Ave West</span>
+                <br>
+                <span>Unit #12, North York, ON</span>
+                <br>
+                <span>M3K 2A2</span>
             </div>
         </div>
     </body>
@@ -826,15 +907,14 @@ def send_email_notify_result(profile, rejected_documents):
             .highlight {{
                 color: #008080;
             }}
-            img{{
-            width: 250px;
-            height: 120px;
+            img {{
+                width: 240px;
+                height: 90px;
             }}
         </style>
     </head>
     <body>
         <div class="container">
-            <h2>Placement Profile: Resubmit Rejected Documents</h2>
             <p>Greetings!</p>
             <p>The documents below were rejected due to the following reasons:</p>
             <ul>
@@ -845,10 +925,19 @@ def send_email_notify_result(profile, rejected_documents):
             <p>You’ll receive another email once all are approved.</p>
             <div class="footer">
                 <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
-                <p>Warm regards, <br> The Peak Healthcare Team</p>
-                <p>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></p>
+                <span>Warm regards, </span>
+                <br>
+                <span> The Peak Healthcare Team</span>
+                <br>
+                <span>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></span>
+                <br>
                 <img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg"></img>
-                <p>1140 Sheppard Ave West - Unit #12, North York, ON, M3K 2A2</p>
+                <br>
+                <span>1140 Sheppard Ave West</span>
+                <br>
+                <span>Unit #12, North York, ON</span>
+                <br>
+                <span>M3K 2A2</span>
             </div>
         </div>
     </body>
@@ -908,11 +997,14 @@ def send_email_done(profile, documents):
             .highlight {{
                 color: #008080;
             }}
+            img {{
+                width: 240px;
+                height: 90px;
+            }}
         </style>
     </head>
     <body>
         <div class="container">
-            <h2>Placement Profile: Documents Approved</h2>
             <h2>{profile.first_name} is now ready for placement.</h2>
             <p>Greetings!</p>
             <p>All your documents are now <span class="highlight">APPROVED</span>.</p>
@@ -923,10 +1015,19 @@ def send_email_done(profile, documents):
             <p><span class="bold">Saturday:</span> 9:30 AM to 4:00 PM</p>
             <div class="footer">
                 <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
-                <p>Warm regards, <br> The Peak Healthcare Team</p>
-                <p>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></p>
+                <span>Warm regards, </span>
+                <br>
+                <span> The Peak Healthcare Team</span>
+                <br>
+                <span>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></span>
+                <br>
                 <img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg"></img>
-                <p>1140 Sheppard Ave West - Unit #12, North York, ON, M3K 2A2</p>
+                <br>
+                <span>1140 Sheppard Ave West</span>
+                <br>
+                <span>Unit #12, North York, ON</span>
+                <br>
+                <span>M3K 2A2</span>
             </div>
         </div>
     </body>
@@ -958,16 +1059,30 @@ def send_placement_email(profile):
             h2 {{ color: #008080; }}
             p {{ font-size: 16px; line-height: 1.5; }}
             .footer {{ margin-top: 20px; font-size: 14px; color: #555; }}
+            img {{
+                width: 240px;
+                height: 90px;
+            }}
         </style>
     </head>
     <body>
         <div class="container">
             <h2>{profile.first_name} {profile.last_name} is now ready for placement.</h2>
             <div class="footer">
-                <p>Best regards,</p>
-                <p><strong>[Your Name]</strong><br>
-                Peak College Placement Coordinator<br>
-                <a href="mailto:placement@peakcollege.ca">placement@peakcollege.ca</a></p>
+                <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
+                <span>Warm regards, </span>
+                <br>
+                <span> The Peak Healthcare Team</span>
+                <br>
+                <span>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></span>
+                <br>
+                <img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg"></img>
+                <br>
+                <span>1140 Sheppard Ave West</span>
+                <br>
+                <span>Unit #12, North York, ON</span>
+                <br>
+                <span>M3K 2A2</span>
             </div>
         </div>
     </body>
@@ -1000,6 +1115,7 @@ def send_documents_email(profile, documents):
             <h2>{profile.first_name}'s Complete Files for Placement</h2>
             <p>(Note: Attach all submitted documents)</p>
         </div>
+        
     </body>
     </html>
     '''
@@ -1086,20 +1202,34 @@ def send_email_resubmit(profile, documents):
             .highlight {{
                 color: #008080;
             }}
+            img {{
+                width: 240px;
+                height: 90px;
+            }}
         </style>
     </head>
     <body>
         <div class="container">
-            <h2>Corrected File Submitted</h2>
             <p>Greetings!</p>
             <p>The student <span class="bold">{profile.first_name} {profile.last_name}</span> has resubmitted the corrected documents for your review.</p>
             <p>Click the link below to assess (approve or reject) the submission:</p>
             <p><a href="https://www.peakcollege.ca/approver-view" class="highlight">Approver's View: Click here to log in!</a></p>
             <p>Please review and take the necessary action.</p>
             <div class="footer">
-                <p>Warm regards, <br> The Peak Healthcare Team</p>
-                <p>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></p>
-                <p>1140 Sheppard Ave West - Unit #12, North York, ON, M3K 2A2</p>
+                <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
+                <span>Warm regards, </span>
+                <br>
+                <span> The Peak Healthcare Team</span>
+                <br>
+                <span>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></span>
+                <br>
+                <img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg"></img>
+                <br>
+                <span>1140 Sheppard Ave West</span>
+                <br>
+                <span>Unit #12, North York, ON</span>
+                <br>
+                <span>M3K 2A2</span>
             </div>
         </div>
     </body>
