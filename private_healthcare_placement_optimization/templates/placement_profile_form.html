@@ -241,9 +241,9 @@
 
     <div class="flex flex-col">
         <label for="experience_level" class="text-lg font-medium text-gray-700 mb-2">Experience Level</label>
-        <select name="experience_level" id="experience_level" onchange="handleExperienceChange()"
+        <select name="experience_level" id="experience_level" onchange="handleExperienceChange(); setUserExperience(); handleExperienceChangeSelect();"
                 class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="No Experience">Select your experience</option>
+            <option value="Select your experience">Select your experience</option>
             <option value="No Experience">No Experience (300 Hrs)</option>
             <option value="1 Year PSW Experience">One (1) Year PSW Experience in Canada : 200 Hrs</option>
             <option value="International Nurse">Internationally Educated Nurse (IEN) : 200 Hrs</option>
@@ -253,7 +253,7 @@
 
     <div class="flex justify-center items-center mt-6">
 
-        <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
+        <button type="button" class="next-button-experience-select px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
                 hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300" 
                 onclick="nextStep(5); handleExperienceChange()">
             Next <i class="fas fa-arrow-right ml-2"></i>
@@ -275,8 +275,7 @@
 
     <div class="flex justify-center items-center mt-6">
         <button type="button" id="nextButton" class="next-button-experience px-6 py-3 bg-gray-400 text-white font-semibold rounded-full shadow-md 
-                cursor-not-allowed transition-all duration-300" disabled 
-                onclick="nextStep(6)">
+                cursor-not-allowed transition-all duration-300" disabled onclick="nextStep(6)">
             Next <i class="fas fa-arrow-right ml-2"></i>
         </button>
     </div>
@@ -284,14 +283,14 @@
 
         <!-- Shift Requested Dropdown (Step 6) -->
 <div class="form-step hidden bg-white p-6 rounded-lg shadow-lg" id="step6">
-    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Shift Requested</h2>
+    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Target Shift Schedule</h2>
 
     
     <!-- Preferred Facility Name -->
     <div class="mt-6 mb-6">
         
         
-        <label for="preferred_facility" class="text-lg font-medium text-gray-700 mb-2">Preferred Facility Name</label>
+        <label for="preferred_facility" class="text-lg font-medium text-gray-700 mb-2">Target Facility Name</label>
         <p class="text-gray-700 text-sm mb-2">
             If you find a placement location near your home, provide the facility's name and contact details. 
             Peak College cannot guarantee placement at this location, but we will make every effort to arrange a contract.
@@ -301,13 +300,13 @@
                placeholder="Enter facility name (optional)">
 
         <div class="flex flex-col pt-5">
-        <label for="preferred_facility_address" class="text-lg font-medium text-gray-700 mb-2">Preferred Facility Address (Optional)</label>
+        <label for="preferred_facility_address" class="text-lg font-medium text-gray-700 mb-2">Target Facility Address (Optional)</label>
         <textarea name="preferred_facility_address" id="preferred_facility_address" rows="3" 
                     class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
                     placeholder="Facility Address"></textarea>
         </div>
         <div class="flex flex-col pt-5">
-            <label for="preferred_facility_contact_person" class="text-lg font-medium text-gray-700 mb-2">Preferred Facility Contact Person (Optional)</label>
+            <label for="preferred_facility_contact_person" class="text-lg font-medium text-gray-700 mb-2">Target Facility Contact Person (Optional)</label>
             <input type="text" name="preferred_facility_contact_person" id="preferred_facility_contact_person" 
                     class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
                     placeholder="Contact Person">
@@ -315,7 +314,7 @@
     </div>
     <div class="flex flex-col">
         
-        <label for="shift_requested" class="text-lg font-medium text-gray-700 mb-2 after:content-['*'] after:text-red-500 after:ml-1">Shift Requested</label>
+        <label for="shift_requested" class="text-lg font-medium text-gray-700 mb-2 after:content-['*'] after:text-red-500 after:ml-1">Target Shift Schedule</label>
         <select name="shift_requested" id="shift_requested" required class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="Select your shift request">Select your shift request</option>
             <option value="Morning">Morning - Mon to Fri - 7AM to 3PM</option>
@@ -430,7 +429,94 @@
             </div>
             
         </div>
+    <script>
+        function setUserExperience(){
+    const experienceSelect = document.getElementById("experience_level");
+    const experience = experienceSelect.value;
+                if (experience === "No Experience") {
+        localStorage.setItem("user_experience", "No Experience");
+        // nextButtons.forEach((btn) => btn.click()); 
+    }
+            }
+            
+function handleExperienceChangeSelect() {
+        const experienceSelect = document.getElementById("experience_level");
+        const nextButtonExperience = document.querySelector(".next-button-experience-select");
+
+        if (experienceSelect.value === "Select your experience") {
+            nextButtonExperience.setAttribute("disabled", "true");
+            nextButtonExperience.classList.add("opacity-50", "cursor-not-allowed");
+        } else {
+            nextButtonExperience.removeAttribute("disabled");
+            nextButtonExperience.classList.remove("opacity-50", "cursor-not-allowed");
+        }
+    }
+
+    // Attach event listener to select dropdown
+    document.getElementById("experience_level").addEventListener("change", handleExperienceChangeSelect);
+
+    // Ensure button starts as disabled
+    document.addEventListener("mousemove", handleExperienceChangeSelect);
+
+    </script>
+        <script>
+            
+
+            function handleExperienceChange() {
+    const experienceSelect = document.getElementById("experience_level");
+    const experience = experienceSelect.value;
+    const uploadDiv = document.getElementById("document_upload");
+    const uploadLabel = document.getElementById("document_label");
+    const step4nextButton = document.querySelector("#step4 button");
+    const nextButtons = document.querySelectorAll(".next-button-experience"); // Select all buttons
+    const nextButtonExperience = document.querySelector(".next-button-experience")
+
+    console.log(experience);
+    console.log(experience === "No Experience");
     
+
+    // Save "No Experience" in local storage and auto-click next button
+    
+
+    // Enable/Disable the Next button in step 4
+    if (experience !== "No Experience") {
+        step4nextButton.disabled = false;
+        step4nextButton.classList.remove("opacity-50", "cursor-not-allowed");
+    } else {
+       console.log("No Experience");
+    }
+
+    // Show/Hide document upload section
+    if (experience === "No Experience") {
+        uploadDiv.classList.add("hidden");
+
+        nextButtons.forEach((btn) => {
+            btn.classList.remove("cursor-not-allowed", "bg-gray-400");
+            btn.classList.add("bg-teal-500", "hover:bg-teal-600", "hover:shadow-lg");
+            // btn.disabled = false;
+        });
+    } else {
+        uploadDiv.classList.remove("hidden");
+        
+        nextButtonExperience.classList.add("opacity-50", "cursor-not-allowed");
+    }
+
+    // Update document label based on experience selection
+    const documentLabels = {
+        "1 Year PSW Experience": "Letter of Employment",
+        "International Nurse": "Diploma and/or Transcript",
+        "Caregiver Experience": "Letter from Employer"
+    };
+
+    if (documentLabels[experience]) {
+        uploadLabel.textContent = documentLabels[experience];
+    }
+
+    
+    
+
+}
+</script>
         <script>
             document.addEventListener("DOMContentLoaded", function () {
                 const checkbox = document.getElementById("responsibilitiesCheckbox");
@@ -471,50 +557,16 @@
         </script>
         <script>
 
-            function handleExperienceChange() {
-                const experience = document.getElementById("experience_level").value;
-                const uploadDiv = document.getElementById("document_upload");
-                const uploadLabel = document.getElementById("document_label");
-                var experienceNextButton = document.querySelector(".next-button-experience"); // Select button by class
-                    console.log(experience)
-                    console.log(experience == "No Experience")
-                    if (experience == "No Experience") {
-                        localStorage.setItem("user_experience", "No Experience");  // Save in local storage
-                        experienceNextButton.click();  // Simulate a click on the "Next" button
-                    }
-                            
-                if (experience === "No Experience") {
-                    uploadDiv.classList.add("hidden"); // No upload required
-                    const nextButtons = document.querySelectorAll(".next-button-experience"); // Select all buttons
-
-    nextButtons.forEach((nextButton) => {
-                    nextButton.classList.remove("cursor-not-allowed", "bg-gray-400");
-                    nextButton.classList.add("bg-teal-500", "hover:bg-teal-600", "hover:shadow-lg");
-                    nextButton.disabled = false;})
-                } else {
-                    uploadDiv.classList.remove("hidden"); // Show upload section
-                }
-        
-                switch (experience) {
-                    case "1 Year PSW Experience":
-                        uploadLabel.textContent = "Letter of Employment";
-                        break;
-                    case "International Nurse":
-                        uploadLabel.textContent = "Diploma and/or Transcript";
-                        break;
-                    case "Caregiver Experience":
-                        uploadLabel.textContent = "Letter from Employer";
-                        break;
-                }
-            }
+            
             function validateFileUpload() {
     const fileInput = document.getElementById("experience_document");
     const nextButtons = document.querySelectorAll(".next-button-experience"); // Select all buttons
 
     nextButtons.forEach((nextButton) => {
         if (fileInput.files.length > 0) {
-            nextButton.classList.remove("cursor-not-allowed", "bg-gray-400");
+            nextButton.classList.remove("cursor-not-allowed", "opacity-50");
             nextButton.classList.add("bg-teal-500", "hover:bg-teal-600", "hover:shadow-lg");
+            
             nextButton.disabled = false;
         } else {
             nextButton.classList.add("cursor-not-allowed", "bg-gray-400");
@@ -581,13 +633,22 @@
 
 function nextStep() {
     clearErrors();
-    
+
     const currentStepElement = document.querySelector(`#step${currentStep}`);
     if (!validateStep(currentStepElement)) return; // Stop if validation fails
 
     currentStep++;
+
+    // Check if userExperience is "No Experience" and current step is 5, then skip to 6
+    let userExperience = localStorage.getItem("user_experience");
+    if (userExperience === "No Experience" && currentStep === 5) {
+        console.log("Skipping step 5 due to No Experience");
+        currentStep = 6;
+    }
+
     updateStep();
 }
+
 
 function prevStep() {
     if (currentStep > 1) {
@@ -750,22 +811,22 @@ document.addEventListener("DOMContentLoaded", () => updateStep());
     
 </script>
 <script>
-    function handleExperienceChange() {
+document.addEventListener("DOMContentLoaded", function () {
+    setTimeout(() => {
+        // Clear local storage
+        localStorage.removeItem("user_experience");
+        handleExperienceChangeSelect();
+
+        // Reset the select dropdown to its default option
         let experienceSelect = document.getElementById("experience_level");
-        let nextButton = document.querySelector("#step4 button");
-    
-        if (experienceSelect.value !== "No Experience") {
-            nextButton.disabled = false;
-            nextButton.classList.remove("opacity-50", "cursor-not-allowed");
-        } else {
-            nextButton.disabled = true;
-            nextButton.classList.add("opacity-50", "cursor-not-allowed");
+        if (experienceSelect) {
+            experienceSelect.selectedIndex = 0; // Reset to the first option
         }
-    }
-    
-    // Ensure the validation is checked when the page loads
-    document.addEventListener("DOMContentLoaded", function () {
-        handleExperienceChange(); // Initialize button state
-    });
+
+        // Call experience change handler after resetting the dropdown
+        handleExperienceChange();
+    }, 0);
+});
+
     </script>
 {% endblock %}

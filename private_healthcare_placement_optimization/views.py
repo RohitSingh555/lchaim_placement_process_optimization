@@ -1068,22 +1068,7 @@ def send_placement_email(profile):
     <body>
         <div class="container">
             <h2>{profile.first_name} {profile.last_name} is now ready for placement.</h2>
-            <div class="footer">
-                <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
-                <span>Warm regards, </span>
-                <br>
-                <span> The Peak Healthcare Team</span>
-                <br>
-                <span>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></span>
-                <br>
-                <img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg"></img>
-                <br>
-                <span>1140 Sheppard Ave West</span>
-                <br>
-                <span>Unit #12, North York, ON</span>
-                <br>
-                <span>M3K 2A2</span>
-            </div>
+            
         </div>
     </body>
     </html>
