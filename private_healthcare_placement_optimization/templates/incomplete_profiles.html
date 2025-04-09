@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<body class="bg-gray-50 font-sans leading-relaxed text-gray-900">
+    <div class="max-w-7xl mx-auto py-12 px-4">
+        <h1 class="text-3xl font-bold mb-6 border-b pb-4">Incomplete Student Profiles</h1>
+        
+        <div class="overflow-x-auto shadow-xl rounded-2xl">
+            <table class="min-w-full text-left bg-white border border-gray-200">
+                <thead class="bg-gradient-to-r from-teal-400 to-teal-700">
+                    <tr>
+                        <th class="px-6 py-4 text-lg font-semibold text-white">
+                            <i class="fas fa-hashtag mr-2"></i>
+                        </th>
+                        <th class="px-6 py-4 text-lg font-semibold text-white">
+                            <i class="fas fa-user mr-2"></i>Name
+                        </th>
+                        <th class="px-6 py-4 text-lg font-semibold text-white">
+                            <i class="fas fa-envelope mr-2"></i>Email
+                        </th>
+                        <th class="px-6 py-4 text-lg font-semibold text-white">
+                            <i class="fas fa-clock mr-2"></i>Shift
+                        </th>
+                        <th class="px-6 py-4 text-lg font-semibold text-white">
+                            <i class="fas fa-briefcase mr-2"></i>Experience
+                        </th>
+                        <th class="px-6 py-4 text-lg font-semibold text-white">
+                            <i class="fas fa-cogs mr-2"></i>Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for profile in profiles %}
+                    <tr class="hover:bg-gray-50 transition duration-200">
+                        <td class="px-6 py-4">{{ forloop.counter }}</td>
+                        <td class="px-6 py-4 font-medium">{{ profile.first_name }} {{ profile.last_name }}</td>
+                        <td class="px-6 py-4">{{ profile.college_email }}</td>
+                        <td class="px-6 py-4">{{ profile.shift_requested }}</td>
+                        <td class="px-6 py-4">{{ profile.experience_level }}</td>
+                        <td class="px-6 py-4 space-x-2">
+                            <button onclick="deleteProfile({{ profile.id }})" class="delete-btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-red-600 flex items-center space-x-2 whitespace-nowrap">
+                                <i class="fas fa-trash-alt"></i>
+                                <span>Delete</span>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-6 text-gray-500">
+                            <i class="fas fa-info-circle mr-2"></i>No incomplete profiles found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <input type="hidden" id="csrf-token" value="{{ csrf_token }}">
+</body>
+
+<!-- FontAwesome -->
+<script src="https://kit.fontawesome.com/your-kit-id.js" crossorigin="anonymous"></script>
+
+<!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+function deleteProfile(profileId) {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "Cancel",
+        showClass: {
+            popup: "animate__animated animate__fadeInDown"
+        },
+        hideClass: {
+            popup: "animate__animated animate__fadeOutUp"
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/delete-profile/${profileId}/`, {
+                method: "DELETE",
+                headers: { "X-CSRFToken": "{{ csrf_token }}" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                Swal.fire({
+                    title: "Deleted!",
+                    text: data.message,
+                    icon: "success",
+                    showClass: {
+                        popup: "animate__animated animate__fadeIn"
+                    },
+                    hideClass: {
+                        popup: "animate__animated animate__fadeOut"
+                    }
+                }).then(() => location.reload());
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    });
+}
+</script>
+{% endblock %}

@@ -1426,3 +1426,66 @@ def custom_404(request, exception=None):
 @login_required
 def profile_view(request):
     return render(request, 'profile.html', {'user': request.user})
+
+@login_required
+def incomplete_profiles_view(request):
+    incomplete_profiles = []
+
+    profiles = PlacementProfile.objects.all().prefetch_related("documents")
+    for profile in profiles:
+        required_docs = [
+            "Medical Certificate",
+            "Covid Vaccination Certificate",
+            "Vulnerable Sector Check",
+            "CPR or First Aid",
+            "Mask Fit Certificate"
+        ]
+        documents = {doc.document_type: doc for doc in profile.documents.all()}
+        complete = True
+
+        for doc_type in required_docs:
+            doc = documents.get(doc_type)
+            if not doc:
+                complete = False
+                break
+            latest_approval = ApprovalLog.objects.filter(document=doc).order_by('-timestamp').first()
+            if not latest_approval or latest_approval.action != "Approved":
+                complete = False
+                break
+
+        if not complete:
+            incomplete_profiles.append(profile)
+
+    return render(request, 'incomplete_profiles.html', {'profiles': incomplete_profiles})
+
+
+@login_required
+def complete_profiles_view(request):
+    complete_profiles = []
+
+    profiles = PlacementProfile.objects.all().prefetch_related("documents")
+    for profile in profiles:
+        required_docs = [
+            "Medical Certificate",
+            "Covid Vaccination Certificate",
+            "Vulnerable Sector Check",
+            "CPR or First Aid",
+            "Mask Fit Certificate"
+        ]
+        documents = {doc.document_type: doc for doc in profile.documents.all()}
+        complete = True
+
+        for doc_type in required_docs:
+            doc = documents.get(doc_type)
+            if not doc:
+                complete = False
+                break
+            latest_approval = ApprovalLog.objects.filter(document=doc).order_by('-timestamp').first()
+            if not latest_approval or latest_approval.action != "Approved":
+                complete = False
+                break
+
+        if complete:
+            complete_profiles.append(profile)
+
+    return render(request, 'complete_profiles.html', {'profiles': complete_profiles})

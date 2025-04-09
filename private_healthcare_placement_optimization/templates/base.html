@@ -23,17 +23,21 @@
                     <i class="fas fa-id-card"></i>
                     <span>Create Placement Profile</span>
                 </a>
-                {% if user.is_superuser %}
-                    <a href="{% url 'approvers_view' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
-                        <i class="fas fa-users"></i>
-                        <span>Approvers</span>
-                    </a>
-                {% endif %}
                 <a href="/" class="hover:text-turquoise-300 flex items-center space-x-2">
                     <i class="fas fa-clipboard-list"></i>
                     <span>Placement Profile</span>
                 </a>
                 
+                {% if user.is_superuser %}
+                    <a href="{% url 'complete_profiles' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
+                        <i class="fas fa-users"></i>
+                        <span>Completed Profiles</span>
+                    </a>
+                    <a href="{% url 'incomplete_profiles' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
+                        <i class="fas fa-users"></i>
+                        <span>Incomplete Profiles</span>
+                    </a>
+                {% endif %}
                 {% endif %}
             </div>
         </div>
@@ -53,6 +57,12 @@
                         <a href="{% url 'profile' %}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
                             <i class="fas fa-user-circle mr-2"></i> Profile
                         </a>
+                        {% if user.is_superuser %}
+                            <a href="{% url 'approvers_view' %}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-users mr-2"></i> 
+                                <span>Approvers</span>
+                            </a>
+                        {% endif %}
                         <a href="{% url 'logout' %}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
                             <i class="fas fa-sign-out-alt mr-2"></i> Logout
                         </a>
@@ -82,15 +92,23 @@
                 <span>Create Placement Profile</span>
             </a>
             {% if user.is_superuser %}
-        <a href="{% url 'approvers_view' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
-            <i class="fas fa-users"></i>
-            <span>Approvers</span>
-        </a>
-    {% endif %}
-            <a href="/" class="flex items-center space-x-2">
+                    <a href="{% url 'approvers_view' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
+                        <i class="fas fa-users"></i>
+                        <span>Completed Profiles</span>
+                    </a>
+                    <a href="{% url 'approvers_view' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
+                        <i class="fas fa-users"></i>
+                        <span>Incomplete Profiles</span>
+                    </a>
+                    <a href="{% url 'approvers_view' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
+                        <i class="fas fa-users"></i>
+                        <span>Approvers</span>
+                    </a>
+            {% endif %}
+            <!-- <a href="/" class="flex items-center space-x-2">
                 <i class="fas fa-clipboard-list"></i>
                 <span>Approval Logs</span>
-            </a>
+            </a> -->
             <a href="{% url 'profile' %}" class="flex items-center space-x-2">
                 <i class="fas fa-user-circle"></i>
                 <span>Profile</span>
