@@ -633,24 +633,61 @@ class SendDocumentsEmailView(View):
             return JsonResponse({"error": f"Failed to send email: {str(e)}"}, status=500)
     
 class StudentProfileLogsView(View):
+    REQUIRED_DOCUMENTS = {
+        "Medical Certificate",
+        "Covid Vaccination Certificate",
+        "Vulnerable Sector Check",
+        "CPR or First Aid",
+        "Mask Fit Certificate",
+        "Experience Document"
+    }
+    OPTIONAL_DOCUMENTS = {"Basic Life Support"}
+
     def get(self, request):
-        # Check if user is authenticated
         if not request.user.is_authenticated:
-            return redirect('/login/')  # Redirect if not logged in
+            return redirect('/login/')
 
         is_approver = Approver.objects.filter(user=request.user).exists()
-        is_superuser = request.user.is_superuser  # Check if user is superuser
+        is_superuser = request.user.is_superuser
+
+        filter_status = request.GET.get("status")
+        search_query = request.GET.get("search", "").strip().lower()
 
         if is_approver:
             profiles = PlacementProfile.objects.prefetch_related('documents').all()
+            has_profile = True  # Approvers aren't students
         else:
             profiles = PlacementProfile.objects.filter(user=request.user).prefetch_related('documents')
+            has_profile = profiles.exists()
 
-        profile_details = []
+        filtered_profile_details = []
+
         for profile in profiles:
+            if search_query:
+                full_name = f"{profile.first_name} {profile.last_name}".lower()
+                email = profile.college_email.lower()
+                if search_query not in full_name and search_query not in email:
+                    continue
+
             document_details = []
-            for document in profile.documents.all():
-                approval_logs = ApprovalLog.objects.filter(document=document)
+            documents = {doc.document_type: doc for doc in profile.documents.all()}
+
+            complete = True
+            for doc_type in self.REQUIRED_DOCUMENTS:
+                doc = documents.get(doc_type)
+                if not doc:
+                    complete = False
+                    break
+                latest_approval = ApprovalLog.objects.filter(document=doc).order_by('-timestamp').first()
+                if not latest_approval or latest_approval.action != "Approved":
+                    complete = False
+                    break
+
+            if (filter_status == "completed" and not complete) or (filter_status == "incomplete" and complete):
+                continue
+
+            for doc in profile.documents.all():
+                approval_logs = ApprovalLog.objects.filter(document=doc)
                 approver_actions = [
                     {
                         "approver": log.approver.full_name if log.approver else "Unknown",
@@ -660,18 +697,18 @@ class StudentProfileLogsView(View):
                     }
                     for log in approval_logs
                 ]
-                
+
                 document_details.append({
-                    'id': document.id,
-                    'status': document.status,
-                    'document_type': document.document_type,
-                    'file': document.file.url if document.file else None,
-                    'rejection_reason': document.rejection_reason,
-                    'uploaded_at': document.uploaded_at.strftime("%Y-%m-%d %H:%M:%S"),
+                    'id': doc.id,
+                    'status': doc.status,
+                    'document_type': doc.document_type,
+                    'file': doc.file.url if doc.file else None,
+                    'rejection_reason': doc.rejection_reason,
+                    'uploaded_at': doc.uploaded_at.strftime("%Y-%m-%d %H:%M:%S"),
                     'approval_logs': approver_actions
                 })
-            
-            profile_details.append({
+
+            filtered_profile_details.append({
                 'profile_id': profile.id,
                 'first_name': profile.first_name,
                 'last_name': profile.last_name,
@@ -681,13 +718,17 @@ class StudentProfileLogsView(View):
                 'preferred_facility_name': profile.preferred_facility_name,
                 'preferred_facility_address': profile.preferred_facility_address,
                 'preferred_facility_contact_person': profile.preferred_facility_contact_person,
-                'documents': document_details
+                'documents': document_details,
+                'is_completed': complete
             })
 
         return render(request, 'student_profile_logs.html', {
-            'profile_details': profile_details,
+            'profile_details': filtered_profile_details,
             'is_approver': is_approver,
-            'is_superuser': is_superuser  # Pass to the template
+            'is_superuser': is_superuser,
+            'filter_status': filter_status,
+            'search_query': search_query,
+            'has_profile': has_profile,
         })
 
 
