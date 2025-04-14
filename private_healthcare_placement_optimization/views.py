@@ -662,6 +662,30 @@ class StudentProfileLogsView(View):
 
         filtered_profile_details = []
 
+        #find users without profiles and add it to a variable users_no_profile
+        users_no_profile = User.objects.exclude(id__in=PlacementProfile.objects.values_list('user', flat=True))
+
+        #if filter_status is usersNoProfile then show the users without profiles
+        if filter_status == "usersNoProfile":
+            filtered_profile_details = [
+                {
+                    'profile_id': user.id,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'college_email': user.email,
+                }
+                for user in users_no_profile
+            ]
+            return render(request, 'student_profile_logs.html', {
+                'profile_details': filtered_profile_details,
+                'is_approver': is_approver,
+                'is_superuser': is_superuser,
+                'filter_status': filter_status,
+                'search_query': search_query,
+                'has_profile': has_profile,
+                'only_users_no_profile': True,
+            })
+
         for profile in profiles:
             if search_query:
                 full_name = f"{profile.first_name} {profile.last_name}".lower()
@@ -1530,3 +1554,14 @@ def complete_profiles_view(request):
             complete_profiles.append(profile)
 
     return render(request, 'complete_profiles.html', {'profiles': complete_profiles})
+
+
+#write a delete user function access only to super user 
+@user_passes_test(lambda u: u.is_superuser)
+def delete_user(request, user_id):
+    try:
+        user = get_object_or_404(User, id=user_id)
+        user.delete()
+        return JsonResponse({'message': 'User deleted successfully!'})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

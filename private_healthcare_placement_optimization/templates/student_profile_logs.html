@@ -164,11 +164,13 @@
                                     <td class="px-6 py-4 border border-gray-300">{{ profile.preferred_facility_contact_person }}</td>
                                     <td class="px-6 py-4 flex justify-between items-center space-x-2">
                                         <!-- Action Buttons -->
-                                        <button onclick="openModal('{{ forloop.counter }}')" class="text-teal-600 hover:text-teal-800 font-semibold py-1 px-3 rounded-md text-sm border border-teal-300 hover:border-teal-500 flex items-center space-x-2 whitespace-nowrap">
-                                            <i class="fas fa-eye"></i>
-                                            <span>View Documents</span>
-                                        </button>
-                                        {% if is_approver %}
+                                         {% if not only_users_no_profile %}
+                                            <button onclick="openModal('{{ forloop.counter }}')" class="text-teal-600 hover:text-teal-800 font-semibold py-1 px-3 rounded-md text-sm border border-teal-300 hover:border-teal-500 flex items-center space-x-2 whitespace-nowrap">
+                                                <i class="fas fa-eye"></i>
+                                                <span>View Documents</span>
+                                            </button>
+                                        {% endif %}
+                                        {% if is_approver and not only_users_no_profile %}
                                         <button onclick="sendEmailAction('{{ profile.profile_id }}', 'remind_fee')" class="bg-yellow-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-yellow-600 flex items-center space-x-2 whitespace-nowrap">
                                             <i class="fas fa-credit-card"></i>
                                             <span>Remind Fee</span>
@@ -187,10 +189,18 @@
                                         </button> {% endcomment %}
                                         {% endif %}
                                         {% if is_superuser %}
-                                        <button onclick="deleteProfile({{ profile.profile_id }})" class="delete-btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-red-600 flex items-center space-x-2 whitespace-nowrap">
-                                            <i class="fas fa-trash"></i>
-                                            <span>Delete</span>
-                                        </button>
+                                       
+                                            {% if only_users_no_profile %}
+                                                <button onclick="deleteUser({{ profile.profile_id }})" class="delete-btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-red-600 flex items-center space-x-2 whitespace-nowrap">
+                                                    <i class="fas fa-trash"></i>
+                                                    <span>Delete</span>
+                                                </button>
+                                            {% else %}
+                                                <button onclick="deleteProfile({{ profile.profile_id }})" class="delete-btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-red-600 flex items-center space-x-2 whitespace-nowrap">
+                                                    <i class="fas fa-trash"></i>
+                                                    <span>Delete</span>
+                                                </button>
+                                            {% endif %}
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -456,6 +466,48 @@ function closeModal(profileIndex) {
     }).then((result) => {
         if (result.isConfirmed) {
             fetch(`/delete-profile/${profileId}/`, {
+                method: "DELETE",
+                headers: { "X-CSRFToken": "{{ csrf_token }}" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                Swal.fire({
+                    title: "Deleted!",
+                    text: data.message,
+                    icon: "success",
+                    showClass: {
+                        popup: "animate__animated animate__fadeIn"
+                    },
+                    hideClass: {
+                        popup: "animate__animated animate__fadeOut"
+                    }
+                }).then(() => location.reload()); // Reload after confirmation
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    });
+}
+
+
+function deleteUser(profileId) {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "Cancel",
+        showClass: {
+            popup: "animate__animated animate__fadeInDown"
+        },
+        hideClass: {
+            popup: "animate__animated animate__fadeOutUp"
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/delete-user/${profileId}/`, {
                 method: "DELETE",
                 headers: { "X-CSRFToken": "{{ csrf_token }}" }
             })

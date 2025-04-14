@@ -33,5 +33,7 @@ urlpatterns = [
     path("send-documents-email/", SendDocumentsEmailView.as_view(), name="send_documents_email"),
     path('incomplete-profiles/', incomplete_profiles_view, name='incomplete_profiles'),
     path('complete-profiles/', complete_profiles_view, name='complete_profiles'),
+    #path to delete user 
+    path('delete-user/<int:user_id>/', delete_user, name='delete_user'),
 ]
 handler404 = 'private_healthcare_placement_optimization.views.custom_404'
