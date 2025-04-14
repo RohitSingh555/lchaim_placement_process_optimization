@@ -33,24 +33,24 @@
   animation: fadeInUp 0.8s ease-out forwards;
 }
 </style>
-
-
-
-
-    {% if profile_details and is_approver and is_superuser %}
-    <h2 
-  class="text-4xl font-extrabold text-center mb-12 bg-gradient-to-r from-teal-600 via-teal-400 to-cyan-400 text-transparent bg-clip-text drop-shadow-md tracking-wide opacity-0 translate-y-4 animate-fadeInUp"
+<h2 
+  class="text-4xl font-extrabold text-center mb-12 bg-gradient-to-r from-red-600 via-orange-400 to-yellow-400 text-transparent bg-clip-text drop-shadow-md tracking-wide opacity-0 translate-y-4 animate-fadeInUp"
 >
-  Complete Student Placement Profiles
+  Incomplete Student Placement Profiles
 </h2>
 
 <p class="text-gray-600 text-base mb-6 flex items-start space-x-2 mx-auto max-w-3xl text-center">
-    <i class="fas fa-check-circle text-teal-500 mt-1"></i>
+    <i class="fas fa-exclamation-circle text-red-500 mt-1"></i>
     <span>
-        This page displays all the student profiles that are <strong>complete</strong>, meaning all necessary documents have been uploaded and approved.
-        You can review these profiles and ensure that everything is in order.
+        This page displays all the student profiles that are <strong>incomplete</strong>, meaning one or more required documents are missing or have not been approved.
+        Please review these profiles and ensure all necessary documents are submitted and approved.
     </span>
 </p>
+
+
+  
+    
+    {% if profile_details and is_approver or profile_details and is_superuser %}
     <div class="flex justify-center mb-6">
         <form method="get" class="w-full md:w-1/2 bg-white border border-teal-200 rounded-2xl shadow-sm px-6 py-5 transition duration-300 ease-in-out hover:shadow-md">
           <div class="flex flex-col md:flex-row md:items-end gap-6">
@@ -68,6 +68,9 @@
                 <option value="">All</option>
                 <option value="completed" {% if filter_status == "completed" %}selected{% endif %}>Completed</option>
                 <option value="incomplete" {% if filter_status == "incomplete" %}selected{% endif %}>Incomplete</option>
+                <option value="usersNoProfile" {% if filter_status == "usersNoProfile" %}selected{% endif %}>Users with No Profile</option>
+
+
               </select>
             </div> -->
       
@@ -130,7 +133,7 @@
 {% endif %}
 
 
-    {% if profile_details  %}
+    {% if profile_details %}
         <div class="rounded-lg overflow-hidden mb-8">
             <div id="messagePopup" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
                 <span id="messageText"></span>
@@ -169,11 +172,13 @@
                                     <td class="px-6 py-4 border border-gray-300">{{ profile.preferred_facility_contact_person }}</td>
                                     <td class="px-6 py-4 flex justify-between items-center space-x-2">
                                         <!-- Action Buttons -->
-                                        <button onclick="openModal('{{ forloop.counter }}')" class="text-teal-600 hover:text-teal-800 font-semibold py-1 px-3 rounded-md text-sm border border-teal-300 hover:border-teal-500 flex items-center space-x-2 whitespace-nowrap">
-                                            <i class="fas fa-eye"></i>
-                                            <span>View Documents</span>
-                                        </button>
-                                        {% if is_approver %}
+                                         {% if not only_users_no_profile %}
+                                            <button onclick="openModal('{{ forloop.counter }}')" class="text-teal-600 hover:text-teal-800 font-semibold py-1 px-3 rounded-md text-sm border border-teal-300 hover:border-teal-500 flex items-center space-x-2 whitespace-nowrap">
+                                                <i class="fas fa-eye"></i>
+                                                <span>View Documents</span>
+                                            </button>
+                                        {% endif %}
+                                        {% if is_approver and not only_users_no_profile %}
                                         <button onclick="sendEmailAction('{{ profile.profile_id }}', 'remind_fee')" class="bg-yellow-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-yellow-600 flex items-center space-x-2 whitespace-nowrap">
                                             <i class="fas fa-credit-card"></i>
                                             <span>Remind Fee</span>
@@ -192,10 +197,18 @@
                                         </button> {% endcomment %}
                                         {% endif %}
                                         {% if is_superuser %}
-                                        <button onclick="deleteProfile({{ profile.profile_id }})" class="delete-btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-red-600 flex items-center space-x-2 whitespace-nowrap">
-                                            <i class="fas fa-trash"></i>
-                                            <span>Delete</span>
-                                        </button>
+                                       
+                                            {% if only_users_no_profile %}
+                                                <button onclick="deleteUser({{ profile.profile_id }})" class="delete-btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-red-600 flex items-center space-x-2 whitespace-nowrap">
+                                                    <i class="fas fa-trash"></i>
+                                                    <span>Delete</span>
+                                                </button>
+                                            {% else %}
+                                                <button onclick="deleteProfile({{ profile.profile_id }})" class="delete-btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-red-600 flex items-center space-x-2 whitespace-nowrap">
+                                                    <i class="fas fa-trash"></i>
+                                                    <span>Delete</span>
+                                                </button>
+                                            {% endif %}
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -206,11 +219,6 @@
                 </div>
                 
                 {% else %}
-                <h2 
-                class="text-4xl font-extrabold text-center mb-12 bg-gradient-to-r from-teal-600 via-teal-400 to-cyan-400 text-transparent bg-clip-text drop-shadow-md tracking-wide opacity-0 translate-y-4 animate-fadeInUp"
-              >
-                Your Placement Profile
-              </h2>
                 {% for profile in profile_details %}
                 <div class="flex items-center justify-center p-6">
                     <div class="w-full max-w-5xl bg-white rounded-2xl p-6 md:p-8 border border-gray-200 shadow-lg">
@@ -466,6 +474,48 @@ function closeModal(profileIndex) {
     }).then((result) => {
         if (result.isConfirmed) {
             fetch(`/delete-profile/${profileId}/`, {
+                method: "DELETE",
+                headers: { "X-CSRFToken": "{{ csrf_token }}" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                Swal.fire({
+                    title: "Deleted!",
+                    text: data.message,
+                    icon: "success",
+                    showClass: {
+                        popup: "animate__animated animate__fadeIn"
+                    },
+                    hideClass: {
+                        popup: "animate__animated animate__fadeOut"
+                    }
+                }).then(() => location.reload()); // Reload after confirmation
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    });
+}
+
+
+function deleteUser(profileId) {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "Cancel",
+        showClass: {
+            popup: "animate__animated animate__fadeInDown"
+        },
+        hideClass: {
+            popup: "animate__animated animate__fadeOutUp"
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/delete-user/${profileId}/`, {
                 method: "DELETE",
                 headers: { "X-CSRFToken": "{{ csrf_token }}" }
             })

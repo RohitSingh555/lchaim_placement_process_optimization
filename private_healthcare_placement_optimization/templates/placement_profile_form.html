@@ -285,7 +285,20 @@
 <div class="form-step hidden bg-white p-6 rounded-lg shadow-lg" id="step6">
     <h2 class="text-2xl font-semibold text-gray-800 mb-4">Target Shift Schedule</h2>
 
-    
+    <div class="flex flex-col">
+        
+        <label for="shift_requested" class="text-lg font-medium text-gray-700 mb-2 after:content-['*'] after:text-red-500 after:ml-1">Target Shift Schedule</label>
+        <select name="shift_requested" id="shift_requested" required class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="Select your shift request">Select your shift request</option>
+            <option value="Morning">Morning - Mon to Fri - 7AM to 3PM</option>
+            <option value="Evening">Evening - Mon to Fri - 3PM to 11PM</option>
+            <!-- <option value="Night">Night - Mon to Fri - 11PM to 7AM</option> -->
+            <option value="Weekend Morning">Weekend Morning - Sat & Sun - 7AM to 3PM </option>
+            <option value="Weekend Evening">Weekend Evening - Sat & Sun - 3PM to 11PM</option>
+            <option value="Weekend Day">Weekend Sat & Sun - 7AM to 7PM</option>
+            <!-- <option value="Weekend Night">Weekend Night - Sat & Sun</option> -->
+        </select>
+    </div>
     <!-- Preferred Facility Name -->
     <div class="mt-6 mb-6">
         
@@ -312,20 +325,7 @@
                     placeholder="Contact Person">
         </div>
     </div>
-    <div class="flex flex-col">
-        
-        <label for="shift_requested" class="text-lg font-medium text-gray-700 mb-2 after:content-['*'] after:text-red-500 after:ml-1">Target Shift Schedule</label>
-        <select name="shift_requested" id="shift_requested" required class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="Select your shift request">Select your shift request</option>
-            <option value="Morning">Morning - Mon to Fri - 7AM to 3PM</option>
-            <option value="Evening">Evening - Mon to Fri - 3PM to 11PM</option>
-            <!-- <option value="Night">Night - Mon to Fri - 11PM to 7AM</option> -->
-            <option value="Weekend Morning">Weekend Morning - Sat & Sun - 7AM to 3PM </option>
-            <option value="Weekend Evening">Weekend Evening - Sat & Sun - 3PM to 11PM</option>
-            <option value="Weekend Day">Weekend Sat & Sun - 7AM to 7PM</option>
-            <!-- <option value="Weekend Night">Weekend Night - Sat & Sun</option> -->
-        </select>
-    </div>
+    
 
     <div class="flex justify-center items-center mt-6">
         <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 

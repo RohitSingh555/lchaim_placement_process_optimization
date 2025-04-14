@@ -238,7 +238,7 @@ class PlacementProfileView(View):
             print("PlacementProfile saved:", profile)
         except Exception as e:
             print(f"Error saving PlacementProfile: {e}")
-            return render(request, 'placement_profile_form.html', {'error': 'Failed to save placement profile'})
+            return render(request, 'placement_profile_form.html', {'error': 'Failed to save Placement'})
 
         documents_data = {
             'medical_certificate': 'Medical Certificate',
@@ -317,7 +317,7 @@ class PlacementProfileView(View):
     
 def send_documents_incomplete_email(profile, missing_documents):
     """Send an email notifying the student about missing documents dynamically."""
-    subject = "Placement Profile: Documents Incomplete"
+    subject = "Placement: Documents Incomplete"
 
     remaining_documents_html = "".join([f"<li>{doc}</li>" for doc in missing_documents])
 
@@ -375,10 +375,10 @@ def send_documents_incomplete_email(profile, missing_documents):
             <ul>
                 {remaining_documents_html}
             </ul>
-            <p><a href="https://www.peakcollege.ca/student-view" class="highlight">Placement Link: Click here.</a></p>
-            <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
+            <p><a href="https://www.peakcollege.ca" class="highlight">Placement Link: Click here.</a></p>
+            <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
             <div class="footer">
-                <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
+                <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
                 <span>Warm regards, </span>
                 <br>
                 <span> The Peak Healthcare Team</span>
@@ -412,7 +412,7 @@ def send_documents_incomplete_email(profile, missing_documents):
     
 def send_welcome_email(profile, submitted_documents):
     """Send a welcome email when a student's documents are under review."""
-    subject = "Placement Profile: Documents Under Review"
+    subject = "Placement: Documents Under Review"
     
     
     message = f"""
@@ -467,9 +467,9 @@ def send_welcome_email(profile, submitted_documents):
             <p>Greetings!</p>
             <p>Your documents are now <span class="bold">UNDER REVIEW</span> by our team.</p>
             <p>Next step, wait for the approval of your submitted documents. You’ll receive another email once all are approved.</p>
-            <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
+            <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
             <div class="footer">
-                <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
+                <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
                 <span>Warm regards, </span>
                 <br>
                 <span> The Peak Healthcare Team</span>
@@ -589,7 +589,7 @@ class SendDocumentsEmailView(View):
                 <p>If you have any questions or require further information, feel free to reach out.</p>
                 
                 <div class="footer">
-                <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
+                <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
                 <span>Warm regards, </span>
                 <br>
                 <span> The Peak Healthcare Team</span>
@@ -650,7 +650,109 @@ class StudentProfileLogsView(View):
         is_approver = Approver.objects.filter(user=request.user).exists()
         is_superuser = request.user.is_superuser
 
-        filter_status = request.GET.get("status")
+        filter_status = "completed"
+        search_query = request.GET.get("search", "").strip().lower()
+
+        if is_approver:
+            profiles = PlacementProfile.objects.prefetch_related('documents').all()
+            has_profile = False  # Approvers aren't students
+        else:
+            profiles = PlacementProfile.objects.filter(user=request.user).prefetch_related('documents')
+            has_profile = profiles.exists()
+
+        filtered_profile_details = []
+
+        for profile in profiles:
+            if search_query:
+                full_name = f"{profile.first_name} {profile.last_name}".lower()
+                email = profile.college_email.lower()
+                if search_query not in full_name and search_query not in email:
+                    continue
+
+            document_details = []
+            documents = {doc.document_type: doc for doc in profile.documents.all()}
+
+            complete = True
+            for doc_type in self.REQUIRED_DOCUMENTS:
+                doc = documents.get(doc_type)
+                if not doc:
+                    complete = False
+                    break
+                latest_approval = ApprovalLog.objects.filter(document=doc).order_by('-timestamp').first()
+                if not latest_approval or latest_approval.action != "Approved":
+                    complete = False
+                    break
+
+            # ✅ Skip incomplete profiles for approvers/superusers
+            if (is_approver or is_superuser) and not complete:
+                continue
+
+            for doc in profile.documents.all():
+                approval_logs = ApprovalLog.objects.filter(document=doc)
+                approver_actions = [
+                    {
+                        "approver": log.approver.full_name if log.approver else "Unknown",
+                        "action": log.action,
+                        "reason": log.reason,
+                        "timestamp": log.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                    for log in approval_logs
+                ]
+
+                document_details.append({
+                    'id': doc.id,
+                    'status': doc.status,
+                    'document_type': doc.document_type,
+                    'file': doc.file.url if doc.file else None,
+                    'rejection_reason': doc.rejection_reason,
+                    'uploaded_at': doc.uploaded_at.strftime("%Y-%m-%d %H:%M:%S"),
+                    'approval_logs': approver_actions
+                })
+
+            filtered_profile_details.append({
+                'profile_id': profile.id,
+                'first_name': profile.first_name,
+                'last_name': profile.last_name,
+                'college_email': profile.college_email,
+                'experience_level': profile.experience_level,
+                'shift_requested': profile.shift_requested,
+                'preferred_facility_name': profile.preferred_facility_name,
+                'preferred_facility_address': profile.preferred_facility_address,
+                'preferred_facility_contact_person': profile.preferred_facility_contact_person,
+                'documents': document_details,
+                'is_completed': complete
+            })
+
+        return render(request, 'student_profile_logs.html', {
+            'profile_details': filtered_profile_details,
+            'is_approver': is_approver,
+            'is_superuser': is_superuser,
+            'filter_status': filter_status,
+            'search_query': search_query,
+            'has_profile': has_profile,
+        })
+
+
+
+class StudentIncompleteProfileLogsView(View):
+    REQUIRED_DOCUMENTS = {
+        "Medical Certificate",
+        "Covid Vaccination Certificate",
+        "Vulnerable Sector Check",
+        "CPR or First Aid",
+        "Mask Fit Certificate",
+        "Experience Document"
+    }
+    OPTIONAL_DOCUMENTS = {"Basic Life Support"}
+
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return redirect('/login/')
+
+        is_approver = Approver.objects.filter(user=request.user).exists()
+        is_superuser = request.user.is_superuser
+
+        filter_status = "incomplete"
         search_query = request.GET.get("search", "").strip().lower()
 
         if is_approver:
@@ -746,7 +848,7 @@ class StudentProfileLogsView(View):
                 'is_completed': complete
             })
 
-        return render(request, 'student_profile_logs.html', {
+        return render(request, 'student_incomplete_profile_logs.html', {
             'profile_details': filtered_profile_details,
             'is_approver': is_approver,
             'is_superuser': is_superuser,
@@ -832,7 +934,7 @@ def approve_document(request, document_id):
     return JsonResponse({"error": "Invalid request"}, status=400)
 
 def send_email_remind_fee(profile):
-    subject = 'Placement Profile: Settle Tuition Fee Balance'
+    subject = 'Placement: Settle Tuition Fee Balance'
     message = f"""
     <html>
     <head>
@@ -884,7 +986,7 @@ def send_email_remind_fee(profile):
     <body>
         <div class="container">
             <p>Greetings!</p>
-            <p>Thank you for creating your Placement Profile! You still have an outstanding balance. Please pay your tuition fee to avoid any delays in the process. This will help us move forward smoothly with your placement.</p>
+            <p>Thank you for creating your Placement! You still have an outstanding balance. Please pay your tuition fee to avoid any delays in the process. This will help us move forward smoothly with your placement.</p>
             <h3>Payment Options:</h3>
             <ul>
                 <li>E-Transfer to: <span class="highlight">payment@peakcollege.ca</span></li>
@@ -894,7 +996,7 @@ def send_email_remind_fee(profile):
             <p><span class="bold">Monday to Thursday:</span> 9:30 AM to 5:00 PM</p>
             <p><span class="bold">Saturday:</span> 9:30 AM to 4:00 PM</p>
             <div class="footer">
-                <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
+                <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
                 <span>Warm regards, </span>
                 <br>
                 <span> The Peak Healthcare Team</span>
@@ -922,7 +1024,7 @@ def send_email_remind_fee(profile):
     )
 
 def send_email_notify_result(profile, rejected_documents):
-    subject = 'Placement Profile: Resubmit Rejected Documents'
+    subject = 'Placement: Resubmit Rejected Documents'
     
     # Build the dynamic list of rejected documents
     document_list_html = ""
@@ -986,10 +1088,10 @@ def send_email_notify_result(profile, rejected_documents):
                 {document_list_html}
             </ul>
             <p>Next step: address the reasons and resubmit the documents by clicking the link below.</p>
-            <p><a href="https://www.peakcollege.ca/student-view" class="highlight">Resubmission Link: Click here!</a></p>
+            <p><a href="https://www.peakcollege.ca" class="highlight">Resubmission Link: Click here!</a></p>
             <p>You’ll receive another email once all are approved.</p>
             <div class="footer">
-                <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
+                <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
                 <span>Warm regards, </span>
                 <br>
                 <span> The Peak Healthcare Team</span>
@@ -1019,11 +1121,11 @@ def send_email_notify_result(profile, rejected_documents):
     )
 
 def send_email_done(profile, documents):
-    subject = f'{profile.first_name} {profile.last_name} - Placement Profile: Documents Approved'
+    subject = f'{profile.first_name} {profile.last_name} - Placement: Documents Approved'
     message = f"""
-    <html>
-    <head>
-        <style>
+<html>
+<head>
+<style>
             body {{
                 font-family: Arial, sans-serif;
                 background: linear-gradient(to bottom, rgba(0, 128, 128, 0.1), #ffffff);
@@ -1066,55 +1168,51 @@ def send_email_done(profile, documents):
                 width: 240px;
                 height: 90px;
             }}
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h2>{profile.first_name} is now ready for placement.</h2>
-            <p>Greetings!</p>
-            <p>All your documents are now <span class="highlight">APPROVED</span>.</p>
-            <p>The Placement Coordinator: We will reach out to you through email or phone call. Once you finalize with her which facility you’re going to do your placement, she will inform you of your Placement Orientation Date.</p>
-            <p>Then you can pick up your Skills Passbook and NACC Reviewer from the school on any operating day.</p>
-            <h4>School Office Hours:</h4>
-            <p><span class="bold">Monday to Thursday:</span> 9:30 AM to 5:00 PM</p>
-            <p><span class="bold">Saturday:</span> 9:30 AM to 4:00 PM</p>
-            <div class="footer">
-                <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
-                <span>Warm regards, </span>
-                <br>
-                <span> The Peak Healthcare Team</span>
-                <br>
-                <span>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></span>
-                <br>
-                <img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg"></img>
-                <br>
-                <span>1140 Sheppard Ave West</span>
-                <br>
-                <span>Unit #12, North York, ON</span>
-                <br>
-                <span>M3K 2A2</span>
-            </div>
-        </div>
-    </body>
-    </html>
+</style>
+</head>
+<body>
+<div class="container">
+<p>Greetings!</p>
+<p>All your documents are now <span class="highlight">APPROVED</span>.</p>
+<p>The Placement Coordinator: We will reach out to you through email or phone call. Once you finalize with her which facility you’re going to do your placement, she will inform you of your Placement Orientation Date.</p>
+<p>Then you can pick up your Skills Passbook and NACC Reviewer from the school on any operating day.</p>
+<h4>School Office Hours:</h4>
+<p><span class="bold">Monday to Thursday:</span> 9:30 AM to 5:00 PM</p>
+<p><span class="bold">Saturday:</span> 9:30 AM to 4:00 PM</p>
+<div class="footer">
+<p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
+<span>Warm regards, </span>
+<br>
+<span> The Peak Healthcare Team</span>
+<br>
+<span>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></span>
+<br>
+<img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg"></img>
+<br>
+<span>1140 Sheppard Ave West</span>
+<br>
+<span>Unit #12, North York, ON</span>
+<br>
+<span>M3K 2A2</span>
+</div>
+</div>
+</body>
+</html>
     """
-
+ 
     email = EmailMessage(
         subject,
         message,
         settings.DEFAULT_FROM_EMAIL,
         [profile.college_email]
     )
-    email.content_subtype = "html" 
-
-    for document in documents:
-        if document.file: 
-            email.attach(document.file.name, document.file.read())
-
+    email.content_subtype = "html"
+ 
+ 
     email.send()
 
 def send_placement_email(profile):
-    subject = f'{profile.first_name} {profile.last_name} - Placement Profile Completed'
+    subject = f'{profile.first_name} {profile.last_name} - Placement Completed'
     message = f'''
     <html>
     <head>
@@ -1266,7 +1364,7 @@ def send_email_resubmit(profile, documents):
             <p><a href="https://www.peakcollege.ca/approver-view" class="highlight">Approver's View: Click here to log in!</a></p>
             <p>Please review and take the necessary action.</p>
             <div class="footer">
-                <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
+                <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
                 <span>Warm regards, </span>
                 <br>
                 <span> The Peak Healthcare Team</span>
@@ -1559,9 +1657,17 @@ def complete_profiles_view(request):
 #write a delete user function access only to super user 
 @user_passes_test(lambda u: u.is_superuser)
 def delete_user(request, user_id):
-    try:
-        user = get_object_or_404(User, id=user_id)
-        user.delete()
-        return JsonResponse({'message': 'User deleted successfully!'})
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+    if request.method == 'POST':
+        try:
+            user = get_object_or_404(User, id=user_id)
+            user.delete()
+            messages.success(request, 'User deleted successfully!')
+        except Exception as e:
+            messages.error(request, f'Error deleting user: {str(e)}')
+    return redirect('pending_users') 
+
+
+@user_passes_test(superuser_required, login_url='/404/')
+def get_users_without_profiles_view(request):
+    users_no_profile = User.objects.exclude(id__in=PlacementProfile.objects.values_list('user', flat=True))
+    return render(request, 'users_without_profiles.html', {'users': users_no_profile})

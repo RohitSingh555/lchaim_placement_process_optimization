@@ -31,8 +31,9 @@ urlpatterns = [
     path("password-reset/done/", password_reset_complete, name="password_reset_done"),
     path("reset/<uidb64>/<token>/", password_reset_confirm, name="password_reset_confirm"),
     path("send-documents-email/", SendDocumentsEmailView.as_view(), name="send_documents_email"),
-    path('incomplete-profiles/', incomplete_profiles_view, name='incomplete_profiles'),
+    path('incomplete-profiles/', StudentIncompleteProfileLogsView.as_view(), name='incomplete_profiles'),
     path('complete-profiles/', complete_profiles_view, name='complete_profiles'),
+    path('pending-users/', get_users_without_profiles_view, name='pending_users'),
     #path to delete user 
     path('delete-user/<int:user_id>/', delete_user, name='delete_user'),
 ]
