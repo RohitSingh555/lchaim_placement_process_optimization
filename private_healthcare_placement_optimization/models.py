@@ -48,6 +48,8 @@ class PlacementProfile(models.Model):
     preferred_facility_name = models.CharField(max_length=255, blank=True, null=True)
     preferred_facility_address = models.TextField(blank=True, null=True)
     preferred_facility_contact_person = models.CharField(max_length=100, blank=True, null=True)
+    assigned_facility = models.ForeignKey('Facility', on_delete=models.SET_NULL, null=True, blank=True)
+    orientation_date = models.ForeignKey('OrientationDate', on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
 

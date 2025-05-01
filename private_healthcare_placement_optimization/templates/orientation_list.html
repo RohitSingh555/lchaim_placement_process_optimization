@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-6 py-8">
+    <h2 class="text-3xl font-semibold text-gray-800 mb-6">Orientation Dates</h2>
+
+    <!-- Add Orientation Button -->
+    <button type="button" class="bg-teal-600 text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50 px-4 py-2 rounded-md" onclick="openModal('addOrientationModal')">
+        <i class="fas fa-calendar-plus"></i> Add Orientation Date
+    </button>
+
+    <!-- Orientation Dates Table -->
+    <div class="overflow-x-auto bg-white shadow-md rounded-lg mt-6">
+        <table class="min-w-full table-auto">
+            <thead class="bg-teal-600 text-white">
+                <tr>
+                    <th class="py-3 px-4 text-left">Orientation Date</th>
+                    <th class="py-3 px-4 text-left">Created At</th>
+                    <th class="py-3 px-4 text-left">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="orientationTableBody">
+                {% for orientation in orientations %}
+                <tr id="orientationRow{{ orientation.id }}" class="border-b">
+                    <td class="py-3 px-4">{{ orientation.orientation_date|date:"F j, Y" }}</td>
+                    <td class="py-3 px-4">{{ orientation.created_at|date:"F j, Y, g:i a" }}</td>
+                    <td class="py-3 px-4">
+                        <!-- Delete Button -->
+                        <button type="button" class="bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 px-3 py-1 rounded-md" onclick="openDeleteModal({{ orientation.id }})">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add Orientation Modal -->
+<div id="addOrientationModal" class="modal fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="modal-dialog bg-white rounded-lg shadow-xl p-6">
+        <form id="addOrientationForm" method="post" action="{% url 'orientation_add' %}">
+            {% csrf_token %}
+            <div class="modal-header flex justify-between items-center p-4 border-b">
+                <h5 class="modal-title text-xl text-gray-800">Add Orientation Date</h5>
+                <button type="button" class="close text-gray-500" onclick="closeModal('addOrientationModal')">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="form-group">
+                    <label for="orientation_date" class="text-gray-700">Orientation Date</label>
+                    <input type="date" name="orientation_date" class="block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                </div>
+            </div>
+            <div class="modal-footer p-4 flex justify-between">
+                <button type="submit" class="bg-teal-600 text-white hover:bg-teal-700 focus:outline-none px-4 py-2 rounded-md">
+                    <i class="fas fa-check"></i> Add
+                </button>
+                <button type="button" class="bg-gray-300 text-gray-800 hover:bg-gray-400 focus:outline-none px-4 py-2 rounded-md" onclick="closeModal('addOrientationModal')">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Orientation Modal -->
+<div id="deleteOrientationModal" class="modal fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="modal-dialog bg-white rounded-lg shadow-xl p-6">
+        <form id="deleteOrientationForm" method="post" action="/orientations/{{ id }}/delete/">
+            {% csrf_token %}
+            <div class="modal-header flex justify-between items-center p-4 border-b">
+                <h5 class="modal-title text-xl text-gray-800">Delete Orientation Date</h5>
+                <button type="button" class="close text-gray-500" onclick="closeModal('deleteOrientationModal')">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="text-gray-700" id="deleteMessage"></p>
+            </div>
+            <div class="modal-footer p-4 flex justify-between">
+                <button type="submit" class="bg-red-600 text-white hover:bg-red-700 focus:outline-none px-4 py-2 rounded-md">
+                    <i class="fas fa-check"></i> Yes, Delete
+                </button>
+                <button type="button" class="bg-gray-300 text-gray-800 hover:bg-gray-400 focus:outline-none px-4 py-2 rounded-md" onclick="closeModal('deleteOrientationModal')">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    // Function to show modal
+    function openModal(modalId) {
+        document.getElementById(modalId).classList.remove('opacity-0', 'pointer-events-none');
+        document.getElementById(modalId).classList.add('opacity-100', 'pointer-events-auto');
+    }
+
+    // Function to hide modal
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('opacity-100', 'pointer-events-auto');
+        document.getElementById(modalId).classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle Add Orientation form submission using fetch
+        document.getElementById('addOrientationForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            let formData = new FormData(this);
+        
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => {
+                if (response.status === 302 || response.status === 200) {
+                    // Close the modal and reload the page
+                    closeModal('addOrientationModal');
+                    window.location.reload();
+                } else {
+                    return response.json();
+                }
+            })
+            .then(data => {
+                if (data && !data.success) {
+                    console.error("Error adding orientation date:", data.error);
+                    alert("There was an error adding the orientation date.");
+                }
+            })
+            .catch(error => {
+                console.error("Error adding orientation date:", error);
+            });
+        });
+    
+        // Function to open the Delete Modal
+        window.openDeleteModal = function(id) {
+            openModal('deleteOrientationModal');
+            document.getElementById('deleteMessage').innerText = `Are you sure you want to delete orientation on ${document.getElementById('orientationRow' + id).querySelector('td').textContent}?`;
+            document.getElementById('deleteOrientationForm').action = `/orientations/${id}/delete/`; // Update the form action
+        }
+    
+        // Handle Delete Orientation form submission using fetch
+        document.getElementById('deleteOrientationForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            let formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => {
+                console.log(response.status);
+                if (response.status === 302 || response.status === 200) {
+                    // Close the modal and reload the page
+                    closeModal('deleteOrientationModal');
+                    window.location.reload();
+                } else {
+                    return response.json();
+                }
+            })
+            .then(data => {
+                if (data && !data.success) {
+                    console.error("Error deleting orientation date!");
+                    alert("There was an error deleting the orientation date.");
+                }
+            })
+            .catch(error => {
+                console.error("An error occurred while deleting the orientation date:", error);
+            });
+        });
+    });
+    
+</script>
+{% endblock %}
+{% endblock %}

@@ -67,6 +67,15 @@
                                 <i class="fas fa-users mr-2"></i> 
                                 <span>Approvers</span>
                             </a>
+                            <a href="{% url 'facility_list' %}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-building mr-2"></i> 
+                                <span>Facilities</span>
+                            </a>
+                            <a href="{% url 'orientation_list' %}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-calendar-alt mr-2"></i> 
+                                <span>Orientation Date</span>
+                            </a>
+                            
                         {% endif %}
                         <a href="{% url 'logout' %}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
                             <i class="fas fa-sign-out-alt mr-2"></i> Logout

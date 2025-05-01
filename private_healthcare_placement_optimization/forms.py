@@ -1,5 +1,5 @@
 from django import forms
-from .models import PlacementProfile, Document, StudentID, User
+from .models import Facility, OrientationDate, PlacementProfile, Document, StudentID, User
 from django.contrib.auth.forms import UserCreationForm
 
 ALLOWED_EMAIL_DOMAIN ="@peakcollege.ca"
@@ -85,3 +85,13 @@ class CustomUserCreationForm(UserCreationForm):
             # Save student ID
             StudentID.objects.create(user=user, student_id=self.cleaned_data["student_id"])
         return user
+    
+class FacilityForm(forms.ModelForm):
+    class Meta:
+        model = Facility
+        fields = '__all__'
+
+class OrientationDateForm(forms.ModelForm):
+    class Meta:
+        model = OrientationDate
+        fields = ['orientation_date']

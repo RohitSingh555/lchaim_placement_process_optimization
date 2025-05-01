@@ -36,5 +36,19 @@ urlpatterns = [
     path('pending-users/', get_users_without_profiles_view, name='pending_users'),
     #path to delete user 
     path('delete-user/<int:user_id>/', delete_user, name='delete_user'),
+    
+     # Facility URLs
+    path('facilities/', FacilityListView.as_view(), name='facility_list'),
+    path('facilities/add/', FacilityCreateView.as_view(), name='facility_add'),
+    path('facilities/<int:pk>/update/', update_facility, name='update_facility'),
+    path('facilities/<int:pk>/delete/', FacilityDeleteView.as_view(), name='facility_delete'),
+    path('facilities/<int:facility_id>/edit/', edit_facility, name='facility_edit'),
+
+
+    # OrientationDate URLs
+    path('orientations/', OrientationDateListView.as_view(), name='orientation_list'),
+    path('orientations/add/', OrientationDateCreateView.as_view(), name='orientation_add'),
+    path('orientations/<int:pk>/edit/', OrientationDateUpdateView.as_view(), name='orientation_edit'),
+    path('orientations/<int:pk>/delete/', OrientationDateDeleteView.as_view(), name='orientation_delete'),
 ]
-handler404 = 'private_healthcare_placement_optimization.views.custom_404'
+handler404 = 'private_healthcare_placement_optimization.custom_404'

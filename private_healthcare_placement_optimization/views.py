@@ -24,12 +24,14 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 
 from private_healthcare_placement_optimization.enums import DocumentStatus
-from .forms import CustomUserCreationForm, DocumentForm
+from .forms import CustomUserCreationForm, DocumentForm, FacilityForm, OrientationDateForm
 from .models import (
     Approver,
     ApprovalLog,
     Document,
+    Facility,
     FeeStatus,
+    OrientationDate,
     PlacementNotification,
     PlacementProfile,
     StudentID,
@@ -1688,3 +1690,87 @@ def delete_user(request, user_id):
 def get_users_without_profiles_view(request):
     users_no_profile = User.objects.exclude(id__in=PlacementProfile.objects.values_list('user', flat=True))
     return render(request, 'users_without_profiles.html', {'users': users_no_profile})
+
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+
+# Facility Views
+class FacilityListView(ListView):
+    model = Facility
+    template_name = 'facility_list.html'
+    context_object_name = 'facilities'
+
+class FacilityCreateView(CreateView):
+    model = Facility
+    form_class = FacilityForm
+    template_name = 'facility_list.html'
+    success_url = reverse_lazy('facility_list')
+
+def update_facility(request, pk):
+    facility = get_object_or_404(Facility, pk=pk)
+    
+    if request.method == 'POST':
+        form = FacilityForm(request.POST, instance=facility)
+        if form.is_valid():
+            form.save()
+            return redirect('facility_list')  # Adjust this as per your requirement
+    else:
+        form = FacilityForm(instance=facility)
+    
+    return render(request, 'update_facility.html', {'form': form, 'facility': facility})
+
+class FacilityDeleteView(DeleteView):
+    model = Facility
+    success_url = reverse_lazy('facility_list')
+
+    # Directly delete the object and redirect on GET request
+    def get(self, request, *args, **kwargs):
+        facility = self.get_object()
+        facility.delete()
+        return redirect(self.success_url)
+
+# OrientationDate Views
+class OrientationDateListView(ListView):
+    model = OrientationDate
+    template_name = 'orientation_list.html'
+    context_object_name = 'orientations'
+
+class OrientationDateCreateView(CreateView):
+    model = OrientationDate
+    form_class = OrientationDateForm
+    success_url = reverse_lazy('orientation_list')
+
+class OrientationDateUpdateView(UpdateView):
+    model = OrientationDate
+    form_class = OrientationDateForm
+    success_url = reverse_lazy('orientation_list')
+
+class OrientationDateDeleteView(DeleteView):
+    model = OrientationDate
+    success_url = reverse_lazy('orientation_list')
+
+    # Directly delete the object and redirect on GET request
+    def get(self, request, *args, **kwargs):
+        orientation_date = self.get_object()
+        orientation_date.delete()
+        return redirect(self.success_url)
+
+def edit_facility(request, facility_id):
+    facility = get_object_or_404(Facility, pk=facility_id)
+    data = {
+        'name': facility.name,
+        'status': facility.status,
+        'province': facility.province,
+        'city': facility.city,
+        'address': facility.address,
+        'facility_phone': facility.facility_phone,
+        'website': facility.website,
+        'person_in_charge': facility.person_in_charge,
+        'email': facility.email,
+        'phone_number': facility.phone_number,
+        'designation': facility.designation,
+        'additional_requirements': facility.additional_requirements,
+        'shifts_available': facility.shifts_available,
+        'notes': facility.notes,
+    }
+    return JsonResponse(data)

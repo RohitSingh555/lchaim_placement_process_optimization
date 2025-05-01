@@ -368,7 +368,14 @@ I have read and understood my responsibilities listed for placement</label>
         <input type="file" name="experience_document" id="experience_document"
                class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                onchange="validateFileUpload()">
-        <p class="text-sm text-gray-500 mt-1">If you don’t have the required documents, please contact support.</p>
+        <!-- Removed the original text and added the new green note -->
+        <p class="text-sm text-green-600 mt-1">
+            See Sample Letter with all the necessary information. 
+            <a href="https://drive.google.com/file/d/1LJR31UUuw6OCmRH9QzGAY3KJX9qocYU_/view?pli=1" class="text-teal-500 hover:underline">Click here</a>.
+        </p>
+        <p class="text-sm text-green-600 mt-1">
+            Note: If the letter lacks all necessary information, the document will be rejected.
+        </p>
     </div>
 
     <div class="flex justify-center items-center mt-6">
@@ -378,6 +385,7 @@ I have read and understood my responsibilities listed for placement</label>
         </button>
     </div>
 </div>
+
 
         <!-- Shift Requested Dropdown (Step 6) -->
 <div class="form-step hidden bg-white p-6 rounded-lg shadow-lg" id="step6">
