@@ -32,6 +32,7 @@ from .models import (
     FeeStatus,
     PlacementNotification,
     PlacementProfile,
+    StudentID,
 )
 
 
@@ -708,12 +709,18 @@ class StudentProfileLogsView(View):
                     'uploaded_at': doc.uploaded_at.strftime("%Y-%m-%d %H:%M:%S"),
                     'approval_logs': approver_actions
                 })
-
+            
+            student_id = ''
+            try:
+                student_id = profile.user.student_id_record.student_id
+            except StudentID.DoesNotExist:
+                pass
             filtered_profile_details.append({
                 'profile_id': profile.id,
                 'first_name': profile.first_name,
                 'last_name': profile.last_name,
                 'college_email': profile.college_email,
+                'student_id': student_id,
                 'experience_level': profile.experience_level,
                 'shift_requested': profile.shift_requested,
                 'preferred_facility_name': profile.preferred_facility_name,

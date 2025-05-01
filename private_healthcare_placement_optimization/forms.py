@@ -1,5 +1,5 @@
 from django import forms
-from .models import PlacementProfile, Document, User
+from .models import PlacementProfile, Document, StudentID, User
 from django.contrib.auth.forms import UserCreationForm
 
 ALLOWED_EMAIL_DOMAIN ="@peakcollege.ca"
@@ -57,10 +57,11 @@ class CustomUserCreationForm(UserCreationForm):
         
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True, label="College Email")
+    student_id = forms.CharField(required=True, label="Student ID")
 
     class Meta:
         model = User
-        fields = ["first_name", "last_name", "email", "password1", "password2"]
+        fields = ["first_name", "last_name", "email", "student_id", "password1", "password2"]
 
     def clean_email(self):
         email = self.cleaned_data.get("email")
@@ -70,9 +71,17 @@ class CustomUserCreationForm(UserCreationForm):
             raise forms.ValidationError("A user with this email already exists.")
         return email
 
+    def clean_student_id(self):
+        student_id = self.cleaned_data.get("student_id")
+        if StudentID.objects.filter(student_id=student_id).exists():
+            raise forms.ValidationError("This student ID is already taken.")
+        return student_id
+
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.username = user.email  # Use email as the username
+        user.username = user.email
         if commit:
             user.save()
+            # Save student ID
+            StudentID.objects.create(user=user, student_id=self.cleaned_data["student_id"])
         return user

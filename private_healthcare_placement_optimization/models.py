@@ -98,3 +98,10 @@ class PlacementNotification(models.Model):
     subject = models.CharField(max_length=255)
     message = models.TextField()
     sent_at = models.DateTimeField(auto_now_add=True)
+
+class StudentID(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student_id_record')
+    student_id = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.student_id}"
