@@ -105,3 +105,45 @@ class StudentID(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.student_id}"
+    
+class Facility(models.Model):
+    STATUS_CHOICES = [
+        ('Active', 'Active'),
+        ('Inactive', 'Inactive'),
+    ]
+
+    name = models.CharField(max_length=255)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Active')
+    province = models.CharField(max_length=100)
+    city = models.CharField(max_length=100)
+    address = models.TextField()
+    facility_phone = models.CharField(max_length=20, blank=True, null=True)
+    website = models.URLField(blank=True, null=True)
+
+    person_in_charge = models.CharField(max_length=100)
+    email = models.EmailField()
+    phone_number = models.CharField(max_length=20)
+    designation = models.CharField(max_length=100)
+
+    additional_requirements = models.TextField(blank=True, null=True)
+    shifts_available = models.CharField(max_length=255, blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['-created_at']
+
+
+class OrientationDate(models.Model):
+    orientation_date = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.orientation_date.strftime("%B %d, %Y")
+
+    class Meta:
+        ordering = ['-orientation_date']

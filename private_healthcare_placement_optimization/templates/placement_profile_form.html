@@ -20,112 +20,210 @@
     <form method="POST" enctype="multipart/form-data" id="wizardForm" class="space-y-6">
         {% csrf_token %}
 
-        <!-- College Email (Step 1) -->
-        {% comment %} <div class="form-step" id="step1">
-            <div class="flex flex-col">
-                <label for="college_email" class="text-lg font-medium text-gray-700 mb-2">College Email</label>
-                <input type="email" name="college_email" id="college_email" 
-                       class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                       placeholder="Your College Email" required>
-                {% if form.college_email.errors %}
-                    <p class="text-sm text-red-500 mt-2">{{ form.college_email.errors }}</p>
-                {% endif %}
-            </div>
-            <div class="flex justify-center mt-4">
-                <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
-               hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 
-               transition-all duration-300" onclick="nextStep(2)">Next <i class="fas fa-arrow-right ml-2"></i></button>
-            </div>
-
-             
-            
-        </div>
-
-        <!-- Password (Step 2) -->
-        <div class="form-step hidden" id="step2">
-            <div class="flex flex-col">
-                <label for="password" class="text-lg font-medium text-gray-700 mb-2">Password</label>
-                <input type="text" name="password" id="password" 
-                       class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                       placeholder="Password" required>
-            </div>
-            
-            <div class="flex justify-center mt-4">
-                <button type="button" id="validate-password-btn" 
-                        class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-full shadow-md 
-                               hover:bg-blue-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400 
-                               transition-all duration-300">
-                    Validate Password
-                </button>
-                <button type="button" id="next-btn" style="display: none;" 
-                        class="ml-4 px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
-                               hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 
-                               transition-all duration-300" 
-                        onclick="nextStep(3)">
-                    Next <i class="fas fa-arrow-right ml-2"></i>
-                </button>
-            </div>
-            
-            <div id="message-container" style="display: none; font-weight: bold; margin-top: 10px; align-items: center; text-align: center;"></div>
-        </div>
-        
-
-        <!-- First Name (Step 3) -->
-        <div class="form-step hidden" id="step3">
-            <div class="flex flex-col">
-                <label for="first_name" class="text-lg font-medium text-gray-700 mb-2">First Name</label>
-                <input type="text" name="first_name" id="first_name" 
-                       class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                       placeholder="First Name" required>
-                {% if form.first_name.errors %}
-                    <p class="text-sm text-red-500 mt-2">{{ form.first_name.errors }}</p>
-                {% endif %}
-            </div>
-            <div class="flex justify-center mt-4">
-                <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
-               hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 
-               transition-all duration-300" onclick="nextStep(4)">Next <i class="fas fa-arrow-right ml-2"></i></button>
-            </div>
-        </div> {% endcomment %}
 
         <!-- Last Name (Step 4) -->
         <div class="form-step hidden" id="step1">
-            <div class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4">
+            <!-- Sub-Step Container -->
+            <div class="sub-step" id="subStep1">
+              <div class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4">
                 <i class="fas fa-info-circle text-teal-600 text-3xl flex-shrink-0"></i>
-        
                 <div class="flex-1">
-                    <h3 class="text-xl font-semibold text-teal-700">Peak College Student Responsibilities</h3>
-                    <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
-                        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Ensure my tuition fee is settled to avoid delays.</li>
-                        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Submit clear and readable placement documents for approval by the Placement Coordinator.</li>
-                        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Resubmit documents that were rejected due to unclear submission.</li>
-                        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Ensure the college has my present home address.</li>
-                        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Regularly check my email for document approval notifications and coordinate with the Placement Coordinator.</li>
-                        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Wait for an email confirmation once all required documents are approved and tuition fee is fully paid.</li>
-                    </ul>
-                
-                    <!-- Mandatory Checkbox -->
-                    <div class="mt-5 flex items-center">
-                        <input type="checkbox" id="responsibilitiesCheckbox" class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
-                        <label for="responsibilitiesCheckbox" class="ml-3 text-gray-800 text-lg">
-                            I have read and understood my responsibilities listed for placement.
-                        </label>
-                    </div>
-                
-                    <!-- Validation Message -->
-                    <p id="checkboxError" class="text-red-600 text-lg mt-2 hidden">You must acknowledge your responsibilities before proceeding.</p>
+                  <h3 class="text-xl font-semibold text-teal-700">Peak College Student Responsibilities</h3>
+                  <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
+                    <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Ensure my tuition fee is settled to avoid delays.</li>
+                    <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Submit clear and readable placement documents for approval by the Placement Coordinator.</li>
+                    <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Resubmit documents that were rejected due to unclear submission.</li>
+                    <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Ensure the college has my present home address.</li>
+                    <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Regularly check my email for document approval notifications and coordinate with the Placement Coordinator.</li>
+                    <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Wait for an email confirmation once all required documents are approved and tuition fee is fully paid.</li>
+                  </ul>
+                  <div class="mt-5 flex items-center">
+                    <input type="checkbox" id="subStep1Checkbox" class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
+                    <label for="subStep1Checkbox" class="ml-3 text-gray-800 text-lg">
+                      I have read and understood my responsibilities listed for placement.
+                    </label>
+                  </div>
+                  <p id="subStep1Error" class="text-red-600 text-lg mt-2 hidden">You must acknowledge this section before proceeding.</p>
                 </div>
-                
-            </div>
-        
-            <div class="flex justify-center mt-4">
-                <button id="nextButton" type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
-               hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 
-               transition-all duration-300 opacity-50 cursor-not-allowed" onclick="nextStep(2)">
-                    Next <i class="fas fa-arrow-right ml-2"></i>
+              </div>
+              <div class="flex justify-center mt-4">
+                <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
+                  hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
+                  onclick="goToSubStep(2)">
+                  Next <i class="fas fa-arrow-right ml-2"></i>
                 </button>
+              </div>
             </div>
-        </div>
+          
+            <!-- Substeps 2–7 (see below for full content) -->
+            <div class="sub-step hidden" id="subStep2">
+                <div class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4">
+                  <i class="fas fa-clipboard-list text-teal-600 text-3xl flex-shrink-0"></i>
+                  <div class="flex-1">
+                    <h3 class="text-xl font-semibold text-teal-700">Before Placement</h3>
+                    <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Submit Medical Report with lab results or immunization for TB, MMR, Varicella, Tdap, Hep B.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Police Vulnerable Sector Check (VSC) – valid within 6 months for LTC.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> COVID-19 Vaccination Certificate (2 doses).</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> First Aid & CPR (Level C).</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Mask Fit Test Certificate.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Flu Shot Record (fall/winter intakes).</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Pregnancy policy: 2nd trimester allowed with approval; 1st & 3rd not allowed.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Do not contact facilities directly; placements are coordinated by the college.</li>
+                    </ul>
+                    <div class="mt-5 flex items-center">
+                      <input type="checkbox" id="subStep2Checkbox" class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
+                      <label for="subStep2Checkbox" class="ml-3 text-gray-800 text-lg">
+I have read and understood my responsibilities listed for placement</label>
+                    </div>
+                    <p id="subStep2Error" class="text-red-600 text-lg mt-2 hidden">
+I have read and understood my responsibilities listed for placement</p>
+                  </div>
+                </div>
+                <div class="flex justify-center mt-4">
+                  <button onclick="goToSubStep(3)" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
+                    hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300">
+                    Next <i class="fas fa-arrow-right ml-2"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="sub-step hidden" id="subStep3">
+                <div class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4">
+                  <i class="fas fa-university text-teal-600 text-3xl flex-shrink-0"></i>
+                  <div class="flex-1">
+                    <h3 class="text-xl font-semibold text-teal-700">College Responsibilities</h3>
+                    <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Review documents and confirm eligibility.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Ensure student has zero tuition balance.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Coordinate placement logistics (proposal, agreement, status).</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Provide orientation and relevant policies.</li>
+                    </ul>
+                    <div class="mt-5 flex items-center">
+                      <input type="checkbox" id="subStep3Checkbox" class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
+                      <label for="subStep3Checkbox" class="ml-3 text-gray-800 text-lg">
+I have read and understood my responsibilities listed for placement</label>
+                    </div>
+                    <p id="subStep3Error" class="text-red-600 text-lg mt-2 hidden">
+I have read and understood my responsibilities listed for placement</p>
+                  </div>
+                </div>
+                <div class="flex justify-center mt-4">
+                  <button onclick="goToSubStep(4)" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
+                    hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300">
+                    Next <i class="fas fa-arrow-right ml-2"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="sub-step hidden" id="subStep4">
+                <div class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4">
+                  <i class="fas fa-hospital-symbol text-teal-600 text-3xl flex-shrink-0"></i>
+                  <div class="flex-1">
+                    <h3 class="text-xl font-semibold text-teal-700">Facility Responsibilities</h3>
+                    <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Confirm capacity and schedule.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Share intake and orientation dates, available spots, shift requirements.</li>
+                    </ul>
+                    <div class="mt-5 flex items-center">
+                      <input type="checkbox" id="subStep4Checkbox" class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
+                      <label for="subStep4Checkbox" class="ml-3 text-gray-800 text-lg">
+I have read and understood my responsibilities listed for placement</label>
+                    </div>
+                    <p id="subStep4Error" class="text-red-600 text-lg mt-2 hidden">
+I have read and understood my responsibilities listed for placement</p>
+                  </div>
+                </div>
+                <div class="flex justify-center mt-4">
+                  <button onclick="goToSubStep(5)" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
+                    hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300">
+                    Next <i class="fas fa-arrow-right ml-2"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="sub-step hidden" id="subStep5">
+                <div class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4">
+                  <i class="fas fa-user-clock text-teal-600 text-3xl flex-shrink-0"></i>
+                  <div class="flex-1">
+                    <h3 class="text-xl font-semibold text-teal-700">During Placement</h3>
+                    <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Notify absences to both college and facility.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Report illness immediately.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> No site change after assignment.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Respect workplace policies; misconduct may lead to action.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> College will monitor performance and conduct mid-placement check-ins.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Facility will provide supervision and submit evaluations.</li>
+                    </ul>
+                    <div class="mt-5 flex items-center">
+                      <input type="checkbox" id="subStep5Checkbox" class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
+                      <label for="subStep5Checkbox" class="ml-3 text-gray-800 text-lg">
+I have read and understood my responsibilities listed for placement</label>
+                    </div>
+                    <p id="subStep5Error" class="text-red-600 text-lg mt-2 hidden">
+I have read and understood my responsibilities listed for placement</p>
+                  </div>
+                </div>
+                <div class="flex justify-center mt-4">
+                  <button onclick="goToSubStep(6)" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
+                    hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300">
+                    Next <i class="fas fa-arrow-right ml-2"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="sub-step hidden" id="subStep6">
+                <div class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4">
+                  <i class="fas fa-handshake text-teal-600 text-3xl flex-shrink-0"></i>
+                  <div class="flex-1">
+                    <h3 class="text-xl font-semibold text-teal-700">Conduct & Respect Policy</h3>
+                    <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Adheres to OHSA & OHRC.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> No harassment, discrimination, or retaliation tolerated.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Maintain professionalism and respectful communication.</li>
+                    </ul>
+                    <div class="mt-5 flex items-center">
+                      <input type="checkbox" id="subStep6Checkbox" class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
+                      <label for="subStep6Checkbox" class="ml-3 text-gray-800 text-lg">
+I have read and understood my responsibilities listed for placement</label>
+                    </div>
+                    <p id="subStep6Error" class="text-red-600 text-lg mt-2 hidden">
+I have read and understood my responsibilities listed for placement</p>
+                  </div>
+                </div>
+                <div class="flex justify-center mt-4">
+                  <button onclick="goToSubStep(7)" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
+                    hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300">
+                    Next <i class="fas fa-arrow-right ml-2"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="sub-step hidden" id="subStep7">
+                <div class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4">
+                  <i class="fas fa-envelope-open-text text-teal-600 text-3xl flex-shrink-0"></i>
+                  <div class="flex-1">
+                    <h3 class="text-xl font-semibold text-teal-700">Communication, Hours & Stipend Policy</h3>
+                    <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> <strong>Communication:</strong> Use email; respond within 1–2 business days.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> <strong>Hours:</strong> Minimum 100 hours; case-by-case review for others.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> <strong>Stipend:</strong> Not guaranteed; handled by facility or province.</li>
+                    </ul>
+                    <div class="mt-5 flex items-center">
+                      <input type="checkbox" id="subStep7Checkbox" class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
+                      <label for="subStep7Checkbox" class="ml-3 text-gray-800 text-lg">
+I have read and understood my responsibilities listed for placement</label>
+                    </div>
+                    <p id="subStep7Error" class="text-red-600 text-lg mt-2 hidden">Please acknowledge this section before finishing.</p>
+                  </div>
+                </div>
+                <div class="flex justify-center mt-4">
+                    <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
+                        hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 
+                        transition-all duration-300" onclick="nextStep(2)">
+                        Next <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+              </div>
+              
+            <!-- You can copy the rest of the sub-steps from here: -->
+          </div>
+          
 
         <div class="form-step hidden" id="step2">
             <!-- Display Read-Only User Details -->
@@ -829,4 +927,80 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
     </script>
+    <script>
+        function goToSubStep(step) {
+          const currentStep = step - 1;
+          const checkbox = document.getElementById(`subStep${currentStep}Checkbox`);
+          const error = document.getElementById(`subStep${currentStep}Error`);
+        
+          if (!checkbox.checked) {
+            error.classList.remove('hidden');
+            return;
+          }
+        
+          error.classList.add('hidden');
+        
+          document.querySelectorAll('.sub-step').forEach(el => el.classList.add('hidden'));
+          document.getElementById(`subStep${step}`).classList.remove('hidden');
+        }
+        
+        function finishSubSteps() {
+          const checkbox = document.getElementById(`subStep7Checkbox`);
+          const error = document.getElementById(`subStep7Error`);
+        
+          if (!checkbox.checked) {
+            error.classList.remove('hidden');
+            return;
+          }
+        
+          error.classList.add('hidden');
+          alert("All sub-steps acknowledged! You may proceed.");
+        }
+        </script>
+        <style>
+            .sub-step { margin-top: 1.5rem; }
+            .card {
+              background: #e6fffa;
+              border-left: 4px solid #38b2ac;
+              padding: 1.5rem;
+              border-radius: 0.5rem;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            }
+            .card h3 {
+              color: #2c7a7b;
+              font-size: 1.25rem;
+              font-weight: 600;
+              margin-bottom: 1rem;
+            }
+            .card ul {
+              list-style-type: disc;
+              padding-left: 1.5rem;
+              color: #2d3748;
+              margin-bottom: 1rem;
+            }
+            .acknowledge {
+              margin-top: 1rem;
+            }
+            .error {
+              color: #e53e3e;
+              font-size: 1rem;
+              margin-top: 0.5rem;
+            }
+            .hidden {
+              display: none;
+            }
+            button {
+              margin-top: 1rem;
+              background-color: #38b2ac;
+              color: white;
+              padding: 0.5rem 1.5rem;
+              border-radius: 9999px;
+              font-weight: 600;
+              transition: background-color 0.3s;
+            }
+            button:hover {
+              background-color: #319795;
+            }
+            </style>
+            
 {% endblock %}

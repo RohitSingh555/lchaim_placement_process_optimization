@@ -276,17 +276,148 @@
                                 <i class="fas fa-phone text-teal-500"></i>
                                 <span><strong>Facility Contact:</strong> {{ profile.preferred_facility_contact_person }}</span>
                             </p>
+                            <p class="flex items-center space-x-2">
+                                <i class="fas fa-home text-teal-500"></i>
+                                <span><strong>Apt/House No:</strong> {{ profile.apt_house_no }}</span>
+                            </p>
+                            <p class="flex items-center space-x-2">
+                                <i class="fas fa-road text-teal-500"></i>
+                                <span><strong>Street:</strong> {{ profile.street }}</span>
+                            </p>
+                            <p class="flex items-center space-x-2">
+                                <i class="fas fa-city text-teal-500"></i>
+                                <span><strong>City:</strong> {{ profile.city }}</span>
+                            </p>
+                            <p class="flex items-center space-x-2">
+                                <i class="fas fa-flag text-teal-500"></i>
+                                <span><strong>Province:</strong> {{ profile.province }}</span>
+                            </p>
+                            <p class="flex items-center space-x-2">
+                                <i class="fas fa-mail-bulk text-teal-500"></i>
+                                <span><strong>Postal Code:</strong> {{ profile.postal_code }}</span>
+                            </p>
+                            <p class="flex items-center space-x-2">
+                                <i class="fas fa-globe-americas text-teal-500"></i>
+                                <span><strong>Open to Other Cities:</strong> {{ profile.open_to_outside_city|yesno:"Yes,No" }}</span>
+                            </p>
+                            <p class="flex items-center space-x-2">
+                                <i class="fas fa-file-upload text-teal-500"></i>
+                                <span><strong>Employer Letter:</strong>
+                                    {% if profile.employer_letter %}
+                                        <a href="{{ profile.employer_letter }}" target="_blank" class="text-blue-600 hover:underline">View</a>
+                                    {% else %}
+                                        Not Uploaded
+                                    {% endif %}
+                                </span>
+                            </p>
+                            <p class="flex items-center space-x-2">
+                                <i class="fas fa-calendar-alt text-teal-500"></i>
+                                <span><strong>Submitted On:</strong> {{ profile.created_at|date:"M d, Y H:i" }}</span>
+                            </p>
                         </div>
                         <div class="mt-6 flex justify-center">
                             <button onclick="openModal('{{ forloop.counter }}')" class="text-white bg-teal-600 hover:bg-teal-700 font-semibold py-3 px-6 rounded-lg text-lg flex items-center space-x-2 transition">
                                 <i class="fas fa-file-alt"></i>
-                                <span>View Documents</span>
+                                <span>View and Upload Documents</span>
                             </button>
                         </div>
-                
-                        
+            
                     </div>
                 </div>       
+                <div class="flex justify-center mt-6 px-4">
+                    <div class="bg-white border border-gray-200 rounded-lg shadow-md p-6 w-full max-w-5xl mx-auto">
+                      <h3 class="text-xl font-semibold text-gray-800 mb-4">Document Status Table</h3>
+                      
+                      <div class="overflow-x-auto">
+                        <table class="min-w-full table-auto">
+                          <thead class="bg-teal-500 text-white">
+                            <tr>
+                              <th class="px-4 py-2 text-left">Document Type</th>
+                              <th class="px-4 py-2 text-left">Uploaded At</th>
+                              <th class="px-4 py-2 text-left">Status</th>
+                              <th class="px-4 py-2 text-left">Rejection Reason</th>
+                              <th class="px-4 py-2 text-left">Approval Details</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for document in profile.documents %}
+                              <tr class="border-b hover:bg-gray-50 transition">
+                                <td class="px-4 py-2 font-medium text-gray-700">
+                                  {{ document.document_type }}
+                                </td>
+                                <td class="px-4 py-2 text-gray-600">
+                                  {{ document.uploaded_at }}
+                                </td>
+                                <td class="px-4 py-2">
+                                    <span class="inline-block text-xs px-3 py-1 rounded-full font-semibold tracking-wide
+                                    {% if document.status == 'Approved' %}
+                                      bg-green-600 text-white
+                                    {% elif document.status == 'Rejected' %}
+                                      bg-red-600 text-white
+                                    {% elif document.status == 'In Review' %}
+                                      bg-yellow-400 text-gray-900
+                                    {% elif document.status == 'Pending' %}
+                                      bg-blue-500 text-white
+                                    {% else %}
+                                      bg-gray-300 text-gray-800
+                                    {% endif %}">
+                                    {% if document.file %}
+                                      {{ document.status }}
+                                    {% else %}
+                                      File Not Uploaded
+                                    {% endif %}
+                                  </span>
+                                  
+                                </td>
+                                <td class="px-4 py-2">
+                                  {% if document.rejection_reason %}
+                                    <p class="text-sm text-red-600">{{ document.rejection_reason }}</p>
+                                  {% else %}
+                                    <span class="text-sm text-gray-600">N/A</span>
+                                  {% endif %}
+                                </td>
+                                <td class="px-4 py-2">
+                                  {% if is_approver and document.approval_logs %}
+                                    {% with latest_approval=document.approval_logs|last %}
+                                      <div class="text-sm space-y-1">
+                                        {% if latest_approval.action == 'Approved' %}
+                                          <p><i class="fas fa-user-check text-green-500 mr-1"></i><strong>Approved by:</strong> {{ latest_approval.approver }}</p>
+                                        {% else %}
+                                          <p><i class="fas fa-user-times text-red-500 mr-1"></i><strong>Rejected by:</strong> {{ latest_approval.approver }}</p>
+                                        {% endif %}
+                                        <p><i class="far fa-calendar-alt text-gray-400 mr-1"></i><strong>Date:</strong> {{ latest_approval.timestamp }}</p>
+                                      </div>
+                                    {% endwith %}
+                                  {% else %}
+                                    <span class="text-sm text-gray-600">Pending</span>
+                                  {% endif %}
+                                </td>
+                              </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                    
+                  </div>
+                  
+                <div class="flex justify-center mt-6 px-4">
+                    <div class="p-6 w-full max-w-5xl mx-auto">
+                  <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p class="text-base text-gray-800">
+                      <strong>Check Tuition Fee Balance:</strong>
+                      <a href="https://app.tuiopay.com/signin" target="_blank" class="text-blue-600 hover:underline hover:text-blue-800 transition">
+                        Click here
+                      </a>
+                    </p>
+                    <p class="mt-2 text-sm text-gray-600 italic">
+                      Note: Log in using your personal email address and the password you created during registration.
+                    </p>
+                  </div>
+                  </div>
+                  </div>
+                  
+                  
                 {% endfor %}         
                 
                 {% endif %}
@@ -294,10 +425,12 @@
             </div>
             
         </div>
+        
 
         {% for profile in profile_details %}
     <div id="documentModal-{{ forloop.counter }}" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-6">
-        <div class="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6 relative">
+        <div class="bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 relative">
+
             <div class="">
             <h3 class="text-2xl font-semibold text-gray-800 mb-4">Submitted Documents</h3>
           

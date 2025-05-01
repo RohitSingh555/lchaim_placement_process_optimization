@@ -248,7 +248,9 @@ class PlacementProfileView(View):
             'cpr_or_first_aid': 'CPR or First Aid',
             'mask_fit_certificate': 'Mask Fit Certificate',
             'bls_certificate': 'Basic Life Support',
-            'experience_document': 'Experience Document'
+            'experience_document': 'Experience Document',
+            'resume': 'Resume',
+            'skills_passbook': 'Skills Passbook'
         }
 
         missing_documents = []
@@ -726,6 +728,14 @@ class StudentProfileLogsView(View):
                 'preferred_facility_name': profile.preferred_facility_name,
                 'preferred_facility_address': profile.preferred_facility_address,
                 'preferred_facility_contact_person': profile.preferred_facility_contact_person,
+                'apt_house_no': profile.apt_house_no,
+                'street': profile.street,
+                'city': profile.city,
+                'province': profile.province,
+                'postal_code': profile.postal_code,
+                'open_to_outside_city': profile.open_to_outside_city,
+                'employer_letter': profile.employer_letter.url if profile.employer_letter else None,
+                'created_at': profile.created_at,
                 'documents': document_details,
                 'is_completed': complete
             })
