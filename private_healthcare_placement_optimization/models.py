@@ -47,11 +47,53 @@ class PlacementProfile(models.Model):
     )
     preferred_facility_name = models.CharField(max_length=255, blank=True, null=True)
     preferred_facility_address = models.TextField(blank=True, null=True)
+    city_preference_1 = models.CharField(max_length=100, null=True, blank=True)
+    city_preference_2 = models.CharField(max_length=100, null=True, blank=True)
     preferred_facility_contact_person = models.CharField(max_length=100, blank=True, null=True)
     assigned_facility = models.ForeignKey('Facility', on_delete=models.SET_NULL, null=True, blank=True)
     orientation_date = models.ForeignKey('OrientationDate', on_delete=models.SET_NULL, null=True, blank=True)
+    #new fields
+    processed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='processed_profiles')
+    
+    stage = models.CharField(
+        max_length=30,
+        choices=[
+            ("DONE", "Done"),
+            ("ENDORSED", "Endorsed"),
+            ("IN_PLACEMENT", "In Placement"),
+            ("CANCELLED", "Cancelled"),
+            ("TRANSFERED", "Transferred"),
+            ("ONHOLD", "On Hold"),
+            ("ONGOING_PROCESS", "Ongoing Process"),
+            ("ORIENTATION_SCHEDULED", "Orientation Scheduled"),
+            ("READY", "Ready"),
+        ],
+        null=True,
+        blank=True
+    )
+    official_start_date = models.DateField(null=True, blank=True)
+    exact_placement_end_date = models.DateField(null=True, blank=True)
+    facility_feedback = models.TextField(null=True, blank=True)
+    college_feedback = models.TextField(null=True, blank=True)
+    notes = models.TextField(null=True, blank=True)
+    date_completed = models.DateField(null=True, blank=True)
+    required_hours = models.PositiveIntegerField(default=300, null=True, blank=True)
+    time_period = models.CharField(max_length=100, null=True, blank=True)
+    days = models.CharField(max_length=100, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    module_completed = models.BooleanField(default=False)
+    pregnancy_waiver_check = models.BooleanField(default=False)
+    gender = models.CharField(
+        max_length=20,
+        choices=[
+            ("Male", "Male"),
+            ("Female", "Female"),
+            ("Other", "Other"),
+            ("Prefer not to say", "Prefer not to say")
+        ],
+        null=True,
+        blank=True
+    )
 
 class Document(models.Model):
     profile = models.ForeignKey(PlacementProfile, on_delete=models.CASCADE, related_name="documents")
@@ -149,3 +191,10 @@ class OrientationDate(models.Model):
 
     class Meta:
         ordering = ['-orientation_date']
+
+class City(models.Model):
+    name = models.CharField(max_length=100)
+    province = models.CharField(max_length=100)
+
+    class Meta:
+        unique_together = ('name', 'province')  # allow same city name in different provinces

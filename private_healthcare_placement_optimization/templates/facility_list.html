@@ -55,88 +55,130 @@
 
     <h3 class="text-xl font-semibold text-gray-800 mb-4">Add Facility</h3>
 
-    <form method="post" action="{% url 'facility_add' %}" class="space-y-4" id="facilityForm">
+    <form method="post" action="{% url 'facility_add' %}" class="space-y-6" id="facilityForm">
       {% csrf_token %}
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      
+      <!-- Grid Layout for the form fields -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Name Field -->
         <div>
           <label class="block text-sm font-medium text-gray-700">Name</label>
-          <input name="name" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+          <div class="flex items-center border border-gray-300 rounded-md shadow-sm">
+            <i class="fas fa-user p-3 text-gray-500"></i>
+            <input name="name" required class="mt-1 block w-full p-3 border-0 focus:ring-0" />
+          </div>
         </div>
-
+    
+        <!-- Status Field -->
         <div>
           <label class="block text-sm font-medium text-gray-700">Status</label>
-          <select name="status" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
+          <select name="status" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3">
             <option value="Active" selected>Active</option>
             <option value="Inactive">Inactive</option>
           </select>
         </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Province</label>
-          <input name="province" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
-        </div>
-
+    
+        <!-- City Field -->
         <div>
           <label class="block text-sm font-medium text-gray-700">City</label>
-          <input name="city" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+          <select name="city" id="city" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3" onchange="fetchProvinceByCity('create')">
+            <!-- Cities will be populated here -->
+          </select>
         </div>
-
+        
+        <!-- Province Field -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Province</label>
+          <input name="province" id="province" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3" />
+        </div>
+    
+        <!-- Address Field -->
         <div class="md:col-span-2">
           <label class="block text-sm font-medium text-gray-700">Address</label>
-          <textarea name="address" required rows="2" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></textarea>
+          <textarea name="address" required rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3"></textarea>
         </div>
-
+    
+        <!-- Facility Phone Field -->
         <div>
           <label class="block text-sm font-medium text-gray-700">Facility Phone</label>
-          <input name="facility_phone" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+          <div class="flex items-center border border-gray-300 rounded-md shadow-sm">
+            <i class="fas fa-phone p-3 text-gray-500"></i>
+            <input name="facility_phone" class="mt-1 block w-full p-3 border-0 focus:ring-0" />
+          </div>
         </div>
-
+    
+        <!-- Website Field -->
         <div>
           <label class="block text-sm font-medium text-gray-700">Website</label>
-          <input type="url" name="website" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+          <div class="flex items-center border border-gray-300 rounded-md shadow-sm">
+            <i class="fas fa-link p-3 text-gray-500"></i>
+            <input type="url" name="website" class="mt-1 block w-full p-3 border-0 focus:ring-0" />
+          </div>
         </div>
-
+    
+        <!-- Person in Charge Field -->
         <div>
           <label class="block text-sm font-medium text-gray-700">Person in Charge</label>
-          <input name="person_in_charge" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+          <div class="flex items-center border border-gray-300 rounded-md shadow-sm">
+            <i class="fas fa-user-tie p-3 text-gray-500"></i>
+            <input name="person_in_charge" required class="mt-1 block w-full p-3 border-0 focus:ring-0" />
+          </div>
         </div>
-
+    
+        <!-- Email Field -->
         <div>
           <label class="block text-sm font-medium text-gray-700">Email</label>
-          <input type="email" name="email" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+          <div class="flex items-center border border-gray-300 rounded-md shadow-sm">
+            <i class="fas fa-envelope p-3 text-gray-500"></i>
+            <input type="email" name="email" required class="mt-1 block w-full p-3 border-0 focus:ring-0" />
+          </div>
         </div>
-
+    
+        <!-- Phone Number Field -->
         <div>
           <label class="block text-sm font-medium text-gray-700">Phone Number</label>
-          <input name="phone_number" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+          <div class="flex items-center border border-gray-300 rounded-md shadow-sm">
+            <i class="fas fa-phone-alt p-3 text-gray-500"></i>
+            <input name="phone_number" required class="mt-1 block w-full p-3 border-0 focus:ring-0" />
+          </div>
         </div>
-
+    
+        <!-- Designation Field -->
         <div>
           <label class="block text-sm font-medium text-gray-700">Designation</label>
-          <input name="designation" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+          <div class="flex items-center border border-gray-300 rounded-md shadow-sm">
+            <i class="fas fa-briefcase p-3 text-gray-500"></i>
+            <input name="designation" required class="mt-1 block w-full p-3 border-0 focus:ring-0" />
+          </div>
         </div>
-
+    
+        <!-- Additional Requirements Field -->
         <div class="md:col-span-2">
           <label class="block text-sm font-medium text-gray-700">Additional Requirements</label>
-          <textarea name="additional_requirements" rows="2" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></textarea>
+          <textarea name="additional_requirements" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3"></textarea>
         </div>
-
+    
+        <!-- Shifts Available Field -->
         <div>
           <label class="block text-sm font-medium text-gray-700">Shifts Available</label>
-          <input name="shifts_available" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+          <input name="shifts_available" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3" />
         </div>
-
+    
+        <!-- Notes Field -->
         <div>
           <label class="block text-sm font-medium text-gray-700">Notes</label>
-          <textarea name="notes" rows="2" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></textarea>
+          <textarea name="notes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3"></textarea>
         </div>
       </div>
-
-      <div class="flex justify-end space-x-3 pt-4">
-        <button type="submit" class="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700">Submit</button>
-        <button type="button" onclick="closeModal('addFacilityModal')" class="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300">Cancel</button>
+    
+      <!-- Submit and Cancel Buttons -->
+      <div class="flex justify-end space-x-4 pt-6">
+        <button type="submit" class="bg-teal-600 text-white px-6 py-3 rounded-md hover:bg-teal-700 transition duration-200">Submit</button>
+        <button type="button" onclick="closeModal('addFacilityModal')" class="bg-gray-200 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-300 transition duration-200">Cancel</button>
       </div>
     </form>
+    
   </div>
 </div>
 
@@ -185,14 +227,16 @@
           </div>
   
           <div>
-            <label class="block text-sm font-medium text-gray-700">Province</label>
-            <input name="province" id="editProvince" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
-          </div>
-  
-          <div>
             <label class="block text-sm font-medium text-gray-700">City</label>
-            <input name="city" id="editCity" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+            <select name="city" id="editCity" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" onchange="fetchProvinceByCity('edit')">
+              <option value="">Select a City</option>
+            </select>
           </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Province</label>
+            <input name="province" id="editProvince" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3" />  
+                  </div>
   
           <div class="md:col-span-2">
             <label class="block text-sm font-medium text-gray-700">Address</label>
@@ -315,6 +359,7 @@
         .then(response => {
             // Close the modal when you get any kind of response (302 included)
             closeModal('editFacilityModal');
+            window.location.reload();
             
             if (response.status === 302) {
                 // Optionally, perform some action before the redirect if necessary
@@ -333,9 +378,6 @@
                 console.error('Error updating facility:', data.error);
             }
         })
-        .catch(error => {
-            console.error('Error submitting form:', error);
-        });
     });
     
   </script>
@@ -369,4 +411,70 @@
     }
   }
 </script>
+<script>
+  // Function to populate the city dropdown in both create and edit modals
+  function populateCityDropdown(formType) {
+    fetch('/cities-and-provinces/')
+      .then(response => response.json())
+      .then(data => {
+        const citySelect = document.getElementById(formType === 'create' ? 'city' : 'editCity');
+        
+        // Clear existing options
+        citySelect.innerHTML = '';
+        
+        // Create an option for each city based on the province data
+        for (let province in data) {
+          data[province].forEach(city => {
+            const option = document.createElement('option');
+            option.value = city;  // Using city name as the value
+            option.textContent = city;  // Display city name
+            citySelect.appendChild(option);
+          });
+        }
+      })
+      .catch(error => console.error('Error fetching cities:', error));
+  }
+
+  // Function to fetch province by city name
+  function fetchProvinceByCity(formType) {
+    const cityName = document.getElementById(formType === 'create' ? 'city' : 'editCity').value;
+    
+    if (cityName) {
+      // Search through the data for the province of the selected city
+      fetch('/cities-and-provinces/')
+        .then(response => response.json())
+        .then(data => {
+          let province = '';
+          
+          // Find the province for the selected city
+          for (let prov in data) {
+            if (data[prov].includes(cityName)) {
+              province = prov;
+              break;
+            }
+          }
+          
+          if (province) {
+            if (formType === 'create') {
+              document.getElementById('province').value = province;
+            } else {
+              document.getElementById('editProvince').value = province;
+            }
+          } else {
+            console.error('No province found for this city');
+          }
+        })
+        .catch(error => console.error('Error fetching province:', error));
+    }
+  }
+
+  // Call this function to populate cities when the page loads
+  populateCityDropdown('create');  // For Create Modal
+  populateCityDropdown('edit');    // For Edit Modal
+
+  // Attach event listeners to city dropdowns to trigger province fetching
+  document.getElementById('city').addEventListener('change', () => fetchProvinceByCity('create'));
+  document.getElementById('editCity').addEventListener('change', () => fetchProvinceByCity('edit'));
+</script>
+
 {% endblock %}

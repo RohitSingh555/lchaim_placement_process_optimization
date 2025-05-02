@@ -259,79 +259,155 @@ I have read and understood my responsibilities listed for placement</label>
         </div>
 
         <!-- Address Updated Dropdown (Step 4) -->
-        <div class="form-step hidden bg-white p-6 rounded-lg shadow-lg" id="step3">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Address Information</h2>
-        
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="form-step hidden bg-white p-6 rounded-lg shadow-lg" id="step3">
+    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Address Information</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="flex flex-col">
+            <label for="apt_house_no" class="text-lg font-medium text-gray-700">Apt/House No.</label>
+            <input type="text" name="apt_house_no" id="apt_house_no"
+                class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div class="flex flex-col">
+            <label for="street" class="text-lg font-medium text-gray-700">Street <strong style="color:red">*</strong></label>
+            <input type="text" name="street" id="street" required
+                class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div class="flex flex-col">
+            <label for="city" class="text-lg font-medium text-gray-700">City <strong style="color:red">*</strong></label>
+            <input type="text" name="city" id="city" required
+                class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div class="flex flex-col">
+            <label for="province" class="text-lg font-medium text-gray-700">
+                Province <strong style="color:red">*</strong>
+            </label>
+            <select name="province" id="province" required
+                class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="" disabled selected>Select your province</option>
+                <option value="Alberta (AB)">Alberta (AB)</option>
+                <option value="British Columbia (BC)">British Columbia (BC)</option>
+                <option value="Manitoba (MB)">Manitoba (MB)</option>
+                <option value="New Brunswick (NB)">New Brunswick (NB)</option>
+                <option value="Newfoundland and Labrador (NL)">Newfoundland and Labrador (NL)</option>
+                <option value="Nova Scotia (NS)">Nova Scotia (NS)</option>
+                <option value="Ontario (ON)">Ontario (ON)</option>
+                <option value="Prince Edward Island (PE)">Prince Edward Island (PE)</option>
+                <option value="Quebec (QC)">Quebec (QC)</option>
+                <option value="Saskatchewan (SK)">Saskatchewan (SK)</option>
+                <option value="Northwest Territories (NT)">Northwest Territories (NT)</option>
+                <option value="Nunavut (NU)">Nunavut (NU)</option>
+                <option value="Yukon (YT)">Yukon (YT)</option>
+            </select>
+        </div>
+
+        <div class="flex flex-col">
+            <label for="postal_code" class="text-lg font-medium text-gray-700">Postal Code <strong style="color:red">*</strong></label>
+            <input type="text" name="postal_code" id="postal_code" required
+                class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div class="flex flex-col md:col-span-2">
+            <label for="open_to_outside_city" class="text-lg font-medium text-gray-700">
+                Are you open to do your placement outside your city when there is a slot available for you?
+            </label>
+            <select name="open_to_outside_city" id="open_to_outside_city" onchange="toggleCityPreferences()"
+                class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+            </select>
+        </div>
+
+        <!-- Hidden initially -->
+        <div id="cityPreferences" class="hidden md:col-span-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                 <div class="flex flex-col">
-                    <label for="apt_house_no" class="text-lg font-medium text-gray-700">Apt/House No.</label>
-                    <input type="text" name="apt_house_no" id="apt_house_no"
-                        class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-        
-                <div class="flex flex-col">
-                    <label for="street" class="text-lg font-medium text-gray-700">Street <strong  style="color:red">*</strong></label>
-                    <input type="text" name="street" id="street" required
-                        class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-        
-                <div class="flex flex-col">
-                    <label for="city" class="text-lg font-medium text-gray-700">City <strong c style="color:red">*</strong></label>
-                    <input type="text" name="city" id="city" required
-                        class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-        
-                <div class="flex flex-col">
-                    <label for="province" class="text-lg font-medium text-gray-700">
-                        Province <strong style="color:red">*</strong>
+                    <label for="city_preference_1" class="text-lg font-medium text-gray-700">
+                        City Preference 1 <strong style="color:red">*</strong>
                     </label>
-                    <select name="province" id="province" required
+                    <select name="city_preference_1" id="city_preference_1"
                         class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="" disabled selected>Select your province</option>
-                        <option value="Alberta (AB)">Alberta (AB)</option>
-                        <option value="British Columbia (BC)">British Columbia (BC)</option>
-                        <option value="Manitoba (MB)">Manitoba (MB)</option>
-                        <option value="New Brunswick (NB)">New Brunswick (NB)</option>
-                        <option value="Newfoundland and Labrador (NL)">Newfoundland and Labrador (NL)</option>
-                        <option value="Nova Scotia (NS)">Nova Scotia (NS)</option>
-                        <option value="Ontario (ON)">Ontario (ON)</option>
-                        <option value="Prince Edward Island (PE)">Prince Edward Island (PE)</option>
-                        <option value="Quebec (QC)">Quebec (QC)</option>
-                        <option value="Saskatchewan (SK)">Saskatchewan (SK)</option>
-                        <option value="Northwest Territories (NT)">Northwest Territories (NT)</option>
-                        <option value="Nunavut (NU)">Nunavut (NU)</option>
-                        <option value="Yukon (YT)">Yukon (YT)</option>
+                        <option value="">Select a city</option>
                     </select>
-                </div>                
+                </div>
         
                 <div class="flex flex-col">
-                    <label for="postal_code" class="text-lg font-medium text-gray-700">Postal Code <strong  style="color:red">*</strong></label>
-                    <input type="text" name="postal_code" id="postal_code" required
-                        class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-        
-                <div class="flex flex-col md:col-span-2">
-                    <label for="open_to_outside_city" class="text-lg font-medium text-gray-700">
-                        Are you open to do your placement outside your city when there is a slot available for you?
+                    <label for="city_preference_2" class="text-lg font-medium text-gray-700">
+                        City Preference 2 <strong style="color:red">*</strong>
                     </label>
-                    <select name="open_to_outside_city" id="open_to_outside_city"
+                    <select name="city_preference_2" id="city_preference_2"
                         class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="No">No</option>
-                        <option value="Yes">Yes</option>
+                        <option value="">Select a city</option>
                     </select>
                 </div>
-            </div>
-        
-            <div class="flex justify-center items-center mt-6">
-        
-                <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
-                    hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300" 
-                    onclick="nextStep(4)">
-                    Next <i class="fas fa-arrow-right ml-2"></i>
-                </button>
             </div>
         </div>
         
+    </div>
+
+    <div class="flex justify-center items-center mt-6">
+        <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
+            hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300" 
+            onclick="nextStep(4)">
+            Next <i class="fas fa-arrow-right ml-2"></i>
+        </button>
+    </div>
+</div>
+
+<script>
+    function toggleCityPreferences() {
+        const openToOutside = document.getElementById('open_to_outside_city').value;
+        const cityPreferencesDiv = document.getElementById('cityPreferences');
+    
+        if (openToOutside === "Yes") {
+            cityPreferencesDiv.classList.remove('hidden');
+            loadCityDropdowns();
+        } else {
+            cityPreferencesDiv.classList.add('hidden');
+        }
+    }
+    
+    function loadCityDropdowns() {
+        fetch('/cities-and-provinces/')  // Replace with your actual endpoint
+            .then(response => response.json())
+            .then(data => {
+                const dropdown1 = document.getElementById('city_preference_1');
+                const dropdown2 = document.getElementById('city_preference_2');
+    
+                // Clear old options
+                dropdown1.innerHTML = '<option value="">Select a city</option>';
+                dropdown2.innerHTML = '<option value="">Select a city</option>';
+    
+                // Loop through each province and its cities
+                for (const province in data) {
+                    const cities = data[province];
+    
+                    // Create an <optgroup> for better UX
+                    const group1 = document.createElement('optgroup');
+                    group1.label = province;
+    
+                    const group2 = document.createElement('optgroup');
+                    group2.label = province;
+    
+                    cities.forEach(city => {
+                        const option1 = new Option(city, city);
+                        const option2 = new Option(city, city);
+                        group1.appendChild(option1);
+                        group2.appendChild(option2);
+                    });
+    
+                    dropdown1.appendChild(group1);
+                    dropdown2.appendChild(group2);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading cities:', error);
+            });
+    }
+    </script>
         
         <!-- Experience Level Dropdown (Step 4) -->
 <div class="form-step hidden bg-white p-6 rounded-lg shadow-lg" id="step4">

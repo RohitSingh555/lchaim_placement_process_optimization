@@ -50,5 +50,9 @@ urlpatterns = [
     path('orientations/add/', OrientationDateCreateView.as_view(), name='orientation_add'),
     path('orientations/<int:pk>/edit/', OrientationDateUpdateView.as_view(), name='orientation_edit'),
     path('orientations/<int:pk>/delete/', OrientationDateDeleteView.as_view(), name='orientation_delete'),
+    
+    path('facilities/assign/', assign_facility_and_orientation_date_to_users, name='assign_facility_and_orientation_date_to_users'),
+    path('assign-facility/', assign_facility_view, name='assign_facility'),
+    path('cities-and-provinces/', get_cities_and_provinces, name='cities_and_provinces'),
 ]
 handler404 = 'private_healthcare_placement_optimization.custom_404'

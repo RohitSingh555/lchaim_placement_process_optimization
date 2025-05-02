@@ -35,13 +35,20 @@
                         <span>Completed Profiles</span>
                     </a> -->
                     <a href="{% url 'incomplete_profiles' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
-                        <i class="fas fa-users"></i>
+                        <i class="fas fa-user-edit"></i>
                         <span>Incomplete Profiles</span>
                     </a>
+                    
                     <a href="{% url 'pending_users' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
-                        <i class="fas fa-users"></i>
+                        <i class="fas fa-user-clock"></i>
                         <span>Pending Users</span>
                     </a>
+                    
+                    <a href="{% url 'assign_facility_and_orientation_date_to_users' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
+                        <i class="fas fa-building"></i>
+                        <span>Assign Facility</span>
+                    </a>
+                    
                 {% endif %}
                 {% endif %}
             </div>

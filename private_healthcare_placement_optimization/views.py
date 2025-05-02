@@ -23,11 +23,15 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+
 from private_healthcare_placement_optimization.enums import DocumentStatus
 from .forms import CustomUserCreationForm, DocumentForm, FacilityForm, OrientationDateForm
 from .models import (
     Approver,
     ApprovalLog,
+    City,
     Document,
     Facility,
     FeeStatus,
@@ -219,6 +223,8 @@ class PlacementProfileView(View):
         preferred_facility_name = request.POST.get('preferred_facility_name')
         preferred_facility_address = request.POST.get('preferred_facility_address')
         preferred_facility_contact_person = request.POST.get('preferred_facility_contact_person')
+        city_preference_1 = request.POST.get('city_preference_1')
+        city_preference_2 = request.POST.get('city_preference_2')
 
         try:
             profile = PlacementProfile.objects.create(
@@ -237,6 +243,8 @@ class PlacementProfileView(View):
                 preferred_facility_name=preferred_facility_name,
                 preferred_facility_address=preferred_facility_address,
                 preferred_facility_contact_person=preferred_facility_contact_person,
+                city_preference_1=city_preference_1,
+                city_preference_2=city_preference_2,
             )
             print("PlacementProfile saved:", profile)
         except Exception as e:
@@ -1691,9 +1699,6 @@ def get_users_without_profiles_view(request):
     users_no_profile = User.objects.exclude(id__in=PlacementProfile.objects.values_list('user', flat=True))
     return render(request, 'users_without_profiles.html', {'users': users_no_profile})
 
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
-
 # Facility Views
 class FacilityListView(ListView):
     model = Facility
@@ -1713,10 +1718,18 @@ def update_facility(request, pk):
         form = FacilityForm(request.POST, instance=facility)
         if form.is_valid():
             form.save()
-            return redirect('facility_list')  # Adjust this as per your requirement
-    else:
-        form = FacilityForm(instance=facility)
+
+            # Return JSON if it's an AJAX request (like from fetch)
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': True})
+            else:
+                return redirect('facility_list')  # Non-AJAX fallback
+        else:
+            # If form is invalid, return errors as JSON for AJAX
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': form.errors}, status=400)
     
+    # Render the form normally if GET
     return render(request, 'update_facility.html', {'form': form, 'facility': facility})
 
 class FacilityDeleteView(DeleteView):
@@ -1774,3 +1787,73 @@ def edit_facility(request, facility_id):
         'notes': facility.notes,
     }
     return JsonResponse(data)
+
+def get_profiles_facilities_orientations():
+    profiles = PlacementProfile.objects.select_related('user', 'assigned_facility', 'orientation_date').all()
+    facilities = Facility.objects.filter(status='Active').order_by('name')
+    orientation_dates = OrientationDate.objects.order_by('-orientation_date')
+
+    return {
+        "profiles": profiles,
+        "facilities": facilities,
+        "orientation_dates": orientation_dates,
+    }
+    
+def assign_facility_and_orientation_date_to_users(request):
+    context = get_profiles_facilities_orientations()
+    return render(request, "assign_facility.html", context)
+
+def assign_facility_view(request):
+    if request.method == 'POST':
+        user_ids = request.POST.getlist('selected_users')
+        facility_id = request.POST.get('facility_id')
+        orientation_id = request.POST.get('orientation_id')
+
+        context = get_profiles_facilities_orientations()  # ensure this is called regardless of errors
+
+        if not user_ids:
+            context["error"] = "No users selected."
+            return render(request, 'assign_facility.html', context)
+
+        if not facility_id or not orientation_id:
+            context["error"] = "Both facility and orientation date must be selected."
+            return render(request, 'assign_facility.html', context)
+
+        try:
+            facility = Facility.objects.get(id=facility_id)
+            orientation_date = OrientationDate.objects.get(id=orientation_id)
+        except (Facility.DoesNotExist, OrientationDate.DoesNotExist):
+            context["error"] = "Invalid facility or orientation date."
+            return render(request, 'assign_facility.html', context)
+
+        PlacementProfile.objects.filter(user__id__in=user_ids).update(
+            assigned_facility=facility,
+            orientation_date=orientation_date
+        )
+
+        context["success"] = "Facility and orientation date assigned successfully."
+        return render(request, 'assign_facility.html', context)
+
+    # GET request fallback
+    return redirect('assign_facility')  # Or handle gracefully if needed
+
+def get_cities_and_provinces(request):
+    try:
+        # Get all cities
+        cities = City.objects.all()
+        
+        # Group cities by province
+        city_data = {}
+        for city in cities:
+            province_name = city.province
+            if province_name not in city_data:
+                city_data[province_name] = []
+            city_data[province_name].append(city.name)
+        
+        # Return the data as JSON
+        return JsonResponse(city_data)
+    
+    except Exception as e:
+        # Log the error for debugging
+        print(f"Error occurred: {e}")
+        return JsonResponse({'error': 'An error occurred while fetching cities and provinces'}, status=500)

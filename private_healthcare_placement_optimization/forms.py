@@ -12,7 +12,7 @@ class PlacementProfileForm(forms.ModelForm):
             'apt_house_no', 'street', 'city', 'province', 'postal_code',  # New address fields
             'open_to_outside_city',  # New placement question field
             'experience_level', 'employer_letter', 'shift_requested', 
-            'preferred_facility_name', 'preferred_facility_address', 'preferred_facility_contact_person'
+            'preferred_facility_name', 'preferred_facility_address', 'preferred_facility_contact_person','city_preference_1', 'city_preference_2',
         ]
 
     def clean_college_email(self):
