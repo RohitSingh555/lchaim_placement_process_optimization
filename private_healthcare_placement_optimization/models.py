@@ -94,6 +94,8 @@ class PlacementProfile(models.Model):
         null=True,
         blank=True
     )
+    facility_email_address = models.EmailField(null=True, blank=True)
+
 
 class Document(models.Model):
     profile = models.ForeignKey(PlacementProfile, on_delete=models.CASCADE, related_name="documents")

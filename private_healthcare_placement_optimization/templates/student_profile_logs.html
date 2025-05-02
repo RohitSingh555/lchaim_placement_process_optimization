@@ -226,7 +226,7 @@
               </h2>
                 {% for profile in profile_details %}
                 <div class="flex items-center justify-center p-6">
-                    <div class="w-full max-w-5xl bg-white rounded-2xl p-6 md:p-8 border border-gray-200 shadow-lg">
+                    <div class="w-full max-w-6xl bg-white rounded-2xl p-6 md:p-8 border border-gray-200 shadow-lg">
                         <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
                             <div class="w-16 h-16 bg-teal-500 text-white flex items-center justify-center rounded-full text-2xl font-bold">
                                 <i class="fas fa-user"></i>
@@ -261,46 +261,6 @@
                                 <span><strong>Shift Requested:</strong> {{ profile.shift_requested }}</span>
                             </p>
                             <p class="flex items-center space-x-2">
-                                <i class="fas fa-map-marker-alt text-teal-500"></i>
-                                <span><strong>Address Updated:</strong> {{ profile.address_updated|yesno:"Yes,No" }}</span>
-                            </p>
-                            <p class="flex items-center space-x-2">
-                                <i class="fas fa-hospital text-teal-500"></i>
-                                <span><strong>Preferred Facility:</strong> {{ profile.preferred_facility_name }}</span>
-                            </p>
-                            <p class="flex items-center space-x-2">
-                                <i class="fas fa-map text-teal-500"></i>
-                                <span><strong>Facility Address:</strong> {{ profile.preferred_facility_address }}</span>
-                            </p>
-                            <p class="flex items-center space-x-2">
-                                <i class="fas fa-phone text-teal-500"></i>
-                                <span><strong>Facility Contact:</strong> {{ profile.preferred_facility_contact_person }}</span>
-                            </p>
-                            <p class="flex items-center space-x-2">
-                                <i class="fas fa-home text-teal-500"></i>
-                                <span><strong>Apt/House No:</strong> {{ profile.apt_house_no }}</span>
-                            </p>
-                            <p class="flex items-center space-x-2">
-                                <i class="fas fa-road text-teal-500"></i>
-                                <span><strong>Street:</strong> {{ profile.street }}</span>
-                            </p>
-                            <p class="flex items-center space-x-2">
-                                <i class="fas fa-city text-teal-500"></i>
-                                <span><strong>City:</strong> {{ profile.city }}</span>
-                            </p>
-                            <p class="flex items-center space-x-2">
-                                <i class="fas fa-flag text-teal-500"></i>
-                                <span><strong>Province:</strong> {{ profile.province }}</span>
-                            </p>
-                            <p class="flex items-center space-x-2">
-                                <i class="fas fa-mail-bulk text-teal-500"></i>
-                                <span><strong>Postal Code:</strong> {{ profile.postal_code }}</span>
-                            </p>
-                            <p class="flex items-center space-x-2">
-                                <i class="fas fa-globe-americas text-teal-500"></i>
-                                <span><strong>Open to Other Cities:</strong> {{ profile.open_to_outside_city|yesno:"Yes,No" }}</span>
-                            </p>
-                            <p class="flex items-center space-x-2">
                                 <i class="fas fa-file-upload text-teal-500"></i>
                                 <span><strong>Employer Letter:</strong>
                                     {% if profile.employer_letter %}
@@ -325,7 +285,7 @@
                     </div>
                 </div>       
                 <div class="flex justify-center mt-6 px-4">
-                    <div class="bg-white border border-gray-200 rounded-lg shadow-md p-6 w-full max-w-5xl mx-auto">
+                    <div class="bg-white border border-gray-200 rounded-lg shadow-md p-6 w-full max-w-6xl mx-auto">
                       <h3 class="text-xl font-semibold text-gray-800 mb-4">Document Status Table</h3>
                       
                       <div class="overflow-x-auto">
@@ -335,8 +295,9 @@
                               <th class="px-4 py-2 text-left">Document Type</th>
                               <th class="px-4 py-2 text-left">Uploaded At</th>
                               <th class="px-4 py-2 text-left">Status</th>
-                              <th class="px-4 py-2 text-left">Rejection Reason</th>
+                              <th class="px-4 py-2 text-left">Comments</th>
                               <th class="px-4 py-2 text-left">Approval Details</th>
+                              <th class="px-4 py-2 text-left">Date Checked</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -377,19 +338,27 @@
                                   {% endif %}
                                 </td>
                                 <td class="px-4 py-2">
-                                  {% if is_approver and document.approval_logs %}
+                                  {% if document.approval_logs %}
                                     {% with latest_approval=document.approval_logs|last %}
                                       <div class="text-sm space-y-1">
                                         {% if latest_approval.action == 'Approved' %}
-                                          <p><i class="fas fa-user-check text-green-500 mr-1"></i><strong>Approved by:</strong> {{ latest_approval.approver }}</p>
+                                          <p> {{ latest_approval.approver }}</p>
                                         {% else %}
-                                          <p><i class="fas fa-user-times text-red-500 mr-1"></i><strong>Rejected by:</strong> {{ latest_approval.approver }}</p>
+                                          <p>{{ latest_approval.approver }}</p>
                                         {% endif %}
-                                        <p><i class="far fa-calendar-alt text-gray-400 mr-1"></i><strong>Date:</strong> {{ latest_approval.timestamp }}</p>
                                       </div>
                                     {% endwith %}
                                   {% else %}
                                     <span class="text-sm text-gray-600">Pending</span>
+                                  {% endif %}
+                                </td>
+                                <td class="px-4 py-2">
+                                    {% if document.approval_logs %}
+                                    {% with latest_approval=document.approval_logs|last %}
+                                    <p>{{ latest_approval.timestamp }}</p>
+                                    {% endwith %}
+                                  {% else %}
+                                    <span class="text-sm text-gray-600">N/A</span>
                                   {% endif %}
                                 </td>
                               </tr>
@@ -400,9 +369,61 @@
                     </div>
                     
                   </div>
-                  
-                <div class="flex justify-center mt-6 px-4">
-                    <div class="p-6 w-full max-w-5xl mx-auto">
+                  <!-- Address Information Card -->
+
+<div class="flex justify-center mt-6 px-4">
+<div class="bg-white border border-gray-200 rounded-lg shadow-md p-6 w-full max-w-6xl mx-auto">
+    <h4 class="text-lg font-semibold text-teal-700 mb-4 flex items-center space-x-2">
+        <i class="fas fa-map-marker-alt"></i>
+        <span>Address Information</span>
+    </h4>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
+        <p class="flex items-center space-x-2">
+            <i class="fas fa-check-circle text-teal-500"></i>
+            <span><strong>Address Updated:</strong> {{ profile.address_updated|yesno:"Yes,No" }}</span>
+        </p>
+        <p class="flex items-center space-x-2">
+            <i class="fas fa-hospital text-teal-500"></i>
+            <span><strong>Preferred Facility:</strong> {{ profile.preferred_facility_name }}</span>
+        </p>
+        <p class="flex items-center space-x-2">
+            <i class="fas fa-map text-teal-500"></i>
+            <span><strong>Facility Address:</strong> {{ profile.preferred_facility_address }}</span>
+        </p>
+        <p class="flex items-center space-x-2">
+            <i class="fas fa-phone text-teal-500"></i>
+            <span><strong>Facility Contact:</strong> {{ profile.preferred_facility_contact_person }}</span>
+        </p>
+        <p class="flex items-center space-x-2">
+            <i class="fas fa-home text-teal-500"></i>
+            <span><strong>Apt/House No:</strong> {{ profile.apt_house_no }}</span>
+        </p>
+        <p class="flex items-center space-x-2">
+            <i class="fas fa-road text-teal-500"></i>
+            <span><strong>Street:</strong> {{ profile.street }}</span>
+        </p>
+        <p class="flex items-center space-x-2">
+            <i class="fas fa-city text-teal-500"></i>
+            <span><strong>City:</strong> {{ profile.city }}</span>
+        </p>
+        <p class="flex items-center space-x-2">
+            <i class="fas fa-flag text-teal-500"></i>
+            <span><strong>Province:</strong> {{ profile.province }}</span>
+        </p>
+        <p class="flex items-center space-x-2">
+            <i class="fas fa-mail-bulk text-teal-500"></i>
+            <span><strong>Postal Code:</strong> {{ profile.postal_code }}</span>
+        </p>
+        <p class="flex items-center space-x-2">
+            <i class="fas fa-globe-americas text-teal-500"></i>
+            <span><strong>Open to Other Cities:</strong> {{ profile.open_to_outside_city|yesno:"Yes,No" }}</span>
+        </p>
+    </div>
+</div>
+</div>
+
+                <div class="flex justify-center mt-6 ">
+                    <div class=" w-full max-w-6xl mx-auto">
                   <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <p class="text-base text-gray-800">
                       <strong>Check Tuition Fee Balance:</strong>

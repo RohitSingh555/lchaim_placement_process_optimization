@@ -17,7 +17,7 @@
         </h2>
     </div>
     
-    <form method="POST" enctype="multipart/form-data" id="wizardForm" class="space-y-6">
+    <form method="POST" enctype="multipart/form-data" id="wizardForm" class="space-y-6" onsubmit="showLoadingOverlay()">
         {% csrf_token %}
 
 
@@ -58,26 +58,37 @@
             <!-- Substeps 2–7 (see below for full content) -->
             <div class="sub-step hidden" id="subStep2">
                 <div class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4">
-                  <i class="fas fa-clipboard-list text-teal-600 text-3xl flex-shrink-0"></i>
-                  <div class="flex-1">
+                    <i class="fas fa-clipboard-list text-teal-600 text-3xl flex-shrink-0 mt-1"></i>  
+                  <div class="flex-1 h-[500px] overflow-y-auto pr-4"> 
                     <h3 class="text-xl font-semibold text-teal-700">Before Placement</h3>
                     <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Submit Medical Report with lab results or immunization for TB, MMR, Varicella, Tdap, Hep B.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Police Vulnerable Sector Check (VSC) – valid within 6 months for LTC.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> COVID-19 Vaccination Certificate (2 doses).</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Submit Medical Report with supporting lab results or proof of immunization for:</li>
+                      <ul class="ml-8 list-none space-y-2">
+                        <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i> 2-Step TB Test (or Chest X-ray if positive). For LTC placements, must be within 6 months.</li>
+                        <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i> MMR (Measles, Mumps, Rubella), Varicella, Tdap (Tetanus, Diphtheria, Pertussis), Hepatitis B.</li>
+                      </ul>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Police Vulnerable Sector Check (VSC) – Criminal and Judicial Checks are NOT accepted. Must be within 6 months for LTC placements.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> COVID-19 Vaccination Certificate – Proof of two doses required (see Placement Guide for details).</li>
                       <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> First Aid & CPR (Level C).</li>
                       <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Mask Fit Test Certificate.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Flu Shot Record (fall/winter intakes).</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Pregnancy policy: 2nd trimester allowed with approval; 1st & 3rd not allowed.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Do not contact facilities directly; placements are coordinated by the college.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Flu Shot Record (for fall/winter intakes).</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Pregnancy Policy:</li>
+                      <ul class="ml-8 list-none space-y-2">
+                        <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i> 1st & 3rd trimester: not allowed.</li>
+                        <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i> 2nd trimester: allowed with doctor’s note and facility approval.</li>
+                      </ul>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Do not contact facilities directly. All communication is handled by the college.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Placements are offered based on document completion and availability. Suggesting facilities is allowed, but communication goes through the college.</li>
                     </ul>
                     <div class="mt-5 flex items-center">
                       <input type="checkbox" id="subStep2Checkbox" class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
                       <label for="subStep2Checkbox" class="ml-3 text-gray-800 text-lg">
-I have read and understood my responsibilities listed for placement</label>
+                        I have read and understood my responsibilities listed for placement
+                      </label>
                     </div>
                     <p id="subStep2Error" class="text-red-600 text-lg mt-2 hidden">
-I have read and understood my responsibilities listed for placement</p>
+                      Please confirm you have read and understood the responsibilities.
+                    </p>
                   </div>
                 </div>
                 <div class="flex justify-center mt-4">
@@ -87,6 +98,7 @@ I have read and understood my responsibilities listed for placement</p>
                   </button>
                 </div>
               </div>
+              
               <div class="sub-step hidden" id="subStep3">
                 <div class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4">
                   <i class="fas fa-university text-teal-600 text-3xl flex-shrink-0"></i>
@@ -121,7 +133,9 @@ I have read and understood my responsibilities listed for placement</p>
                     <h3 class="text-xl font-semibold text-teal-700">Facility Responsibilities</h3>
                     <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
                       <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Confirm capacity and schedule.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Share intake and orientation dates, available spots, shift requirements.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Share intake and orientation dates.</li>
+                    <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Share number of available spots.</li>
+                    <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Share shift schedule and shift requirements.</li>
                     </ul>
                     <div class="mt-5 flex items-center">
                       <input type="checkbox" id="subStep4Checkbox" class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
@@ -142,23 +156,32 @@ I have read and understood my responsibilities listed for placement</p>
               <div class="sub-step hidden" id="subStep5">
                 <div class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4">
                   <i class="fas fa-user-clock text-teal-600 text-3xl flex-shrink-0"></i>
-                  <div class="flex-1">
+                  <div class="flex-1 h-[500px] overflow-y-auto pr-4">
                     <h3 class="text-xl font-semibold text-teal-700">During Placement</h3>
                     <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Notify absences to both college and facility.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Report illness immediately.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> No site change after assignment.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Respect workplace policies; misconduct may lead to action.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> College will monitor performance and conduct mid-placement check-ins.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Facility will provide supervision and submit evaluations.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i><strong>Attendance & Punctuality:</strong> Report absences to both college and facility via email.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>More than 2 absences require explanation.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>No unauthorized schedule changes.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i><strong>Illness:</strong> Immediately notify both the facility and college.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i><strong>Commitment:</strong> Placement site cannot be changed once assigned.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i><strong>Professional Conduct:</strong> Respect workplace policies and people.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Disrespectful or abusive behavior may lead to disciplinary action.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i><strong>College Support:</strong> Monitor student performance.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Conduct mid-placement check-ins.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Maintain accurate placement records.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i><strong>Facility Responsibilities:</strong> Provide supervision and orientation.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Notify college of any student issues.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Submit preceptor evaluations by placement end.</li>
                     </ul>
                     <div class="mt-5 flex items-center">
                       <input type="checkbox" id="subStep5Checkbox" class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
                       <label for="subStep5Checkbox" class="ml-3 text-gray-800 text-lg">
-I have read and understood my responsibilities listed for placement</label>
+                        I have read and understood my responsibilities listed for placement
+                      </label>
                     </div>
                     <p id="subStep5Error" class="text-red-600 text-lg mt-2 hidden">
-I have read and understood my responsibilities listed for placement</p>
+                      Please acknowledge the responsibilities by checking the box above.
+                    </p>
                   </div>
                 </div>
                 <div class="flex justify-center mt-4">
@@ -168,23 +191,28 @@ I have read and understood my responsibilities listed for placement</p>
                   </button>
                 </div>
               </div>
+              
               <div class="sub-step hidden" id="subStep6">
                 <div class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4">
                   <i class="fas fa-handshake text-teal-600 text-3xl flex-shrink-0"></i>
                   <div class="flex-1">
-                    <h3 class="text-xl font-semibold text-teal-700">Conduct & Respect Policy</h3>
+                    <h3 class="text-xl font-semibold text-teal-700">After Placement</h3>
                     <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Adheres to OHSA & OHRC.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> No harassment, discrimination, or retaliation tolerated.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Maintain professionalism and respectful communication.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i><strong>Student Responsibilities:</strong> Email the college with exact placement end date.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Submit completed timesheet (Skills Passbook or Facility Log Sheet).</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Submit preceptor evaluation.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i><strong>College Responsibilities:</strong> Verify placement hours and evaluation.</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>File documentation for records.</li>
                     </ul>
                     <div class="mt-5 flex items-center">
                       <input type="checkbox" id="subStep6Checkbox" class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
                       <label for="subStep6Checkbox" class="ml-3 text-gray-800 text-lg">
-I have read and understood my responsibilities listed for placement</label>
+                        I have read and understood my responsibilities listed for placement
+                      </label>
                     </div>
                     <p id="subStep6Error" class="text-red-600 text-lg mt-2 hidden">
-I have read and understood my responsibilities listed for placement</p>
+                      Please acknowledge the responsibilities by checking the box above.
+                    </p>
                   </div>
                 </div>
                 <div class="flex justify-center mt-4">
@@ -194,32 +222,111 @@ I have read and understood my responsibilities listed for placement</p>
                   </button>
                 </div>
               </div>
+              
+              
               <div class="sub-step hidden" id="subStep7">
                 <div class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4">
-                  <i class="fas fa-envelope-open-text text-teal-600 text-3xl flex-shrink-0"></i>
+                  <i class="fas fa-handshake text-teal-600 text-3xl flex-shrink-0"></i>
                   <div class="flex-1">
-                    <h3 class="text-xl font-semibold text-teal-700">Communication, Hours & Stipend Policy</h3>
-                    <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> <strong>Communication:</strong> Use email; respond within 1–2 business days.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> <strong>Hours:</strong> Minimum 100 hours; case-by-case review for others.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> <strong>Stipend:</strong> Not guaranteed; handled by facility or province.</li>
+                    <h3 class="text-xl font-semibold text-teal-700">Conduct & Respect Policy</h3>
+                    <p class="text-gray-800 mt-2 text-lg">
+                      Peak College adheres to the Occupational Health and Safety Act (OHSA) and the Ontario Human Rights Code (OHRC) to ensure a respectful, inclusive learning environment.
+                    </p>
+                    <h4 class="mt-4 font-semibold text-teal-700 text-lg">Unacceptable Behaviors Include:</h4>
+                    <ul class="list-none text-gray-800 mt-2 space-y-2 text-lg">
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Dismissive or demeaning acts</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Public embarrassment</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Undermining work</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Harassment or discrimination</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Retaliation for reporting concerns</li>
+                    </ul>
+                    <h4 class="mt-4 font-semibold text-teal-700 text-lg">Expectations:</h4>
+                    <ul class="list-none text-gray-800 mt-2 space-y-2 text-lg">
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Treat everyone with dignity and respect</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Communicate professionally</li>
+                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Report violations confidentially and safely</li>
                     </ul>
                     <div class="mt-5 flex items-center">
                       <input type="checkbox" id="subStep7Checkbox" class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
                       <label for="subStep7Checkbox" class="ml-3 text-gray-800 text-lg">
-I have read and understood my responsibilities listed for placement</label>
+                        I have read and understood the Conduct and Respect Policy
+                      </label>
                     </div>
-                    <p id="subStep7Error" class="text-red-600 text-lg mt-2 hidden">Please acknowledge this section before finishing.</p>
+                    <p id="subStep7Error" class="text-red-600 text-lg mt-2 hidden">
+                      Please acknowledge the policy by checking the box above.
+                    </p>
                   </div>
                 </div>
                 <div class="flex justify-center mt-4">
-                    <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
-                        hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 
-                        transition-all duration-300" onclick="nextStep(2)">
-                        Next <i class="fas fa-arrow-right ml-2"></i>
-                    </button>
+                  <button onclick="goToSubStep(8)" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
+                    hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300">
+                    Next <i class="fas fa-arrow-right ml-2"></i>
+                  </button>
                 </div>
               </div>
+              
+              <div class="sub-step hidden" id="subStep8">
+                <div class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4">
+                  <i class="fas fa-envelope-open-text text-teal-600 text-3xl flex-shrink-0 mt-1"></i>
+                  <div class="flex-1 h-[400px] overflow-y-auto pr-4">
+                    <h3 class="text-xl font-semibold text-teal-700">Communication, Hours & Stipend Policy</h3>
+                    <ul class="list-none text-gray-800 mt-3 space-y-4 text-lg">
+                      <!-- COMMUNICATION POLICY -->
+                      <li><strong class="text-teal-700">Communication Policy</strong></li>
+                      <ul class="ml-6 space-y-2">
+                        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> All formal communication must be via email.</li>
+                        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Expect responses within 1–2 business days.</li>
+                        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Contact: <a href="mailto:placement@peakcollege.ca" class="text-teal-700 underline">placement@peakcollege.ca</a></li>
+                      </ul>
+              
+                      <!-- PLACEMENT HOURS & ACCREDITATION -->
+                      <li class="pt-2"><strong class="text-teal-700">Placement Hours & Accreditation Evaluation</strong></li>
+                      <ul class="ml-6 space-y-2">
+                        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Placement Requirement: 100 hours.</li>
+                        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Other recognized credentials (evaluated case-by-case with proof):</li>
+                        <ul class="ml-6 space-y-1">
+                          <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i> IEN (Diploma & Transcript)</li>
+                          <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i> HCSW/Elderly Care (Certificate & Job Description)</li>
+                          <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i> PSW Experience (Letter of Employment)</li>
+                        </ul>
+                      </ul>
+              
+                      <!-- CLINICAL STIPEND POLICY -->
+                      <li class="pt-2"><strong class="text-teal-700">Clinical Stipend Policy</strong></li>
+                      <ul class="ml-6 space-y-2">
+                        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Paid placements are limited and not guaranteed.</li>
+                        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Availability is subject to:</li>
+                        <ul class="ml-6 space-y-1">
+                          <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i> Facility capacity and discretion</li>
+                          <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i> Provincial guidelines (Ministry of Health & Ontario Health)</li>
+                        </ul>
+                        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Peak College does not manage or distribute stipends; payments (if any) are handled by the facility or provincial agency.</li>
+                      </ul>
+                    </ul>
+              
+                    <!-- Acknowledgment Checkbox -->
+                    <div class="mt-6 flex items-center">
+                      <input type="checkbox" id="subStep8Checkbox" class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
+                      <label for="subStep8Checkbox" class="ml-3 text-gray-800 text-lg">
+                        I have read and understood my responsibilities listed for placement
+                      </label>
+                    </div>
+                    <p id="subStep8Error" class="text-red-600 text-lg mt-2 hidden">
+                      Please acknowledge this section before finishing.
+                    </p>
+                  </div>
+                </div>
+              
+                <!-- Next Button -->
+                <div class="flex justify-center mt-4">
+                  <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
+                    hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 
+                    transition-all duration-300" onclick="nextStep(2)">
+                    Next <i class="fas fa-arrow-right ml-2"></i>
+                  </button>
+                </div>
+              </div>
+              
               
             <!-- You can copy the rest of the sub-steps from here: -->
           </div>
@@ -482,32 +589,64 @@ I have read and understood my responsibilities listed for placement</label>
         </select>
     </div>
     <!-- Preferred Facility Name -->
-    <div class="mt-6 mb-6">
-        
-        
-        <label for="preferred_facility" class="text-lg font-medium text-gray-700 mb-2">Target Facility Name</label>
-        <p class="text-gray-700 text-sm mb-2">
-            If you find a placement location near your home, provide the facility's name and contact details. 
-            Peak College cannot guarantee placement at this location, but we will make every effort to arrange a contract.
-        </p>
-        <input type="text" name="preferred_facility" id="preferred_facility"
-               class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-               placeholder="Enter facility name (optional)">
-
-        <div class="flex flex-col pt-5">
-        <label for="preferred_facility_address" class="text-lg font-medium text-gray-700 mb-2">Target Facility Address (Optional)</label>
-        <textarea name="preferred_facility_address" id="preferred_facility_address" rows="3" 
-                    class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                    placeholder="Facility Address"></textarea>
-        </div>
-        <div class="flex flex-col pt-5">
-            <label for="preferred_facility_contact_person" class="text-lg font-medium text-gray-700 mb-2">Target Facility Contact Person (Optional)</label>
-            <input type="text" name="preferred_facility_contact_person" id="preferred_facility_contact_person" 
-                    class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                    placeholder="Contact Person">
-        </div>
+    <div class="mt-6">
+        <label for="ltc_facility_question" class="text-lg font-medium text-gray-700 mb-2">
+            Are you currently working with a Long Term Care Facility and want to do the placement there?
+        </label>
+        <br>
+        <select
+            id="ltc_facility_question"
+            name="ltc_facility_question"
+            required
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700"
+        >
+            <option value="">Select an option</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select>
     </div>
     
+    <!-- Facility Info (Shown conditionally) -->
+    <div id="facility_info_box" class="mt-6 mb-6 hidden border border-red-400 bg-red-50 p-4 rounded-md">
+        <div class="flex flex-col">
+            <label for="preferred_facility" class="text-lg font-medium text-gray-700 mb-2">Facility Name<span class="text-red-500 ml-1">*</span></label>
+            <input type="text" name="preferred_facility" id="preferred_facility"
+                   class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+                   placeholder="Enter facility name" required>
+    
+            <label for="preferred_facility_address" class="text-lg font-medium text-gray-700 mt-4 mb-2">Facility Address<span class="text-red-500 ml-1">*</span></label>
+            <textarea name="preferred_facility_address" id="preferred_facility_address" rows="3"
+                      class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Facility Address" required></textarea>
+    
+            <label for="preferred_facility_contact_person" class="text-lg font-medium text-gray-700 mt-4 mb-2">Contact Person<span class="text-red-500 ml-1">*</span></label>
+            <input type="text" name="preferred_facility_contact_person" id="preferred_facility_contact_person"
+                   class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   placeholder="Contact Person" required>
+    
+            <label for="preferred_facility_email" class="text-lg font-medium text-gray-700 mt-4 mb-2">Contact Email<span class="text-red-500 ml-1">*</span></label>
+            <input type="email" name="preferred_facility_email" id="preferred_facility_email"
+                   class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   placeholder="Contact Email" required>
+        </div>
+    </div>
+    <script>
+        const ltcDropdown = document.getElementById("ltc_facility_question");
+        const facilityInfoBox = document.getElementById("facility_info_box");
+    
+        ltcDropdown.addEventListener("change", () => {
+            const shouldShow = ltcDropdown.value === "Yes";
+            facilityInfoBox.classList.toggle("hidden", !shouldShow);
+    
+            const requiredFields = ["preferred_facility", "preferred_facility_address", "preferred_facility_contact_person", "preferred_facility_email"];
+            requiredFields.forEach(id => {
+                const field = document.getElementById(id);
+                if (field) {
+                    field.required = shouldShow;
+                }
+            });
+        });
+    </script>
 
     <div class="flex justify-center items-center mt-6">
         <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
@@ -549,47 +688,52 @@ I have read and understood my responsibilities listed for placement</label>
 
         <!-- Upload Fields (All at Once) (Step 6) -->
         <div class="form-step hidden" id="step7">
-            <h3 class="text-xl font-semibold text-gray-700 mb-6">Upload Required Documents</h3>
+            <h3 class="text-xl font-semibold text-teal-700 mb-6">Upload Required Documents</h3>
         
             <!-- Required Documents -->
             <div class="flex flex-col mb-6">
                 <label for="medical_certificate" class="text-lg font-medium text-gray-700 mb-2 relative after:content-['*'] after:text-red-500 after:ml-1">
                     Medical Certificate
                 </label>
-                <input type="file" name="medical_certificate" id="medical_certificate" 
-                       class="required-file px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="file-input-container">
+                    <input type="file" name="medical_certificate" id="medical_certificate" class="required-file">
+                </div>
             </div>
         
             <div class="flex flex-col mb-6">
                 <label for="covid_vaccination_certificate" class="text-lg font-medium text-gray-700 mb-2 relative after:content-['*'] after:text-red-500 after:ml-1">
                     Covid Vaccination Certificate
                 </label>
-                <input type="file" name="covid_vaccination_certificate" id="covid_vaccination_certificate" 
-                       class="required-file px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="file-input-container">
+                    <input type="file" name="covid_vaccination_certificate" id="covid_vaccination_certificate" class="required-file">
+                </div>
             </div>
         
             <div class="flex flex-col mb-6">
                 <label for="vulnerable_sector_check" class="text-lg font-medium text-gray-700 mb-2 relative after:content-['*'] after:text-red-500 after:ml-1">
                     Vulnerable Sector Check
                 </label>
-                <input type="file" name="vulnerable_sector_check" id="vulnerable_sector_check" 
-                       class="required-file px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="file-input-container">
+                    <input type="file" name="vulnerable_sector_check" id="vulnerable_sector_check" class="required-file">
+                </div>
             </div>
         
             <div class="flex flex-col mb-6">
                 <label for="cpr_or_first_aid" class="text-lg font-medium text-gray-700 mb-2 relative after:content-['*'] after:text-red-500 after:ml-1">
                     CPR or First Aid
                 </label>
-                <input type="file" name="cpr_or_first_aid" id="cpr_or_first_aid" 
-                       class="required-file px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="file-input-container">
+                    <input type="file" name="cpr_or_first_aid" id="cpr_or_first_aid" class="required-file">
+                </div>
             </div>
         
             <div class="flex flex-col mb-6">
                 <label for="mask_fit_certificate" class="text-lg font-medium text-gray-700 mb-2 relative after:content-['*'] after:text-red-500 after:ml-1">
                     Mask Fit Certificate
                 </label>
-                <input type="file" name="mask_fit_certificate" id="mask_fit_certificate" 
-                       class="required-file px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="file-input-container">
+                    <input type="file" name="mask_fit_certificate" id="mask_fit_certificate" class="required-file">
+                </div>
             </div>
         
             <!-- Optional Document -->
@@ -597,20 +741,97 @@ I have read and understood my responsibilities listed for placement</label>
                 <label for="bls_certificate" class="text-lg font-medium text-gray-700 mb-2">
                     Basic Life Support <span class="text-gray-500">(Optional)</span>
                 </label>
-                <input type="file" name="bls_certificate" id="bls_certificate" 
-                       class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="file-input-container">
+                    <input type="file" name="bls_certificate" id="bls_certificate">
+                </div>
+            </div>
+        
+            <!-- Loading Spinner & Background Blur -->
+            <div id="loading-overlay" class="hidden fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
+                <div class="text-center">
+                    <div class="spinner-border text-teal-600 animate-spin h-12 w-12 border-t-4 border-b-4 border-teal-600 rounded-full"></div>
+                    <p class="mt-4 text-teal-700">Submitting...</p>
+                </div>
             </div>
         
             <div class="flex justify-center mt-6">
-                <button id="submitBtn" type="submit"  
-                        class="px-6 py-3 bg-gradient-to-r from-blue-500 to-teal-500 text-white font-semibold rounded-full shadow-lg 
-                               hover:from-blue-600 hover:to-teal-600 transition-all duration-300 transform hover:scale-105 
-                               focus:outline-none focus:ring-4 focus:ring-blue-300">
+                <button id="submitBtn" type="submit" class="px-6 py-3 bg-gradient-to-r from-teal-400 to-teal-500 text-white font-semibold rounded-full shadow-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-teal-300" >
                     Submit
                 </button>
             </div>
-            
         </div>
+        
+        <!-- Custom File Input Style -->
+        <style>
+            .file-input-container {
+                position: relative;
+                width: 100%;
+            }
+        
+            /* Style the default file input */
+            .file-input-container input[type="file"] {
+                display: block;
+                width: 100%;
+                padding: 12px 20px;
+                background-color: #F3F4F6;
+                color: #4B5563;
+                border-radius: 8px;
+                border: 1px solid #D1D5DB;
+                cursor: pointer;
+                transition: all 0.2s ease-in-out;
+            }
+        
+            .file-input-container input[type="file"]:hover {
+                background-color: #E1E8ED;
+                border-color: #38B2AC;
+            }
+        
+            .file-input-container input[type="file"]:focus {
+                outline: none;
+                border-color: #38B2AC;
+                background-color: #D1F1F1;
+            }
+        
+            .file-input-container input[type="file"]:active {
+                background-color: #38B2AC;
+                color: white;
+            }
+        
+            /* Optional styling for a nice visual effect */
+            .file-input-container input[type="file"]::-webkit-file-upload-button {
+                cursor: pointer;
+                background-color: #38B2AC;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+            }
+        
+            .file-input-container input[type="file"]::-webkit-file-upload-button:hover {
+                background-color: #319795;
+            }
+        
+            .file-input-container input[type="file"]::-webkit-file-upload-button:focus {
+                outline: none;
+            }
+        </style>
+        
+        <!-- JavaScript for handling form submission -->
+        <script>
+            function showLoadingOverlay() {
+                const submitButton = document.getElementById('submitBtn');
+                const loadingOverlay = document.getElementById('loading-overlay');
+            
+                // Disable the submit button to prevent multiple submissions
+                submitButton.disabled = true;
+                submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+                
+                // Show the loading overlay
+                loadingOverlay.classList.remove('hidden');
+            }
+            
+        </script>
+        
     <script>
         function setUserExperience(){
     const experienceSelect = document.getElementById("experience_level");
@@ -971,27 +1192,76 @@ document.addEventListener("DOMContentLoaded", () => updateStep());
 </script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const nextButton = document.querySelector("button[onclick='nextStep(7)']");
-        const shiftSelect = document.getElementById("shift_requested");
-    
-        // Initially disable the button
-        nextButton.disabled = true;
-        nextButton.classList.add("opacity-50", "cursor-not-allowed");
-    
-        // Listen for changes in the dropdown
-        shiftSelect.addEventListener("change", function () {
-            if (shiftSelect.value !== "Select your shift request") {
-                nextButton.disabled = false;
-                nextButton.classList.remove("opacity-50", "cursor-not-allowed");
-            } else {
-                nextButton.disabled = true;
-                nextButton.classList.add("opacity-50", "cursor-not-allowed");
+      const nextButton = document.querySelector("button[onclick='nextStep(7)']");
+      const shiftSelect = document.getElementById("shift_requested");
+      const ltcDropdown = document.getElementById("ltc_facility_question");
+      const facilityInfoBox = document.getElementById("facility_info_box");
+  
+      const requiredFields = [
+        "shift_requested",
+        "ltc_facility_question"
+      ];
+  
+      const conditionalFields = [
+        "preferred_facility",
+        "preferred_facility_address",
+        "preferred_facility_contact_person",
+        "preferred_facility_email"
+      ];
+  
+      function updateNextButtonState() {
+        let isValid = true;
+  
+        // Check basic required fields
+        for (const id of requiredFields) {
+          const el = document.getElementById(id);
+          if (!el || el.value.trim() === "" || el.value === "Select your shift request") {
+            isValid = false;
+            break;
+          }
+        }
+  
+        // If LTC is "Yes", check conditional fields too
+        if (ltcDropdown.value === "Yes") {
+          for (const id of conditionalFields) {
+            const el = document.getElementById(id);
+            if (!el || el.value.trim() === "") {
+              isValid = false;
+              break;
             }
+          }
+        }
+  
+        // Enable/disable the button
+        nextButton.disabled = !isValid;
+        nextButton.classList.toggle("opacity-50", !isValid);
+        nextButton.classList.toggle("cursor-not-allowed", !isValid);
+      }
+  
+      // Watch changes on all inputs
+      [...requiredFields, ...conditionalFields].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener("input", updateNextButtonState);
+          el.addEventListener("change", updateNextButtonState);
+        }
+      });
+  
+      ltcDropdown.addEventListener("change", () => {
+        const showBox = ltcDropdown.value === "Yes";
+        facilityInfoBox.classList.toggle("hidden", !showBox);
+        conditionalFields.forEach(id => {
+          const field = document.getElementById(id);
+          if (field) field.required = showBox;
         });
+        updateNextButtonState();
+      });
+  
+      // Initial state
+      updateNextButtonState();
     });
-    
-    
-</script>
+  </script>
+  
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     setTimeout(() => {
