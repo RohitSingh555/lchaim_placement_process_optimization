@@ -1,6 +1,19 @@
+from datetime import datetime
 import json
 import os
+import re
 
+import zipfile
+from django.conf import settings
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from django.core.mail import EmailMessage
+from django.views import View
+from .models import PlacementProfile, Document
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.shortcuts import redirect, render
+from django.views import View
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, get_user, login, logout
@@ -8,12 +21,10 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
-from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.mail import EmailMessage, send_mail
-from django.core.validators import EmailValidator
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -21,7 +32,6 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import TemplateView
 
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
@@ -34,7 +44,6 @@ from .models import (
     City,
     Document,
     Facility,
-    FeeStatus,
     OrientationDate,
     PlacementNotification,
     PlacementProfile,
@@ -515,6 +524,7 @@ def send_welcome_email(profile, submitted_documents):
         print(f"Error sending email: {e}")
     
 
+
 class SendDocumentsEmailView(View):
     def post(self, request, *args, **kwargs):
         profile_id = request.POST.get("profile_id")
@@ -523,20 +533,37 @@ class SendDocumentsEmailView(View):
 
         valid_documents = []
         for document in documents:
-            if document.file and document.file.name:  # Ensure the file exists
+            if document.file and document.file.name:
                 try:
                     file_path = document.file.path
                     valid_documents.append((file_path, os.path.basename(file_path)))
                 except ValueError:
-                    continue  # Skip documents without a valid file path
+                    continue
 
         if not valid_documents:
             return JsonResponse({"error": "No valid documents available for this profile"}, status=400)
 
-        # Generate document list for email
-        document_list_html = "".join([f"<li>{file_name}</li>" for _, file_name in valid_documents])
+        # Create ZIP file
+        safe_first_name = re.sub(r'\W+', '_', profile.first_name.lower())
+        safe_last_name = re.sub(r'\W+', '_', profile.last_name.lower())
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-        # Email Content with HTML Formatting
+        zip_filename = f"{profile.id:02d}_{safe_first_name}_{safe_last_name}_{timestamp}.zip"
+        zip_dir = os.path.join(settings.MEDIA_ROOT, "zips")
+        os.makedirs(zip_dir, exist_ok=True)
+        zip_path = os.path.join(zip_dir, zip_filename)
+
+        try:
+            with zipfile.ZipFile(zip_path, "w") as zipf:
+                for file_path, file_name in valid_documents:
+                    zipf.write(file_path, arcname=file_name)
+        except Exception as e:
+            return JsonResponse({"error": f"Failed to create zip: {str(e)}"}, status=500)
+
+        # Create download URL
+        zip_url = request.build_absolute_uri(os.path.join(settings.MEDIA_URL, "zips", zip_filename))
+
+        # Email Content
         email_subject = f"Submitted Documents for {profile.first_name} {profile.last_name}"
         email_body = f"""
         <!DOCTYPE html>
@@ -558,92 +585,59 @@ class SendDocumentsEmailView(View):
                     border-radius: 8px;
                     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
                 }}
-                h2 {{
-                    color: #2c3e50;
-                }}
-                p {{
-                    margin: 10px 0;
-                }}
-                .document-list {{
-                    background: #f3f3f3;
-                    padding: 10px;
+                h2 {{ color: #2c3e50; }}
+                a.download-link {{
+                    display: inline-block;
+                    margin-top: 15px;
+                    padding: 10px 15px;
+                    background-color: #2c3e50;
+                    color: white;
                     border-radius: 5px;
-                    list-style-type: none;
-                }}
-                .document-list li {{
-                    padding: 5px;
+                    text-decoration: none;
                 }}
                 .footer {{
                     margin-top: 20px;
                     font-size: 12px;
                     color: #555;
                 }}
-                .highlight {{
-                    font-weight: bold;
-                    color: #2c3e50;
-                }}
-                img {{
-                    width: 240px;
-                    height: 90px;
-                }}
-
             </style>
         </head>
         <body>
             <div class="container">
                 <h2>Dear Documents Team,</h2>
-                <p>Please find attached the submitted documents for <span class="highlight">{profile.first_name} {profile.last_name}</span>.</p>
+                <p>Please find below a link to download the submitted documents for <strong>{profile.first_name} {profile.last_name}</strong>.</p>
                 
-                <h3>List of Documents:</h3>
-                <ul class="document-list">
-                    {document_list_html}
-                </ul>
+                <a href="{zip_url}" class="download-link" target="_blank">Download Documents (ZIP)</a>
 
                 <p>If you have any questions or require further information, feel free to reach out.</p>
                 
                 <div class="footer">
-                <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
-                <span>Warm regards, </span>
-                <br>
-                <span> The Peak Healthcare Team</span>
-                <br>
-                <span>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></span>
-                <br>
-                <img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg"></img>
-                <br>
-                <span>1140 Sheppard Ave West</span>
-                <br>
-                <span>Unit #12, North York, ON</span>
-                <br>
-                <span>M3K 2A2</span>
-            </div>
+                    <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
+                    <p>Warm regards,<br>The Peak Healthcare Team</p>
+                    <p><a href="https://www.peakcollege.ca">www.peakcollege.ca</a></p>
+                    <img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg" width="240" height="90"/>
+                    <p>1140 Sheppard Ave West, Unit #12, North York, ON M3K 2A2</p>
+                </div>
             </div>
         </body>
         </html>
         """
 
+        # Send Email without attachments
         email = EmailMessage(
             subject=email_subject,
             body=email_body,
             from_email="no-reply@peakcollege.ca",
             to=["documents@peakcollege.ca"],
         )
-        email.content_subtype = "html" 
+        email.content_subtype = "html"
 
-        # Attach each document
-        for file_path, file_name in valid_documents:
-            try:
-                with open(file_path, "rb") as file:
-                    email.attach(file_name, file.read(), "application/octet-stream")
-            except Exception as e:
-                return JsonResponse({"error": f"Error attaching file {file_name}: {str(e)}"}, status=500)
-
-        # Send Email
         try:
             email.send()
-            return JsonResponse({"message": "Email sent successfully"})
+            return JsonResponse({"message": "Email sent with ZIP link successfully"})
         except Exception as e:
             return JsonResponse({"error": f"Failed to send email: {str(e)}"}, status=500)
+
     
 class StudentProfileLogsView(View):
     REQUIRED_DOCUMENTS = {
@@ -666,25 +660,40 @@ class StudentProfileLogsView(View):
         filter_status = "completed"
         search_query = request.GET.get("search", "").strip().lower()
 
+        # Filters
+        gender_filter = request.GET.get("gender", "")
+        stage_filter = request.GET.get("stage", "")
+        experience_level_filter = request.GET.get("experience_level", "")
+        completed_filter = request.GET.get("is_completed")  # "true"/"false"/None
+
         if is_approver:
             profiles = PlacementProfile.objects.prefetch_related('documents').all()
             has_profile = False  # Approvers aren't students
         else:
-            profiles = PlacementProfile.objects.filter(user=request.user).prefetch_related('documents')
+            profiles = PlacementProfile.objects.select_related('assigned_facility', 'orientation_date')\
+                .filter(user=request.user).prefetch_related('documents')
             has_profile = profiles.exists()
 
         filtered_profile_details = []
 
         for profile in profiles:
+            # Apply search query
             if search_query:
                 full_name = f"{profile.first_name} {profile.last_name}".lower()
                 email = profile.college_email.lower()
                 if search_query not in full_name and search_query not in email:
                     continue
 
-            document_details = []
-            documents = {doc.document_type: doc for doc in profile.documents.all()}
+            # Apply filters
+            if gender_filter and profile.gender != gender_filter:
+                continue
+            if stage_filter and profile.stage != stage_filter:
+                continue
+            if experience_level_filter and profile.experience_level != experience_level_filter:
+                continue
 
+            # Check document completeness
+            documents = {doc.document_type: doc for doc in profile.documents.all()}
             complete = True
             for doc_type in self.REQUIRED_DOCUMENTS:
                 doc = documents.get(doc_type)
@@ -696,10 +705,17 @@ class StudentProfileLogsView(View):
                     complete = False
                     break
 
-            # ✅ Skip incomplete profiles for approvers/superusers
-            if (is_approver or is_superuser) and not complete:
+            if completed_filter == "true" and not complete:
+                continue
+            if completed_filter == "false" and complete:
                 continue
 
+            # Skip profiles based on filter status
+            if (filter_status == "completed" and not complete) or (filter_status == "incomplete" and complete):
+                continue
+
+            # Prepare document data
+            document_details = []
             for doc in profile.documents.all():
                 approval_logs = ApprovalLog.objects.filter(document=doc)
                 approver_actions = [
@@ -721,12 +737,14 @@ class StudentProfileLogsView(View):
                     'uploaded_at': doc.uploaded_at.strftime("%Y-%m-%d %H:%M:%S"),
                     'approval_logs': approver_actions
                 })
-            
+
+            # Append profile info
             student_id = ''
             try:
                 student_id = profile.user.student_id_record.student_id
             except StudentID.DoesNotExist:
                 pass
+
             filtered_profile_details.append({
                 'profile_id': profile.id,
                 'first_name': profile.first_name,
@@ -738,6 +756,11 @@ class StudentProfileLogsView(View):
                 'preferred_facility_name': profile.preferred_facility_name,
                 'preferred_facility_address': profile.preferred_facility_address,
                 'preferred_facility_contact_person': profile.preferred_facility_contact_person,
+                'official_start_date': profile.official_start_date,
+                'required_hours': profile.required_hours,
+                'exact_placement_end_date': profile.exact_placement_end_date,
+                'assigned_facility': profile.assigned_facility.name if profile.assigned_facility else 'N/A',
+                'orientation_date': profile.orientation_date.orientation_date if profile.orientation_date else 'Not Scheduled',
                 'apt_house_no': profile.apt_house_no,
                 'street': profile.street,
                 'city': profile.city,
@@ -746,17 +769,45 @@ class StudentProfileLogsView(View):
                 'open_to_outside_city': profile.open_to_outside_city,
                 'employer_letter': profile.employer_letter.url if profile.employer_letter else None,
                 'created_at': profile.created_at,
+                'city_preference_1': profile.city_preference_1,
+                'city_preference_2': profile.city_preference_2,
+                'stage': profile.stage,
+                'facility_feedback': profile.facility_feedback,
+                'college_feedback': profile.college_feedback,
+                'module_completed': profile.module_completed,
+                'notes': profile.notes,
+                'date_completed': profile.date_completed,
+                'required_hours': profile.required_hours,
+                'time_period': profile.time_period,
+                'days': profile.days,
+                'created_at': profile.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                'module_completed': profile.module_completed,
+                'pregnancy_waiver_check': profile.pregnancy_waiver_check,
+                'gender': profile.gender,
+                'facility_email_address': profile.facility_email_address,
                 'documents': document_details,
                 'is_completed': complete
             })
 
+        # Pagination (10 items per page)
+        paginator = Paginator(filtered_profile_details, 10)
+        page_number = request.GET.get("page", 1)
+        page_obj = paginator.get_page(page_number)
+
         return render(request, 'student_profile_logs.html', {
-            'profile_details': filtered_profile_details,
+            'page_obj': page_obj,
+            'profile_details': page_obj.object_list,
             'is_approver': is_approver,
             'is_superuser': is_superuser,
             'filter_status': filter_status,
             'search_query': search_query,
             'has_profile': has_profile,
+            'filters': {
+                'gender': gender_filter,
+                'stage': stage_filter,
+                'experience_level': experience_level_filter,
+                'is_completed': completed_filter,
+            }
         })
 
 
@@ -779,22 +830,25 @@ class StudentIncompleteProfileLogsView(View):
         is_approver = Approver.objects.filter(user=request.user).exists()
         is_superuser = request.user.is_superuser
 
-        filter_status = "incomplete"
+        filter_status = request.GET.get("status", "incomplete")
         search_query = request.GET.get("search", "").strip().lower()
+
+        # Filters
+        gender_filter = request.GET.get("gender", "")
+        stage_filter = request.GET.get("stage", "")
+        experience_level_filter = request.GET.get("experience_level", "")
+        completed_filter = request.GET.get("is_completed")  # "true"/"false"/None
 
         if is_approver:
             profiles = PlacementProfile.objects.prefetch_related('documents').all()
-            has_profile = True  # Approvers aren't students
+            has_profile = True
         else:
-            profiles = PlacementProfile.objects.filter(user=request.user).prefetch_related('documents')
+            profiles = PlacementProfile.objects.select_related('assigned_facility', 'orientation_date')\
+                .filter(user=request.user).prefetch_related('documents')
             has_profile = profiles.exists()
 
-        filtered_profile_details = []
-
-        #find users without profiles and add it to a variable users_no_profile
         users_no_profile = User.objects.exclude(id__in=PlacementProfile.objects.values_list('user', flat=True))
 
-        #if filter_status is usersNoProfile then show the users without profiles
         if filter_status == "usersNoProfile":
             filtered_profile_details = [
                 {
@@ -815,16 +869,25 @@ class StudentIncompleteProfileLogsView(View):
                 'only_users_no_profile': True,
             })
 
+        filtered_profile_details = []
+
         for profile in profiles:
+            # Apply search
             if search_query:
                 full_name = f"{profile.first_name} {profile.last_name}".lower()
                 email = profile.college_email.lower()
                 if search_query not in full_name and search_query not in email:
                     continue
 
-            document_details = []
-            documents = {doc.document_type: doc for doc in profile.documents.all()}
+            if gender_filter and profile.gender != gender_filter:
+                continue
+            if stage_filter and profile.stage != stage_filter:
+                continue
+            if experience_level_filter and profile.experience_level != experience_level_filter:
+                continue
 
+            # Check document completeness
+            documents = {doc.document_type: doc for doc in profile.documents.all()}
             complete = True
             for doc_type in self.REQUIRED_DOCUMENTS:
                 doc = documents.get(doc_type)
@@ -836,9 +899,16 @@ class StudentIncompleteProfileLogsView(View):
                     complete = False
                     break
 
+            if completed_filter == "true" and not complete:
+                continue
+            if completed_filter == "false" and complete:
+                continue
+
             if (filter_status == "completed" and not complete) or (filter_status == "incomplete" and complete):
                 continue
 
+            # Prepare document data
+            document_details = []
             for doc in profile.documents.all():
                 approval_logs = ApprovalLog.objects.filter(document=doc)
                 approver_actions = [
@@ -861,28 +931,67 @@ class StudentIncompleteProfileLogsView(View):
                     'approval_logs': approver_actions
                 })
 
+            # Append profile info
             filtered_profile_details.append({
                 'profile_id': profile.id,
                 'first_name': profile.first_name,
                 'last_name': profile.last_name,
                 'college_email': profile.college_email,
+                'apt_house_no': profile.apt_house_no,
+                'street': profile.street,
+                'city': profile.city,
+                'province': profile.province,
+                'postal_code': profile.postal_code,
+                'open_to_outside_city': profile.open_to_outside_city,
                 'experience_level': profile.experience_level,
                 'shift_requested': profile.shift_requested,
                 'preferred_facility_name': profile.preferred_facility_name,
                 'preferred_facility_address': profile.preferred_facility_address,
                 'preferred_facility_contact_person': profile.preferred_facility_contact_person,
+                'city_preference_1': profile.city_preference_1,
+                'city_preference_2': profile.city_preference_2,
+                'assigned_facility': profile.assigned_facility.name if profile.assigned_facility else 'N/A',
+                'orientation_date': profile.orientation_date.orientation_date if profile.orientation_date else 'Not Scheduled',
+                'stage': profile.stage,
+                'official_start_date': profile.official_start_date,
+                'exact_placement_end_date': profile.exact_placement_end_date,
+                'facility_feedback': profile.facility_feedback,
+                'college_feedback': profile.college_feedback,
+                'notes': profile.notes,
+                'date_completed': profile.date_completed,
+                'required_hours': profile.required_hours,
+                'time_period': profile.time_period,
+                'days': profile.days,
+                'created_at': profile.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                'module_completed': profile.module_completed,
+                'pregnancy_waiver_check': profile.pregnancy_waiver_check,
+                'gender': profile.gender,
+                'facility_email_address': profile.facility_email_address,
                 'documents': document_details,
                 'is_completed': complete
             })
 
+        # Pagination (10 items per page)
+        paginator = Paginator(filtered_profile_details, 10)
+        page_number = request.GET.get("page", 1)
+        page_obj = paginator.get_page(page_number)
+
         return render(request, 'student_incomplete_profile_logs.html', {
-            'profile_details': filtered_profile_details,
+            'page_obj': page_obj,
+            'profile_details': page_obj.object_list,
             'is_approver': is_approver,
             'is_superuser': is_superuser,
             'filter_status': filter_status,
             'search_query': search_query,
             'has_profile': has_profile,
+            'filters': {
+                'gender': gender_filter,
+                'stage': stage_filter,
+                'experience_level': experience_level_filter,
+                'is_completed': completed_filter,
+            }
         })
+
 
 
 @user_passes_test(lambda u: u.is_superuser)  # Only allow superusers
@@ -934,6 +1043,11 @@ def approve_document(request, document_id):
             reason=rejection_reason if action == DocumentStatus.REJECTED.value else None,
         )
 
+        # If approved and document type is Experience Document, update required_hours
+        if action == DocumentStatus.APPROVED.value and document.document_type == "Experience Document":
+            document.profile.required_hours = 200
+            document.profile.save()
+
         # Send placement notification
         message = f"Your document '{document.document_type}' has been {action.lower()}."
         if action == DocumentStatus.REJECTED.value:
@@ -945,7 +1059,6 @@ def approve_document(request, document_id):
             message=message
         )
 
-        # Return updated document details
         return JsonResponse({
             "message": f"Document {action.lower()} successfully!",
             "document": {
@@ -959,6 +1072,7 @@ def approve_document(request, document_id):
         }, status=200)
 
     return JsonResponse({"error": "Invalid request"}, status=400)
+
 
 def send_email_remind_fee(profile):
     subject = 'Placement: Settle Tuition Fee Balance'
@@ -1049,17 +1163,132 @@ def send_email_remind_fee(profile):
         [profile.college_email],
         html_message=message
     )
-
-def send_email_notify_result(profile, rejected_documents):
-    subject = 'Placement: Resubmit Rejected Documents'
     
+def send_email_notify_placement(profile, facility, orientation_date, requested_hours, sender_name):
+    subject = 'Important: Placement Orientation'
+
+    # HTML content
+    message = f"""
+    <html>
+    <head>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                background: linear-gradient(to bottom, rgba(0, 128, 128, 0.1), #ffffff);
+                padding: 20px;
+                color: #333;
+            }}
+            .container {{
+                background-color: #ffffff;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                width: 100%;
+                margin: auto;
+            }}
+            h2 {{
+                color: #008080;
+                font-size: 24px;
+            }}
+            p {{
+                line-height: 1.6;
+                font-size: 16px;
+            }}
+            .footer {{
+                margin-top: 20px;
+                font-size: 14px;
+                color: #555;
+            }}
+            .footer a {{
+                color: #008080;
+                text-decoration: none;
+            }}
+            .highlight {{
+                color: #008080;
+                font-weight: bold;
+            }}
+            ul {{
+                padding-left: 20px;
+            }}
+            li {{
+                margin-bottom: 8px;
+            }}
+            img {{
+                width: 240px;
+                height: 90px;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <p>Dear {profile.first_name},</p>
+            <p>Good day!<br>Please see the information below and read carefully.</p>
+            
+            <p><span class="highlight">Assigned Facility:</span><br>
+            {facility.name}<br>
+            {facility.address}<br>
+            Phone No.: {facility.facility_phone}</p>
+
+            <p><span class="highlight">Orientation Date:</span> {orientation_date}</p>
+            <p><span class="highlight">Requested Hours:</span> {requested_hours} Hours</p>
+
+            <p><span class="highlight">Kindly observe the following during your placement:</span></p>
+            <ul>
+                <li>Be there at least 15 minutes prior to your scheduled time.</li>
+                <li>Wear proper uniform and proper shoes.</li>
+                <li>Display your Student ID or name tag.</li>
+                <li>Facilities are scent-free; only use unscented products.</li>
+                <li>Cell phones are not permitted during work hours.</li>
+                <li>If you are feeling unwell, kindly follow the facility’s policy.</li>
+                <li>Bring your skills passbook to log your hours and have it evaluated at the end.</li>
+            </ul>
+
+            <p>Remember to follow the directives of your preceptor. If unclear, always ask.</p>
+
+            <p><span class="highlight">Other important matters:</span></p>
+            <ol>
+                <li>Placement Key Points: <a href="#">Click here</a>.</li>
+                <li>After your placement, scan and upload your timesheet and passbook here: <a href="#">Click here</a>.</li>
+                <li>Reply to this email to confirm you’ve read and understood the contents.</li>
+            </ol>
+
+            <p>For questions, email <a href="mailto:placement@peakcollege.ca">placement@peakcollege.ca</a> or call (416) 756-4846 ext:
+            <br>Grace Doton - 106
+            <br>Rey Bautista - 107
+            <br>Dave Mangilet - 105</p>
+
+            <div class="footer">
+                <p>Thank you, and best wishes for your Clinical Placement journey!</p>
+                <p>Warm regards,<br>{sender_name}<br>Placement Department<br>Email: <a href="mailto:placement@peakcollege.ca">placement@peakcollege.ca</a></p>
+                <br>
+                <img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg" alt="Peak College Logo">
+                <br>
+                1140 Sheppard Ave West, Unit #12, North York, ON M3K 2A2
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [profile.college_email],
+        html_message=message
+    )
+
+
+def send_email_notify_result(profile, rejected_documents, zip_url):
+    subject = 'Placement: Resubmit Rejected Documents'
+
     # Build the dynamic list of rejected documents
     document_list_html = ""
     for doc in rejected_documents:
         reason = doc.rejection_reason if doc.rejection_reason else "No reason provided"
         document_list_html += f"<li><span class='bold'>{doc.document_type}:</span> {reason}</li>"
 
-    # Updated message with dynamic document list
+    # HTML Email message
     message = f"""
     <html>
     <head>
@@ -1117,6 +1346,9 @@ def send_email_notify_result(profile, rejected_documents):
             <p>Next step: address the reasons and resubmit the documents by clicking the link below.</p>
             <p><a href="https://www.peakcollege.ca" class="highlight">Resubmission Link: Click here!</a></p>
             <p>You’ll receive another email once all are approved.</p>
+            <p><strong>You can find the files attached at the bottom:</strong> 
+                <br><a href="{zip_url}" target="_blank">{zip_url}</a>
+            </p>
             <div class="footer">
                 <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
                 <span>Warm regards, </span>
@@ -1138,7 +1370,7 @@ def send_email_notify_result(profile, rejected_documents):
     </html>
     """
 
-    # Send the email
+    print("Sending email to:", profile.college_email)  # Debugging line
     send_mail(
         subject,
         message,
@@ -1427,24 +1659,49 @@ def handle_button_action(request, profile_id, action):
 
         documents = profile.documents.all()
 
-        if action == 'remind_fee':
-            send_email_remind_fee(profile)
-        elif action == 'notify_result':
+        # Handle the 'notify_result' action
+        if action == 'notify_result':
+            # Create a zip file containing all documents to be attached
+            zip_file_name = f"{profile.id}_{profile.first_name}_{profile.last_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
+            zip_file_path = os.path.join(settings.MEDIA_ROOT, 'documents', 'uploads', zip_file_name)
+
+            with zipfile.ZipFile(zip_file_path, 'w') as zipf:
+                for document in documents:
+                    if document.file and document.file.name:  # Ensure document has a file
+                        try:
+                            zipf.write(document.file.path, os.path.basename(document.file.name))
+                        except Exception as e:
+                            continue  # Skip documents with errors
+
+            # Generate the URL for the ZIP file
+            zip_url = os.path.join(settings.MEDIA_URL, 'documents', 'uploads', zip_file_name)
+
+            # Now send the email with the generated zip_url
             rejected_documents = documents.filter(status="Rejected")
-            send_email_notify_result(profile, rejected_documents)
+            send_email_notify_result(profile, rejected_documents, zip_url=zip_url)
+
+        elif action == 'remind_fee':
+            send_email_remind_fee(profile)
         elif action == 'done':
             send_email_done(profile, documents)
             send_placement_email(profile)
             send_documents_email(profile, documents)
         elif action == 'resubmit':
             send_email_resubmit(profile, documents)
+        elif action == 'notify_placement':
+            facility = profile.assigned_facility
+            orientation_date = profile.orientation_date.orientation_date.strftime("%B %d, %Y") if profile.orientation_date else "Not Scheduled"
+            requested_hours = profile.required_hours or 300
+            sender_name = request.user.get_full_name() or request.user.username
+
+            send_email_notify_placement(profile, facility, orientation_date, requested_hours, sender_name)
 
         return JsonResponse({"status": "success", "message": f"Email sent for action {action}"})
 
     except PlacementProfile.DoesNotExist:
         return JsonResponse({"status": "error", "message": "Profile not found"})
-
-
+    
+    
 def profile_submission_success(request):
     return render(request, 'profile_submission_success.html')
 
@@ -1857,3 +2114,27 @@ def get_cities_and_provinces(request):
         # Log the error for debugging
         print(f"Error occurred: {e}")
         return JsonResponse({'error': 'An error occurred while fetching cities and provinces'}, status=500)
+    
+def set_official_start_date_view(request, profile_id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            start_date = data.get("official_start_date")
+            module_completed_value = data.get("module_completed")
+            print(module_completed_value)
+
+            profile = PlacementProfile.objects.get(id=profile_id)
+            profile.official_start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+            profile.module_completed = module_completed_value 
+            profile.save()
+
+            return JsonResponse({"status": "success", "message": "Start date and days updated successfully."})
+
+        except PlacementProfile.DoesNotExist:
+            return JsonResponse({"status": "error", "message": "Profile not found."})
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)})
+    return JsonResponse({"status": "error", "message": "Invalid request."})
+
+def pregnancy_policy_view(request):
+    return render(request, "pregnancy_policy.html")

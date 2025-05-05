@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-8 mt-8">
+  <h1 class="text-3xl font-bold text-teal-700 mb-6">Pregnancy Policy & Waiver for Clinical Placement</h1>
+
+  <section class="mb-6">
+    <h2 class="text-xl font-semibold text-gray-800 mb-2">Objective</h2>
+    <p class="text-gray-700">
+      To ensure the health and safety of pregnant students during clinical/community placements while maintaining
+      compliance with Ministry, workplace, and insurance requirements.
+    </p>
+  </section>
+
+  <section class="mb-6">
+    <h2 class="text-xl font-semibold text-gray-800 mb-2">1. Student Disclosure and Confidentiality</h2>
+    <ul class="list-disc list-inside text-gray-700 space-y-1">
+      <li>Pregnancy disclosure is voluntary but strongly encouraged to allow the college to plan for the student's safety.</li>
+      <li>All information disclosed will be treated with strict confidentiality and shared only with essential personnel (e.g., placement coordinator, clinical instructor) with student consent.</li>
+    </ul>
+  </section>
+
+  <section class="mb-6">
+    <h2 class="text-xl font-semibold text-gray-800 mb-2">2. Medical Clearance Requirement</h2>
+    <ul class="list-disc list-inside text-gray-700 space-y-1">
+      <li>Students must submit a Medical Clearance Letter stating they are fit for placement, including:</li>
+      <ul class="ml-6 list-disc list-inside space-y-1">
+        <li>Fitness to attend placement</li>
+        <li>Any restrictions (lifting, night shifts, etc.)</li>
+        <li>Expected due date</li>
+      </ul>
+    </ul>
+  </section>
+
+  <section class="mb-6">
+    <h2 class="text-xl font-semibold text-gray-800 mb-2">3. Placement Risk Assessment</h2>
+    <p class="text-gray-700">The college will assess site safety, including task reviews and coordination with the placement facility for accommodations.</p>
+  </section>
+
+  <section class="mb-6">
+    <h2 class="text-xl font-semibold text-gray-800 mb-2">4. Waiver of Liability</h2>
+    <p class="text-gray-700 mb-2">Students must sign a waiver accepting all risks and releasing the college from liability.</p>
+    <blockquote class="border-l-4 border-teal-500 pl-4 italic text-gray-600 bg-gray-50 py-2 rounded">
+      "I, [Student Full Name], acknowledge that I am currently pregnant and have been advised of the risks associated with clinical/community placements during pregnancy. I have provided medical clearance and wish to proceed with placement. I understand and accept all associated risks and hereby release Peak Private Healthcare College from any liability related to my participation in the placement while pregnant."
+    </blockquote>
+  </section>
+
+  <section class="mb-6">
+    <h2 class="text-xl font-semibold text-gray-800 mb-2">5. Accommodation & Deferral Options</h2>
+    <p class="text-gray-700">Students may postpone, defer, or request alternatives if placement is deemed unsafe.</p>
+  </section>
+
+  <section class="mb-6">
+    <h2 class="text-xl font-semibold text-gray-800 mb-2">6. Return After Maternity Leave</h2>
+    <ul class="list-disc list-inside text-gray-700 space-y-1">
+      <li>Submit Return to Placement medical clearance</li>
+      <li>Meet with placement coordinator</li>
+      <li>Resume placement subject to availability</li>
+    </ul>
+  </section>
+
+  <section class="mb-6">
+    <h2 class="text-xl font-semibold text-gray-800 mb-2">7. Academic Continuity</h2>
+    <p class="text-gray-700">Students should stay engaged in theory classes. Missed hours must be made up per college policy.</p>
+  </section>
+
+  <section class="mb-6">
+    <h2 class="text-xl font-semibold text-gray-800 mb-2">8. Compliance</h2>
+    <p class="text-gray-700">Policy aligns with Ontario Human Rights Code and Ministry expectations. The college may defer placement for safety.</p>
+  </section>
+
+  <div class="mt-8 flex flex-wrap gap-4">
+    <a href="/" class="bg-teal-600 text-white px-6 py-2 rounded hover:bg-teal-700">
+      ← Back to Home
+    </a>
+    <button onclick="history.back()" class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600">
+    ←  Go Back
+    </button>
+  </div>
+  
+</div>
+{% endblock %}

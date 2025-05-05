@@ -81,7 +81,7 @@ class PlacementProfile(models.Model):
     time_period = models.CharField(max_length=100, null=True, blank=True)
     days = models.CharField(max_length=100, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    module_completed = models.BooleanField(default=False)
+    module_completed = models.IntegerField(default=0, null=True, blank=True)
     pregnancy_waiver_check = models.BooleanField(default=False)
     gender = models.CharField(
         max_length=20,
@@ -95,6 +95,18 @@ class PlacementProfile(models.Model):
         blank=True
     )
     facility_email_address = models.EmailField(null=True, blank=True)
+    @property
+    def facility_name(self):
+        if self.assigned_facility:
+            return self.assigned_facility.name
+        return None
+
+    # Property to access orientation date
+    @property
+    def orientation_date_str(self):
+        if self.orientation_date:
+            return self.orientation_date.orientation_date.strftime("%B %d, %Y")
+        return None
 
 
 class Document(models.Model):

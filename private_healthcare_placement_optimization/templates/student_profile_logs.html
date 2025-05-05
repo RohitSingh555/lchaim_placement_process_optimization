@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load forms_extras %}
 
 {% block content %}
 <style>
@@ -110,8 +111,13 @@
             It looks like no student has completed their placement profile yet. <br />
             Once all required documents are uploaded and approved, you'll see the profiles listed here.
         </p>
+        <a href="{% url request.resolver_match.view_name %}"
+                        class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 flex items-center">
+                        <i class="fas fa-times mr-2"></i>Clear Filters
+                    </a>
     </div>
 </div>
+
 {% endif %}
 
   <div class="mb-4 mt-4 text-center">
@@ -144,81 +150,240 @@
 
 
     {% if profile_details  %}
-        <div class="rounded-lg overflow-hidden mb-8">
-            <div id="messagePopup" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
-                <span id="messageText"></span>
-            </div>
-            <div class="overflow-x-auto custom-scrollbar">
-                {% if is_approver %}
-                <div class="overflow-x-auto w-full">
-                    <div class="relative max-w-full">
-                        <table class="bg-white shadow-lg min-w-full table-auto border-collapse border border-gray-300">
-                            <thead class="bg-gradient-to-r from-teal-400 to-teal-700 text-white">
-                                <tr class="border border-gray-300">
-                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 sticky left-0 bg-teal-600 z-12">Sr No.</th>
-                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 sticky left-16 bg-teal-600 z-12">Name</th>
-                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 sticky left-40 bg-teal-600 z-12">College Email</th>
-                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300">Experience Level</th>
-                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300">Shift Requested</th>
-                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300">Address Updated</th>
-                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300">Preferred Facility</th>
-                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300">Facility Contact</th>
-                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for profile in profile_details %}
-                                <tr class="border border-gray-300 hover:bg-teal-50 transition-colors duration-200">
-                                    <!-- Pinned Columns -->
-                                    <td class="px-6 py-4 border border-gray-300 sticky left-0 bg-white z-10">{{ forloop.counter }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap border border-gray-300 sticky left-16 bg-white z-10">{{ profile.first_name }} {{ profile.last_name }}</td>
-                                    <td class="px-6 py-4 border border-gray-300 sticky left-40 bg-white z-10">{{ profile.college_email }}</td>
-                
-                                    <!-- Scrollable Columns -->
-                                    <td class="px-6 py-4 border border-gray-300">{{ profile.experience_level }}</td>
-                                    <td class="px-6 py-4 border border-gray-300">{{ profile.shift_requested }}</td>
-                                    <td class="px-6 py-4 border border-gray-300">{{ profile.address_updated|yesno:"Yes,No" }}</td>
-                                    <td class="px-6 py-4 border border-gray-300">{{ profile.preferred_facility_name }}</td>
-                                    <td class="px-6 py-4 border border-gray-300">{{ profile.preferred_facility_contact_person }}</td>
-                                    <td class="px-6 py-4 flex justify-between items-center space-x-2">
-                                        <!-- Action Buttons -->
-                                        <button onclick="openModal('{{ forloop.counter }}')" class="text-teal-600 hover:text-teal-800 font-semibold py-1 px-3 rounded-md text-sm border border-teal-300 hover:border-teal-500 flex items-center space-x-2 whitespace-nowrap">
-                                            <i class="fas fa-eye"></i>
-                                            <span>View Documents</span>
-                                        </button>
-                                        {% if is_approver %}
-                                        <button onclick="sendEmailAction('{{ profile.profile_id }}', 'remind_fee')" class="bg-yellow-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-yellow-600 flex items-center space-x-2 whitespace-nowrap">
-                                            <i class="fas fa-credit-card"></i>
-                                            <span>Remind Fee</span>
-                                        </button>
-                                        <button onclick="sendEmailAction('{{ profile.profile_id }}', 'notify_result')" class="bg-blue-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-blue-600 flex items-center space-x-2 whitespace-nowrap">
-                                            <i class="fas fa-bell"></i>
-                                            <span>Notify Result</span>
-                                        </button>
-                                        <button onclick="sendEmailAction('{{ profile.profile_id }}', 'done')" class="bg-green-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-green-600 flex items-center space-x-2 whitespace-nowrap">
-                                            <i class="fas fa-check-circle"></i>
-                                            <span>Done</span>
-                                        </button>
-                                        {% comment %} <button onclick="sendEmailAction('{{ profile.profile_id }}', 'resubmit')" class="bg-orange-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-green-600 flex items-center space-x-2 whitespace-nowrap">
-                                            <i class="fas fa-check-circle"></i>
-                                            <span>Resubmit</span>
-                                        </button> {% endcomment %}
-                                        {% endif %}
-                                        {% if is_superuser %}
-                                        <button onclick="deleteProfile({{ profile.profile_id }})" class="delete-btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-red-600 flex items-center space-x-2 whitespace-nowrap">
-                                            <i class="fas fa-trash"></i>
-                                            <span>Delete</span>
-                                        </button>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+    <div class="rounded-lg overflow-hidden mb-8">
+        <div id="messagePopup" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+            <span id="messageText"></span>
+        </div>
+        <div class="overflow-x-auto custom-scrollbar">
+            {% if is_approver %}
+            <!-- Filter Section -->
+            <form method="get" class="flex flex-wrap items-center justify-between p-4 bg-white shadow rounded-t-md gap-4">
+                <select name="gender" class="border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-teal-500">
+                    <option value="">All Genders</option>
+                    <option value="Male" {% if request.GET.gender == "Male" %}selected{% endif %}>Male</option>
+                    <option value="Female" {% if request.GET.gender == "Female" %}selected{% endif %}>Female</option>
+                    <option value="Other" {% if request.GET.gender == "Other" %}selected{% endif %}>Other</option>
+                </select>
+            
+                <select name="stage" class="border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-teal-500">
+                    <option value="">All Stages</option>
+                    <option value="Pending" {% if request.GET.stage == "Pending" %}selected{% endif %}>Pending</option>
+                    <option value="Approved" {% if request.GET.stage == "Approved" %}selected{% endif %}>Approved</option>
+                    <option value="Rejected" {% if request.GET.stage == "Rejected" %}selected{% endif %}>Rejected</option>
+                </select>
+            
+                <select name="experience_level"
+                    class="border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-teal-500">
+                    <option value="">All Experience Levels</option>
+                    <option value="No Experience" {% if request.GET.experience_level == "No Experience" %}selected{% endif %}>
+                        No Experience (300 Hrs)</option>
+                    <option value="1 Year PSW Experience" {% if request.GET.experience_level == "1 Year PSW Experience" %}selected{% endif %}>
+                        One (1) Year PSW Experience in Canada : 200 Hrs</option>
+                    <option value="International Nurse" {% if request.GET.experience_level == "International Nurse" %}selected{% endif %}>
+                        Internationally Educated Nurse (IEN) : 200 Hrs</option>
+                    <option value="Caregiver Experience" {% if request.GET.experience_level == "Caregiver Experience" %}selected{% endif %}>
+                        Caregiver Experience in Canada : 200 Hrs</option>
+                </select>
+            
+                <select name="is_completed" class="border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-teal-500">
+                    <option value="">Completion Status</option>
+                    <option value="true" {% if request.GET.is_completed == "true" %}selected{% endif %}>Completed</option>
+                    <option value="false" {% if request.GET.is_completed == "false" %}selected{% endif %}>Incomplete</option>
+                </select>
+            
+                <div class="flex gap-2">
+                    <button type="submit"
+                        class="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 flex items-center">
+                        <i class="fas fa-filter mr-2"></i>Apply Filters
+                    </button>
+                    <a href="{% url request.resolver_match.view_name %}"
+                        class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 flex items-center">
+                        <i class="fas fa-times mr-2"></i>Clear Filters
+                    </a>
                 </div>
-                
-                {% else %}
+            </form>
+            
+
+            <div class="overflow-x-auto w-full">
+                <div class="relative max-w-full">
+                    <table class="bg-white shadow-lg min-w-full table-auto border-collapse border border-gray-300">
+                        <thead class="bg-gradient-to-r from-teal-400 to-teal-700 text-white">
+                            <tr class="border border-gray-300">
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 sticky left-0 bg-teal-600 z-12 min-w-[80px]">Sr No.</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 sticky left-16 bg-teal-600 z-12 min-w-[150px]">Name</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 sticky left-40 bg-teal-600 z-12 min-w-[200px]">College Email</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Experience Level</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Shift Requested</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[140px]">Apt/House No.</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[140px]">Street</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">City</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">Province</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[140px]">Postal Code</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[200px]">Open to Outside City</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Preferred Facility</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[200px]">Facility Address</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Facility Contact</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">City Pref 1</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">City Pref 2</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Assigned Facility</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Orientation Date</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">Stage</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[140px]">Start Date</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[140px]">End Date</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[200px]">Facility Feedback</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[200px]">College Feedback</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Notes</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Date Completed</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Required Hours</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Time Period</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">Days</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Module Completed</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Pregnancy Waiver</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">Gender</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Facility Email</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Created At</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">Actions</th>
+                              </tr>
+                              
+                        </thead>
+                        <tbody>
+                            {% for profile in profile_details %}
+                            <tr class="border border-gray-300 hover:bg-teal-50 transition-colors duration-200">
+                                <!-- Pinned Columns -->
+                                <td class="px-6 py-4 border border-gray-300 sticky left-0 bg-white ">{{ forloop.counter }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap border border-gray-300 sticky left-16 bg-white ">{{ profile.first_name }} {{ profile.last_name }}</td>
+                                <td class="px-6 py-4 border border-gray-300 sticky left-40 bg-white ">{{ profile.college_email }}</td>
+            
+                                <!-- Scrollable Columns -->
+                                <td class="px-6 py-4">{{ profile.experience_level }}</td>
+                                <td class="px-6 py-4">{{ profile.shift_requested }}</td>
+                                <td class="px-6 py-4">{{ profile.apt_house_no }}</td>
+                                <td class="px-6 py-4">{{ profile.street }}</td>
+                                <td class="px-6 py-4">{{ profile.city }}</td>
+                                <td class="px-6 py-4">{{ profile.province }}</td>
+                                <td class="px-6 py-4">{{ profile.postal_code }}</td>
+                                <td class="px-6 py-4">{{ profile.open_to_outside_city|yesno:"Yes,No" }}</td>
+                                <td class="px-6 py-4">{{ profile.preferred_facility_name }}</td>
+                                <td class="px-6 py-4">{{ profile.preferred_facility_address }}</td>
+                                <td class="px-6 py-4">{{ profile.preferred_facility_contact_person }}</td>
+                                <td class="px-6 py-4">{{ profile.city_preference_1 }}</td>
+                                <td class="px-6 py-4">{{ profile.city_preference_2 }}</td>
+                                <td class="px-6 py-4">{{ profile.assigned_facility }}</td>
+                                <td class="px-6 py-4">{{ profile.orientation_date }}</td>
+                                <td class="px-6 py-4">{{ profile.stage }}</td>
+                                <td class="px-6 py-4">{{ profile.official_start_date }}</td>
+                                <td class="px-6 py-4">{{ profile.exact_placement_end_date }}</td>
+                                <td class="px-6 py-4">{{ profile.facility_feedback }}</td>
+                                <td class="px-6 py-4">{{ profile.college_feedback }}</td>
+                                <td class="px-6 py-4">{{ profile.notes }}</td>
+                                <td class="px-6 py-4">{{ profile.date_completed }}</td>
+                                <td class="px-6 py-4">{{ profile.required_hours }}</td>
+                                <td class="px-6 py-4">{{ profile.time_period }}</td>
+                                <td class="px-6 py-4">{{ profile.days }}</td>
+                                <td class="px-6 py-4">{{ profile.module_completed|yesno:"Yes,No" }}</td>
+                                <td class="px-6 py-4">{{ profile.pregnancy_waiver_check|yesno:"Yes,No" }}</td>
+                                <td class="px-6 py-4">{{ profile.gender }}</td>
+                                <td class="px-6 py-4">{{ profile.facility_email_address }}</td>
+                                <td class="px-6 py-4">{{ profile.created_at|date:"Y-m-d H:i" }}</td>
+                                <!-- Action Button -->
+<td class="px-6 py-4 text-center">
+    <button onclick="openActionModal('{{ profile.profile_id }}')" class="bg-teal-600 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-teal-700">
+      <i class="fas fa-bars"></i> Actions
+    </button>
+  </td>
+  
+  <!-- Modal -->
+  <div id="action-modal-{{ profile.profile_id }}" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative">
+        <button onclick="closeActionModal('{{ profile.profile_id }}')" class="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-lg">
+            <i class="fas fa-times"></i>
+          </button>
+          
+  
+      <h2 class="text-xl font-semibold mb-4">Available Actions</h2>
+      
+      <div class="space-y-3">
+        {% if not only_users_no_profile %}
+          <button onclick="openModal('{{ forloop.counter }}'); closeActionModal('{{ profile.profile_id }}')" class="w-full text-left text-teal-600 hover:text-teal-800 font-semibold py-2 px-3 rounded-md border border-teal-300 hover:border-teal-500 flex items-center space-x-2">
+            <i class="fas fa-eye"></i>
+            <span>View Documents</span>
+          </button>
+        {% endif %}
+        {% if is_approver and not only_users_no_profile %}
+          <button onclick="sendEmailAction('{{ profile.profile_id }}', 'remind_fee'); closeActionModal('{{ profile.profile_id }}')" class="w-full text-left bg-yellow-500 text-white px-3 py-2 rounded-md hover:bg-yellow-600 flex items-center space-x-2">
+            <i class="fas fa-credit-card"></i>
+            <span>Remind Fee</span>
+          </button>
+          <button onclick="sendEmailAction('{{ profile.profile_id }}', 'notify_result'); closeActionModal('{{ profile.profile_id }}')" class="w-full text-left bg-blue-500 text-white px-3 py-2 rounded-md hover:bg-blue-600 flex items-center space-x-2">
+            <i class="fas fa-bell"></i>
+            <span>Notify Result</span>
+          </button>
+          <button onclick="sendEmailAction('{{ profile.profile_id }}', 'done'); closeActionModal('{{ profile.profile_id }}')" class="w-full text-left bg-green-500 text-white px-3 py-2 rounded-md hover:bg-green-600 flex items-center space-x-2">
+            <i class="fas fa-check-circle"></i>
+            <span>Done</span>
+          </button>
+          <button onclick="sendEmailAction('{{ profile.profile_id }}', 'notify_placement'); closeActionModal('{{ profile.profile_id }}')" class="w-full text-left bg-orange-500 text-white px-3 py-2 rounded-md hover:bg-orange-600 flex items-center space-x-2">
+            <i class="fas fa-building"></i>
+            <span>Notify Placement</span>
+          </button>
+        {% endif %}
+        {% if is_superuser %}
+          {% if only_users_no_profile %}
+            <button onclick="deleteUser({{ profile.profile_id }}); closeActionModal('{{ profile.profile_id }}')" class="w-full text-left bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600 flex items-center space-x-2">
+              <i class="fas fa-trash"></i>
+              <span>Delete User</span>
+            </button>
+          {% else %}
+            <button onclick="deleteProfile({{ profile.profile_id }}); closeActionModal('{{ profile.profile_id }}')" class="w-full text-left bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600 flex items-center space-x-2">
+              <i class="fas fa-trash"></i>
+              <span>Delete Profile</span>
+            </button>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <script>
+    function openActionModal(profileId) {
+      const modal = document.getElementById(`action-modal-${profileId}`);
+      if (modal) modal.classList.remove('hidden');
+    }
+  
+    function closeActionModal(profileId) {
+      const modal = document.getElementById(`action-modal-${profileId}`);
+      if (modal) modal.classList.add('hidden');
+    }
+  </script>
+  
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="flex justify-between items-center p-4 bg-white border-t border-gray-300 rounded-b-md">
+                <div class="text-sm text-gray-600">
+                    Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} entries
+                </div>
+                <div class="space-x-1">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 bg-gray-200 rounded-md hover:bg-teal-600 hover:text-white">Previous</a>
+                    {% endif %}
+            
+                    {% for page_num in page_obj.paginator.page_range %}
+                        {% if page_num == page_obj.number %}
+                            <span class="px-3 py-1 bg-teal-600 text-white rounded-md">{{ page_num }}</span>
+                        {% elif page_num > page_obj.number|add:'-3' and page_num < page_obj.number|add:'3' %}
+                            <a href="?page={{ page_num }}" class="px-3 py-1 bg-gray-100 rounded-md hover:bg-teal-600 hover:text-white">{{ page_num }}</a>
+                        {% endif %}
+                    {% endfor %}
+            
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 bg-gray-200 rounded-md hover:bg-teal-600 hover:text-white">Next</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
                 <h2 
                 class="text-4xl font-extrabold text-center mb-12 bg-gradient-to-r from-teal-600 via-teal-400 to-cyan-400 text-transparent bg-clip-text drop-shadow-md tracking-wide opacity-0 translate-y-4 animate-fadeInUp"
               >
@@ -274,6 +439,115 @@
                                 <i class="fas fa-calendar-alt text-teal-500"></i>
                                 <span><strong>Submitted On:</strong> {{ profile.created_at|date:"M d, Y H:i" }}</span>
                             </p>
+                            <!-- Newly added fields below -->
+    <p class="flex items-center space-x-2">
+        <i class="fas fa-hospital text-teal-500"></i>
+        <span><strong>Assigned Facility:</strong> {{ profile.assigned_facility }}</span>
+    </p>
+    <p class="flex items-center space-x-2">
+        <i class="fas fa-calendar-check text-teal-500"></i>
+        <span><strong>Orientation Date:</strong> {{ profile.orientation_date|date:"M d, Y" }}</span>
+    </p>
+    <p class="flex items-center space-x-2">
+        <i class="fas fa-calendar-check text-teal-500"></i>
+        <span><strong>Modules Completed:</strong> {{ profile.module_completed }}</span>
+        <button onclick="openEditStartDateModal()" class="ml-2 text-teal-600 hover:text-teal-800 focus:outline-none">
+            <i class="fas fa-pencil-alt"></i>
+          </button>
+    </p>
+    <p class="flex items-center space-x-2">
+        <i class="fas fa-play text-teal-500"></i>
+        <span><strong>Official Start Date:</strong> {{ profile.official_start_date|date:"M d, Y" }}</span>
+        <button onclick="openEditStartDateModal()" class="ml-2 text-teal-600 hover:text-teal-800 focus:outline-none">
+          <i class="fas fa-pencil-alt"></i>
+        </button>
+      </p>
+      <!-- Modal -->
+      <!-- Edit Start Date Modal -->
+<div id="editStartDateModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm relative">
+      <button onclick="closeEditStartDateModal()" class="absolute top-2 right-2 text-gray-600 hover:text-red-600">
+        <i class="fas fa-times"></i>
+      </button>
+      <h2 class="text-lg font-semibold mb-4 text-teal-700">Edit Start Date & Days</h2>
+      <form id="startDateForm" onsubmit="saveStartDate(event)">
+        <input type="hidden" id="profileId" value="{{ profile.profile_id }}">
+        
+        <div class="mb-4">
+          <label for="officialStartDate" class="block text-sm font-medium text-gray-700">Start Date</label>
+          <input type="date" id="officialStartDate" class="w-full mt-1 border-gray-300 rounded shadow-sm focus:ring-teal-500 focus:border-teal-500" required>
+        </div>
+  
+        <div class="mb-4">
+          <label for="module_completed" class="block text-sm font-medium text-gray-700">Number of Days</label>
+          <select id="module_completed" class="...">
+            {% for i in "1,2,3,4,5,6,7,8,9,10,11,12,13"|split:"," %}
+  <option value="{{ i }}">{{ i }}</option>
+{% endfor %}
+
+          </select>
+          
+        </div>
+  
+        <div class="flex justify-end">
+          <button type="submit" class="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+      
+  <script>
+    function openEditStartDateModal() {
+      // Get values from template context
+      const startDate = "{{ profile.official_start_date|date:'Y-m-d' }}";
+      const module_completed = "{{ profile.module_completed|default_if_none:'' }}";
+  
+      // Populate form fields
+      if (startDate) {
+        document.getElementById("officialStartDate").value = startDate;
+      }
+  
+      if (module_completed) {
+        document.getElementById("module_completed").value = module_completed;
+      }
+  
+      // Show the modal
+      document.getElementById("editStartDateModal").classList.remove("hidden");
+    }
+  
+    function closeEditStartDateModal() {
+      document.getElementById("editStartDateModal").classList.add("hidden");
+    }
+  
+    function saveStartDate(event) {
+      event.preventDefault();
+      const profileId = document.getElementById("profileId").value;
+      const startDate = document.getElementById("officialStartDate").value;
+      const module_completed = document.getElementById("module_completed").value;
+  
+      // Example AJAX call to update backend (you can customize this)
+      fetch(`/set-official-start-date/${profileId}/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify({ official_start_date: startDate, module_completed: module_completed })
+      }).then(response => {
+        if (response.ok) {
+          closeEditStartDateModal();
+          location.reload(); // Or update UI without reload
+        }
+      });
+    }
+  </script>  
+  
+  
+    <p class="flex items-center space-x-2">
+        <i class="fas fa-stop text-teal-500"></i>
+        <span><strong>Exact Placement End Date:</strong> {{ profile.exact_placement_end_date|date:"M d, Y" }}</span>
+    </p>
                         </div>
                         <div class="mt-6 flex justify-center">
                             <button onclick="openModal('{{ forloop.counter }}')" class="text-white bg-teal-600 hover:bg-teal-700 font-semibold py-3 px-6 rounded-lg text-lg flex items-center space-x-2 transition">
@@ -371,55 +645,68 @@
                   </div>
                   <!-- Address Information Card -->
 
-<div class="flex justify-center mt-6 px-4">
-<div class="bg-white border border-gray-200 rounded-lg shadow-md p-6 w-full max-w-6xl mx-auto">
-    <h4 class="text-lg font-semibold text-teal-700 mb-4 flex items-center space-x-2">
-        <i class="fas fa-map-marker-alt"></i>
-        <span>Address Information</span>
-    </h4>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
-        <p class="flex items-center space-x-2">
-            <i class="fas fa-check-circle text-teal-500"></i>
-            <span><strong>Address Updated:</strong> {{ profile.address_updated|yesno:"Yes,No" }}</span>
-        </p>
-        <p class="flex items-center space-x-2">
-            <i class="fas fa-hospital text-teal-500"></i>
-            <span><strong>Preferred Facility:</strong> {{ profile.preferred_facility_name }}</span>
-        </p>
-        <p class="flex items-center space-x-2">
-            <i class="fas fa-map text-teal-500"></i>
-            <span><strong>Facility Address:</strong> {{ profile.preferred_facility_address }}</span>
-        </p>
-        <p class="flex items-center space-x-2">
-            <i class="fas fa-phone text-teal-500"></i>
-            <span><strong>Facility Contact:</strong> {{ profile.preferred_facility_contact_person }}</span>
-        </p>
-        <p class="flex items-center space-x-2">
-            <i class="fas fa-home text-teal-500"></i>
-            <span><strong>Apt/House No:</strong> {{ profile.apt_house_no }}</span>
-        </p>
-        <p class="flex items-center space-x-2">
-            <i class="fas fa-road text-teal-500"></i>
-            <span><strong>Street:</strong> {{ profile.street }}</span>
-        </p>
-        <p class="flex items-center space-x-2">
-            <i class="fas fa-city text-teal-500"></i>
-            <span><strong>City:</strong> {{ profile.city }}</span>
-        </p>
-        <p class="flex items-center space-x-2">
-            <i class="fas fa-flag text-teal-500"></i>
-            <span><strong>Province:</strong> {{ profile.province }}</span>
-        </p>
-        <p class="flex items-center space-x-2">
-            <i class="fas fa-mail-bulk text-teal-500"></i>
-            <span><strong>Postal Code:</strong> {{ profile.postal_code }}</span>
-        </p>
-        <p class="flex items-center space-x-2">
-            <i class="fas fa-globe-americas text-teal-500"></i>
-            <span><strong>Open to Other Cities:</strong> {{ profile.open_to_outside_city|yesno:"Yes,No" }}</span>
-        </p>
-    </div>
-</div>
+                  <div class="flex flex-col justify-center mt-6 px-4 gap-6">
+                    <div class="bg-white border border-gray-200 rounded-lg shadow-md p-6 w-full max-w-6xl mx-auto">
+                        <h4 class="text-lg font-semibold text-teal-700 mb-4 flex items-center space-x-2">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Address Information</span>
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
+                            <p class="flex items-center space-x-2">
+                                <i class="fas fa-check-circle text-teal-500"></i>
+                                <span><strong>Address Updated:</strong> {{ profile.address_updated|yesno:"Yes,No" }}</span>
+                            </p>
+                            <p class="flex items-center space-x-2">
+                                <i class="fas fa-home text-teal-500"></i>
+                                <span><strong>Apt/House No:</strong> {{ profile.apt_house_no }}</span>
+                            </p>
+                            <p class="flex items-center space-x-2">
+                                <i class="fas fa-road text-teal-500"></i>
+                                <span><strong>Street:</strong> {{ profile.street }}</span>
+                            </p>
+                            <p class="flex items-center space-x-2">
+                                <i class="fas fa-city text-teal-500"></i>
+                                <span><strong>City:</strong> {{ profile.city }}</span>
+                            </p>
+                            <p class="flex items-center space-x-2">
+                                <i class="fas fa-flag text-teal-500"></i>
+                                <span><strong>Province:</strong> {{ profile.province }}</span>
+                            </p>
+                            <p class="flex items-center space-x-2">
+                                <i class="fas fa-mail-bulk text-teal-500"></i>
+                                <span><strong>Postal Code:</strong> {{ profile.postal_code }}</span>
+                            </p>
+                            <p class="flex items-center space-x-2">
+                                <i class="fas fa-globe-americas text-teal-500"></i>
+                                <span><strong>Open to Other Cities:</strong> {{ profile.open_to_outside_city|yesno:"Yes,No" }}</span>
+                            </p>
+                        </div>
+                    </div>
+                
+                    <div class="bg-white border border-gray-200 rounded-lg shadow-md p-6 w-full max-w-6xl mx-auto">
+                        <h4 class="text-lg font-semibold text-teal-700 mb-4 flex items-center space-x-2">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Facility Address Information</span>
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
+                            <p class="flex items-center space-x-2">
+                                <i class="fas fa-hospital text-teal-500"></i>
+                                <span><strong>Preferred Facility:</strong> {{ profile.preferred_facility_name }}</span>
+                            </p>
+                            {% if profile.preferred_facility_address %}
+                            <p class="flex items-center space-x-2">
+                                <i class="fas fa-map text-teal-500"></i>
+                                <span><strong>Facility Address:</strong> {{ profile.preferred_facility_address }}</span>
+                            </p>
+                            {% endif %}
+                            <p class="flex items-center space-x-2">
+                                <i class="fas fa-phone text-teal-500"></i>
+                                <span><strong>Facility Contact:</strong> {{ profile.preferred_facility_contact_person }}</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
 </div>
 
                 <div class="flex justify-center mt-6 ">

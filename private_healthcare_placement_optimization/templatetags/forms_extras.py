@@ -10,3 +10,8 @@ def add_class(value, css_class):
     if hasattr(value, 'as_widget'):
         return value.as_widget(attrs={'class': css_class})
     return value
+
+
+@register.filter
+def split(value, delimiter=","):
+    return value.split(delimiter)

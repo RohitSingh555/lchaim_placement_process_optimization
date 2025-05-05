@@ -319,11 +319,97 @@ I have read and understood my responsibilities listed for placement</p>
               
                 <!-- Next Button -->
                 <div class="flex justify-center mt-4">
+                  <button onclick="goToSubStep(9)" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
+                  hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300">
+                  Next <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+                </div>
+              </div>
+              
+              <div class="sub-step hidden" id="subStep9">
+                <div class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4">
+                  <i class="fas fa-envelope-open-text text-teal-600 text-3xl flex-shrink-0 mt-1"></i>
+                  <div class="flex-1 h-[400px] overflow-y-auto pr-4">
+                    <!-- Gender Selection Grid -->
+<!-- Gender Selection Grid -->
+<div class="mt-6">
+  <h4 class="text-teal-700 font-semibold text-lg mb-2">Select Your Gender</h4>
+  <div id="genderSelector" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <button type="button" onclick="selectGender('Male')" id="gender-Male"
+      class="flex flex-col items-center justify-center p-4 border border-teal-300 rounded-lg hover:bg-teal-100 cursor-pointer transition duration-200">
+      <i class="fas fa-mars text-2xl mb-1"></i>
+      <span>Male</span>
+    </button>
+    <button type="button" onclick="selectGender('Female')" id="gender-Female"
+      class="flex flex-col items-center justify-center p-4 border border-teal-300 rounded-lg hover:bg-teal-100 cursor-pointer transition duration-200">
+      <i class="fas fa-venus text-2xl mb-1"></i>
+      <span>Female</span>
+    </button>
+    <button type="button" onclick="selectGender('Other')" id="gender-Other"
+      class="flex flex-col items-center justify-center p-4 border border-teal-300 rounded-lg hover:bg-teal-100 cursor-pointer transition duration-200">
+      <i class="fas fa-genderless text-2xl mb-1"></i>
+      <span>Other</span>
+    </button>
+    <button type="button" onclick="selectGender('Prefer not to say')" id="gender-Prefer not to say"
+      class="flex flex-col items-center justify-center p-4 border border-teal-300 rounded-lg hover:bg-teal-100 cursor-pointer transition duration-200">
+      <i class="fas fa-user-secret text-2xl mb-1"></i>
+      <span>Prefer not to say</span>
+    </button>
+  </div>
+  <input type="hidden" name="gender" id="selectedGender">
+  <p id="genderError" class="text-red-600 text-lg mt-2 hidden">Please select a gender before continuing.</p>
+</div>
+<!-- Pregnancy Policy Notice (hidden by default) -->
+<div id="pregnancyNotice" class="mt-6 p-4 bg-yellow-100 border-l-4 border-yellow-500 rounded hidden">
+  <h5 class="text-yellow-700 font-semibold mb-2">
+    Please read our:
+  </h5>
+  <a href="/pregnancy-policy" target="_blank"
+     class="inline-block px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition">
+    Pregnancy Policy & Waiver for Clinical Placement
+  </a>
+</div>
+<script>
+  function selectGender(gender) {
+    const options = ["Male", "Female", "Other", "Prefer not to say"];
+    options.forEach(opt => {
+      const el = document.getElementById("gender-" + opt);
+      if (el) {
+        el.classList.remove("bg-teal-500", "text-white", "border-teal-600", "shadow-lg");
+        el.classList.add("border-teal-300", "hover:bg-teal-100");
+      }
+    });
+
+    const selectedTile = document.getElementById("gender-" + gender);
+    if (selectedTile) {
+      selectedTile.classList.add("bg-teal-500", "text-white", "border-teal-600", "shadow-lg");
+      selectedTile.classList.remove("border-teal-300", "hover:bg-teal-100");
+    }
+
+    document.getElementById("selectedGender").value = gender;
+    document.getElementById("genderError").classList.add("hidden");
+
+    // Show/hide pregnancy notice
+    const pregnancyNotice = document.getElementById("pregnancyNotice");
+    if (gender === "Female") {
+      pregnancyNotice.classList.remove("hidden");
+    } else {
+      pregnancyNotice.classList.add("hidden");
+    }
+  }
+</script>
+
+                  </div>
+                </div>
+              
+                <!-- Next Button -->
+                <div class="flex justify-center mt-4">
                   <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
-                    hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 
-                    transition-all duration-300" onclick="nextStep(2)">
-                    Next <i class="fas fa-arrow-right ml-2"></i>
-                  </button>
+                  hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 
+                  transition-all duration-300"
+                  onclick="nextStep(2)">
+                  Next <i class="fas fa-arrow-right ml-2"></i>
+                </button>
                 </div>
               </div>
               
@@ -626,35 +712,23 @@ I have read and understood my responsibilities listed for placement</p>
     
             <label for="preferred_facility_email" class="text-lg font-medium text-gray-700 mt-4 mb-2">Contact Email<span class="text-red-500 ml-1">*</span></label>
             <input type="email" name="preferred_facility_email" id="preferred_facility_email"
-                   class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                   placeholder="Contact Email" required>
+            class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Contact Email"
+            required
+            pattern="^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+            title="Please enter a valid email address (e.g. example@domain.com)">
+
         </div>
     </div>
-    <script>
-        const ltcDropdown = document.getElementById("ltc_facility_question");
-        const facilityInfoBox = document.getElementById("facility_info_box");
-    
-        ltcDropdown.addEventListener("change", () => {
-            const shouldShow = ltcDropdown.value === "Yes";
-            facilityInfoBox.classList.toggle("hidden", !shouldShow);
-    
-            const requiredFields = ["preferred_facility", "preferred_facility_address", "preferred_facility_contact_person", "preferred_facility_email"];
-            requiredFields.forEach(id => {
-                const field = document.getElementById(id);
-                if (field) {
-                    field.required = shouldShow;
-                }
-            });
-        });
-    </script>
-
+  
     <div class="flex justify-center items-center mt-6">
-        <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
+        <button type="button" id="nextStepBtn7" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
                 hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300" 
                 onclick="nextStep(7)">
             Next <i class="fas fa-arrow-right ml-2"></i>
         </button>
     </div>
+    
 </div>
 
 
@@ -1191,76 +1265,95 @@ document.addEventListener("DOMContentLoaded", () => updateStep());
     
 </script>
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const nextButton = document.querySelector("button[onclick='nextStep(7)']");
-      const shiftSelect = document.getElementById("shift_requested");
-      const ltcDropdown = document.getElementById("ltc_facility_question");
-      const facilityInfoBox = document.getElementById("facility_info_box");
-  
-      const requiredFields = [
-        "shift_requested",
-        "ltc_facility_question"
-      ];
-  
-      const conditionalFields = [
-        "preferred_facility",
-        "preferred_facility_address",
-        "preferred_facility_contact_person",
-        "preferred_facility_email"
-      ];
-  
-      function updateNextButtonState() {
-        let isValid = true;
-  
-        // Check basic required fields
-        for (const id of requiredFields) {
+  document.addEventListener("DOMContentLoaded", function () {
+    const nextButton = document.getElementById("nextStepBtn7");
+    const shiftSelect = document.getElementById("shift_requested");
+    const ltcDropdown = document.getElementById("ltc_facility_question");
+    const facilityInfoBox = document.getElementById("facility_info_box");
+    const emailField = document.getElementById("preferred_facility_email");
+
+    const requiredFields = [
+      "shift_requested",
+      "ltc_facility_question"
+    ];
+
+    const conditionalFields = [
+      "preferred_facility",
+      "preferred_facility_address",
+      "preferred_facility_contact_person",
+      "preferred_facility_email"
+    ];
+
+    function updateNextButtonState() {
+      let isValid = true;
+
+      // Validate required fields
+      for (const id of requiredFields) {
+        const el = document.getElementById(id);
+        if (!el || el.value.trim() === "" || el.value === "Select your shift request") {
+          isValid = false;
+          break;
+        }
+      }
+
+      // Validate conditional LTC fields if Yes is selected
+      if (ltcDropdown.value === "Yes") {
+        for (const id of conditionalFields) {
           const el = document.getElementById(id);
-          if (!el || el.value.trim() === "" || el.value === "Select your shift request") {
+          if (!el || el.value.trim() === "") {
             isValid = false;
             break;
           }
         }
-  
-        // If LTC is "Yes", check conditional fields too
-        if (ltcDropdown.value === "Yes") {
-          for (const id of conditionalFields) {
-            const el = document.getElementById(id);
-            if (!el || el.value.trim() === "") {
-              isValid = false;
-              break;
-            }
-          }
+
+        // Email-specific validation
+        const emailValue = emailField.value.trim();
+        const emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i;
+        const isValidEmail = emailRegex.test(emailValue);
+        const isLongEnough = emailValue.length >= 8;
+
+        if (!(isValidEmail && isLongEnough)) {
+          isValid = false;
         }
-  
-        // Enable/disable the button
-        nextButton.disabled = !isValid;
-        nextButton.classList.toggle("opacity-50", !isValid);
-        nextButton.classList.toggle("cursor-not-allowed", !isValid);
       }
-  
-      // Watch changes on all inputs
-      [...requiredFields, ...conditionalFields].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-          el.addEventListener("input", updateNextButtonState);
-          el.addEventListener("change", updateNextButtonState);
+
+      // Enable or disable the button
+      nextButton.disabled = !isValid;
+      nextButton.classList.toggle("opacity-50", !isValid);
+      nextButton.classList.toggle("cursor-not-allowed", !isValid);
+    }
+
+    function toggleFacilityFields() {
+      const shouldShow = ltcDropdown.value === "Yes";
+      facilityInfoBox.classList.toggle("hidden", !shouldShow);
+
+      conditionalFields.forEach((id) => {
+        const field = document.getElementById(id);
+        if (field) {
+          field.required = shouldShow;
         }
       });
-  
-      ltcDropdown.addEventListener("change", () => {
-        const showBox = ltcDropdown.value === "Yes";
-        facilityInfoBox.classList.toggle("hidden", !showBox);
-        conditionalFields.forEach(id => {
-          const field = document.getElementById(id);
-          if (field) field.required = showBox;
-        });
-        updateNextButtonState();
-      });
-  
-      // Initial state
-      updateNextButtonState();
+
+      updateNextButtonState(); // Revalidate all fields
+    }
+
+    // Attach listeners to all relevant fields
+    [...requiredFields, ...conditionalFields].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener("input", updateNextButtonState);
+        el.addEventListener("change", updateNextButtonState);
+      }
     });
-  </script>
+
+    ltcDropdown.addEventListener("change", toggleFacilityFields);
+
+    // Initial state on page load
+    toggleFacilityFields();
+    updateNextButtonState();
+  });
+</script>
+
   
 <script>
 document.addEventListener("DOMContentLoaded", function () {

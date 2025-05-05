@@ -140,20 +140,93 @@
             </div>
             <div class="overflow-x-auto custom-scrollbar">
                 {% if is_approver %}
+                <!-- Filter Section -->
+                <form method="get" class="flex flex-wrap items-center justify-between p-4 bg-white shadow rounded-t-md gap-4">
+                    <select name="gender" class="border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-teal-500">
+                        <option value="">All Genders</option>
+                        <option value="Male" {% if request.GET.gender == "Male" %}selected{% endif %}>Male</option>
+                        <option value="Female" {% if request.GET.gender == "Female" %}selected{% endif %}>Female</option>
+                        <option value="Other" {% if request.GET.gender == "Other" %}selected{% endif %}>Other</option>
+                    </select>
+                
+                    <select name="stage" class="border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-teal-500">
+                        <option value="">All Stages</option>
+                        <option value="Pending" {% if request.GET.stage == "Pending" %}selected{% endif %}>Pending</option>
+                        <option value="Approved" {% if request.GET.stage == "Approved" %}selected{% endif %}>Approved</option>
+                        <option value="Rejected" {% if request.GET.stage == "Rejected" %}selected{% endif %}>Rejected</option>
+                    </select>
+                
+                    <select name="experience_level"
+                        class="border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-teal-500">
+                        <option value="">All Experience Levels</option>
+                        <option value="No Experience" {% if request.GET.experience_level == "No Experience" %}selected{% endif %}>
+                            No Experience (300 Hrs)</option>
+                        <option value="1 Year PSW Experience" {% if request.GET.experience_level == "1 Year PSW Experience" %}selected{% endif %}>
+                            One (1) Year PSW Experience in Canada : 200 Hrs</option>
+                        <option value="International Nurse" {% if request.GET.experience_level == "International Nurse" %}selected{% endif %}>
+                            Internationally Educated Nurse (IEN) : 200 Hrs</option>
+                        <option value="Caregiver Experience" {% if request.GET.experience_level == "Caregiver Experience" %}selected{% endif %}>
+                            Caregiver Experience in Canada : 200 Hrs</option>
+                    </select>
+                
+                    <select name="is_completed" class="border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-teal-500">
+                        <option value="">Completion Status</option>
+                        <option value="true" {% if request.GET.is_completed == "true" %}selected{% endif %}>Completed</option>
+                        <option value="false" {% if request.GET.is_completed == "false" %}selected{% endif %}>Incomplete</option>
+                    </select>
+                
+                    <div class="flex gap-2">
+                        <button type="submit"
+                            class="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 flex items-center">
+                            <i class="fas fa-filter mr-2"></i>Apply Filters
+                        </button>
+                        <a href="{% url request.resolver_match.view_name %}"
+                            class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 flex items-center">
+                            <i class="fas fa-times mr-2"></i>Clear Filters
+                        </a>
+                    </div>
+                </form>
+                
+
                 <div class="overflow-x-auto w-full">
                     <div class="relative max-w-full">
                         <table class="bg-white shadow-lg min-w-full table-auto border-collapse border border-gray-300">
                             <thead class="bg-gradient-to-r from-teal-400 to-teal-700 text-white">
                                 <tr class="border border-gray-300">
-                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 sticky left-0 bg-teal-600 z-12">Sr No.</th>
-                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 sticky left-16 bg-teal-600 z-12">Name</th>
-                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 sticky left-40 bg-teal-600 z-12">College Email</th>
-                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300">Experience Level</th>
-                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300">Shift Requested</th>
-                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300">Address Updated</th>
-                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300">Preferred Facility</th>
-                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300">Facility Contact</th>
-                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300">Actions</th>
+                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[80px] border border-gray-300 sticky left-0 bg-teal-600 z-12">Sr No.</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[160px] border border-gray-300 sticky left-16 bg-teal-600 z-12">Name</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[200px] border border-gray-300 sticky left-40 bg-teal-600 z-12">College Email</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[180px] border border-gray-300">Experience Level</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[160px] border border-gray-300">Shift Requested</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[150px] border border-gray-300">Apt/House No.</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[160px] border border-gray-300">Street</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[120px] border border-gray-300">City</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[140px] border border-gray-300">Province</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[140px] border border-gray-300">Postal Code</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[200px] border border-gray-300">Open to Outside City</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[180px] border border-gray-300">Preferred Facility</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[200px] border border-gray-300">Facility Address</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[180px] border border-gray-300">Facility Contact</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[140px] border border-gray-300">City Pref 1</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[140px] border border-gray-300">City Pref 2</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[180px] border border-gray-300">Assigned Facility</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[180px] border border-gray-300">Orientation Date</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[120px] border border-gray-300">Stage</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[140px] border border-gray-300">Start Date</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[140px] border border-gray-300">End Date</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[180px] border border-gray-300">Facility Feedback</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[180px] border border-gray-300">College Feedback</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[160px] border border-gray-300">Notes</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[160px] border border-gray-300">Date Completed</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[160px] border border-gray-300">Required Hours</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[160px] border border-gray-300">Time Period</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[140px] border border-gray-300">Days</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[180px] border border-gray-300">Module Completed</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[180px] border border-gray-300">Pregnancy Waiver</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[120px] border border-gray-300">Gender</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[200px] border border-gray-300">Facility Email</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[160px] border border-gray-300">Created At</th>
+<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[120px] border border-gray-300">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -165,11 +238,36 @@
                                     <td class="px-6 py-4 border border-gray-300 sticky left-40 bg-white z-10">{{ profile.college_email }}</td>
                 
                                     <!-- Scrollable Columns -->
-                                    <td class="px-6 py-4 border border-gray-300">{{ profile.experience_level }}</td>
-                                    <td class="px-6 py-4 border border-gray-300">{{ profile.shift_requested }}</td>
-                                    <td class="px-6 py-4 border border-gray-300">{{ profile.address_updated|yesno:"Yes,No" }}</td>
-                                    <td class="px-6 py-4 border border-gray-300">{{ profile.preferred_facility_name }}</td>
-                                    <td class="px-6 py-4 border border-gray-300">{{ profile.preferred_facility_contact_person }}</td>
+                                    <td class="px-6 py-4">{{ profile.experience_level }}</td>
+                                    <td class="px-6 py-4">{{ profile.shift_requested }}</td>
+                                    <td class="px-6 py-4">{{ profile.apt_house_no }}</td>
+                                    <td class="px-6 py-4">{{ profile.street }}</td>
+                                    <td class="px-6 py-4">{{ profile.city }}</td>
+                                    <td class="px-6 py-4">{{ profile.province }}</td>
+                                    <td class="px-6 py-4">{{ profile.postal_code }}</td>
+                                    <td class="px-6 py-4">{{ profile.open_to_outside_city|yesno:"Yes,No" }}</td>
+                                    <td class="px-6 py-4">{{ profile.preferred_facility_name }}</td>
+                                    <td class="px-6 py-4">{{ profile.preferred_facility_address }}</td>
+                                    <td class="px-6 py-4">{{ profile.preferred_facility_contact_person }}</td>
+                                    <td class="px-6 py-4">{{ profile.city_preference_1 }}</td>
+                                    <td class="px-6 py-4">{{ profile.city_preference_2 }}</td>
+                                    <td class="px-6 py-4">{{ profile.assigned_facility }}</td>
+                                    <td class="px-6 py-4">{{ profile.orientation_date }}</td>
+                                    <td class="px-6 py-4">{{ profile.stage }}</td>
+                                    <td class="px-6 py-4">{{ profile.official_start_date }}</td>
+                                    <td class="px-6 py-4">{{ profile.exact_placement_end_date }}</td>
+                                    <td class="px-6 py-4">{{ profile.facility_feedback }}</td>
+                                    <td class="px-6 py-4">{{ profile.college_feedback }}</td>
+                                    <td class="px-6 py-4">{{ profile.notes }}</td>
+                                    <td class="px-6 py-4">{{ profile.date_completed }}</td>
+                                    <td class="px-6 py-4">{{ profile.required_hours }}</td>
+                                    <td class="px-6 py-4">{{ profile.time_period }}</td>
+                                    <td class="px-6 py-4">{{ profile.days }}</td>
+                                    <td class="px-6 py-4">{{ profile.module_completed|yesno:"Yes,No" }}</td>
+                                    <td class="px-6 py-4">{{ profile.pregnancy_waiver_check|yesno:"Yes,No" }}</td>
+                                    <td class="px-6 py-4">{{ profile.gender }}</td>
+                                    <td class="px-6 py-4">{{ profile.facility_email_address }}</td>
+                                    <td class="px-6 py-4">{{ profile.created_at|date:"Y-m-d H:i" }}</td>
                                     <td class="px-6 py-4 flex justify-between items-center space-x-2">
                                         <!-- Action Buttons -->
                                          {% if not only_users_no_profile %}
@@ -217,7 +315,28 @@
                         </table>
                     </div>
                 </div>
+                <div class="flex justify-between items-center p-4 bg-white border-t border-gray-300 rounded-b-md">
+                    <div class="text-sm text-gray-600">
+                        Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} entries
+                    </div>
+                    <div class="space-x-1">
+                        {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 bg-gray-200 rounded-md hover:bg-teal-600 hover:text-white">Previous</a>
+                        {% endif %}
                 
+                        {% for page_num in page_obj.paginator.page_range %}
+                            {% if page_num == page_obj.number %}
+                                <span class="px-3 py-1 bg-teal-600 text-white rounded-md">{{ page_num }}</span>
+                            {% elif page_num > page_obj.number|add:'-3' and page_num < page_obj.number|add:'3' %}
+                                <a href="?page={{ page_num }}" class="px-3 py-1 bg-gray-100 rounded-md hover:bg-teal-600 hover:text-white">{{ page_num }}</a>
+                            {% endif %}
+                        {% endfor %}
+                
+                        {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 bg-gray-200 rounded-md hover:bg-teal-600 hover:text-white">Next</a>
+                        {% endif %}
+                    </div>
+                </div>
                 {% else %}
                 {% for profile in profile_details %}
                 <div class="flex items-center justify-center p-6">

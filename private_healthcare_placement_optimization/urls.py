@@ -43,6 +43,7 @@ urlpatterns = [
     path('facilities/<int:pk>/update/', update_facility, name='update_facility'),
     path('facilities/<int:pk>/delete/', FacilityDeleteView.as_view(), name='facility_delete'),
     path('facilities/<int:facility_id>/edit/', edit_facility, name='facility_edit'),
+    path('set-official-start-date/<int:profile_id>/', set_official_start_date_view, name='set_official_start_date'),
 
 
     # OrientationDate URLs
@@ -54,5 +55,7 @@ urlpatterns = [
     path('facilities/assign/', assign_facility_and_orientation_date_to_users, name='assign_facility_and_orientation_date_to_users'),
     path('assign-facility/', assign_facility_view, name='assign_facility'),
     path('cities-and-provinces/', get_cities_and_provinces, name='cities_and_provinces'),
+    path("pregnancy-policy/", pregnancy_policy_view, name="pregnancy_policy"),
+
 ]
 handler404 = 'private_healthcare_placement_optimization.custom_404'
