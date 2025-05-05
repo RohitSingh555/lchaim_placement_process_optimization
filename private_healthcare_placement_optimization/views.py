@@ -1347,7 +1347,7 @@ def send_email_notify_result(profile, rejected_documents, zip_url):
             <p><a href="https://www.peakcollege.ca" class="highlight">Resubmission Link: Click here!</a></p>
             <p>You’ll receive another email once all are approved.</p>
             <p><strong>You can find the files attached at the bottom:</strong> 
-                <br><a href="{zip_url}" target="_blank">{zip_url}</a>
+                <br><a href="http://placement.peakcollege.ca{zip_url}" target="_blank">http://placement.peakcollege.ca{zip_url}</a>
             </p>
             <div class="footer">
                 <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
@@ -1495,17 +1495,17 @@ def send_placement_email(profile):
     </body>
     </html>
 '''
-    
     email = EmailMessage(
         subject,
         message,
         settings.DEFAULT_FROM_EMAIL,
-        ["placement@peakcollege.ca"]
+        [profile.college_email]
     )
-    email.content_subtype = "html" 
+    email.content_subtype = "html"
+ 
     email.send()
 
-def send_documents_email(profile, documents):
+def send_documents_email(profile, documents, zip_url):
     subject = f'{profile.first_name} {profile.last_name} - Documents Completed'
     message = f'''
     <html>
@@ -1521,6 +1521,8 @@ def send_documents_email(profile, documents):
         <div class="container">
             <h2>{profile.first_name}'s Complete Files for Placement</h2>
             <p>(Note: Attach all submitted documents)</p>
+            <p>You can find the documents in the following ZIP file:</p>
+            <p><a href="http://placement.peakcollege.ca{zip_url}">Download Documents</a></p>
         </div>
         
     </body>
@@ -1528,36 +1530,15 @@ def send_documents_email(profile, documents):
     '''
     
     email = EmailMessage(
-        subject=subject,
-        body=message,
-        from_email="no-reply@peakcollege.ca",
-        to=["documents@peakcollege.ca"],
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [profile.college_email]
     )
     email.content_subtype = "html"
+ 
+    email.send()
 
-    valid_documents = []
-    for document in documents:
-        if document.file and document.file.name:
-            try:
-                file_path = document.file.path
-                valid_documents.append((file_path, os.path.basename(file_path)))
-            except ValueError:
-                continue  # Skip documents without a valid file path
-
-    # Attach each document
-    for file_path, file_name in valid_documents:
-        try:
-            with open(file_path, "rb") as file:
-                email.attach(file_name, file.read(), "application/octet-stream")
-        except Exception as e:
-            print(f"Error attaching file {file_name}: {str(e)}")
-
-    try:
-        email.send()
-        return {"message": "Email sent successfully"}
-    except Exception as e:
-        return {"error": f"Failed to send email: {str(e)}"}
-    
 
 def send_email_resubmit(profile, documents):
     # Fetch all approvers (linked to User model)
@@ -1659,33 +1640,40 @@ def handle_button_action(request, profile_id, action):
 
         documents = profile.documents.all()
 
-        # Handle the 'notify_result' action
         if action == 'notify_result':
-            # Create a zip file containing all documents to be attached
             zip_file_name = f"{profile.id}_{profile.first_name}_{profile.last_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
             zip_file_path = os.path.join(settings.MEDIA_ROOT, 'documents', 'uploads', zip_file_name)
 
             with zipfile.ZipFile(zip_file_path, 'w') as zipf:
                 for document in documents:
-                    if document.file and document.file.name:  # Ensure document has a file
+                    if document.file and document.file.name: 
                         try:
                             zipf.write(document.file.path, os.path.basename(document.file.name))
                         except Exception as e:
-                            continue  # Skip documents with errors
-
-            # Generate the URL for the ZIP file
+                            continue  
             zip_url = os.path.join(settings.MEDIA_URL, 'documents', 'uploads', zip_file_name)
 
-            # Now send the email with the generated zip_url
             rejected_documents = documents.filter(status="Rejected")
             send_email_notify_result(profile, rejected_documents, zip_url=zip_url)
 
         elif action == 'remind_fee':
             send_email_remind_fee(profile)
         elif action == 'done':
+            zip_file_name = f"{profile.id}_{profile.first_name}_{profile.last_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
+            zip_file_path = os.path.join(settings.MEDIA_ROOT, 'documents', 'uploads', zip_file_name)
+
+            with zipfile.ZipFile(zip_file_path, 'w') as zipf:
+                for document in documents:
+                    if document.file and document.file.name:
+                        try:
+                            zipf.write(document.file.path, os.path.basename(document.file.name))
+                        except Exception:
+                            continue
+            
+            zip_url = os.path.join(settings.MEDIA_URL, 'documents', 'uploads', zip_file_name)
             send_email_done(profile, documents)
             send_placement_email(profile)
-            send_documents_email(profile, documents)
+            send_documents_email(profile, documents, zip_url=zip_url)
         elif action == 'resubmit':
             send_email_resubmit(profile, documents)
         elif action == 'notify_placement':
