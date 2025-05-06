@@ -368,43 +368,21 @@ I have read and understood my responsibilities listed for placement</p>
      class="inline-block px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition">
     Pregnancy Policy & Waiver for Clinical Placement
   </a>
+  <!-- Acknowledgement Checkbox -->
+  <div class="mt-4 flex items-start gap-2">
+    <input type="checkbox" id="genderAcknowledgement" class="mt-1 h-5 w-5 text-teal-600 border-gray-300 rounded focus:ring-teal-500" onchange="toggleNextButton()">
+    <label for="genderAcknowledgement" class="text-gray-700 text-sm">
+      I acknowledge the information provided above and confirm my selection.
+    </label>
+  </div>
 </div>
-<script>
-  function selectGender(gender) {
-    const options = ["Male", "Female", "Other", "Prefer not to say"];
-    options.forEach(opt => {
-      const el = document.getElementById("gender-" + opt);
-      if (el) {
-        el.classList.remove("bg-teal-500", "text-white", "border-teal-600", "shadow-lg");
-        el.classList.add("border-teal-300", "hover:bg-teal-100");
-      }
-    });
-
-    const selectedTile = document.getElementById("gender-" + gender);
-    if (selectedTile) {
-      selectedTile.classList.add("bg-teal-500", "text-white", "border-teal-600", "shadow-lg");
-      selectedTile.classList.remove("border-teal-300", "hover:bg-teal-100");
-    }
-
-    document.getElementById("gender").value = gender;
-    document.getElementById("genderError").classList.add("hidden");
-
-    // Show/hide pregnancy notice
-    const pregnancyNotice = document.getElementById("pregnancyNotice");
-    if (gender === "Female") {
-      pregnancyNotice.classList.remove("hidden");
-    } else {
-      pregnancyNotice.classList.add("hidden");
-    }
-  }
-</script>
 
                   </div>
                 </div>
               
                 <!-- Next Button -->
                 <div class="flex justify-center mt-4">
-                  <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
+                  <button id="nextstep_2" type="button" disabled class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
                   hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 
                   transition-all duration-300"
                   onclick="nextStep(2)">
@@ -412,6 +390,51 @@ I have read and understood my responsibilities listed for placement</p>
                 </button>
                 </div>
               </div>
+              
+              <script>
+                function selectGender(gender) {
+                  const options = ["Male", "Female", "Other", "Prefer not to say"];
+                  options.forEach(opt => {
+                    const el = document.getElementById("gender-" + opt);
+                    if (el) {
+                      el.classList.remove("bg-teal-500", "text-white", "border-teal-600", "shadow-lg");
+                      el.classList.add("border-teal-300", "hover:bg-teal-100");
+                    }
+                  });
+              
+                  const selectedTile = document.getElementById("gender-" + gender);
+                  if (selectedTile) {
+                    selectedTile.classList.add("bg-teal-500", "text-white", "border-teal-600", "shadow-lg");
+                    selectedTile.classList.remove("border-teal-300", "hover:bg-teal-100");
+                  }
+              
+                  document.getElementById("gender").value = gender;
+                  document.getElementById("genderError").classList.add("hidden");
+              
+                  const pregnancyNotice = document.getElementById("pregnancyNotice");
+                  const checkbox = document.getElementById("genderAcknowledgement");
+                  const nextButton = document.getElementById("nextstep_2");
+              
+                  if (gender === "Female") {
+                    pregnancyNotice.classList.remove("hidden");
+                    checkbox.checked = false;
+                    nextButton.disabled = true;
+                  } else {
+                    pregnancyNotice.classList.add("hidden");
+                    nextButton.disabled = false;
+                  }
+                }
+              
+                function toggleNextButton() {
+                  const checkbox = document.getElementById("genderAcknowledgement");
+                  const gender = document.getElementById("gender").value;
+                  const nextButton = document.getElementById("nextstep_2");
+              
+                  if (gender === "Female") {
+                    nextButton.disabled = !checkbox.checked;
+                  }
+                }
+              </script>
               
               
             <!-- You can copy the rest of the sub-steps from here: -->

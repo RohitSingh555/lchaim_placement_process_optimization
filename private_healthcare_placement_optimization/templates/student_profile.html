@@ -19,7 +19,8 @@ Your Placement Profile
                         <i class="fas fa-pencil-alt"></i>
                         </button>
                 </h3>
-            
+                
+              
                 <!-- Email with icon -->
                 <p class="text-sm text-gray-500 flex items-center space-x-2">
                     <i class="fas fa-envelope text-teal-500"></i>
@@ -90,7 +91,7 @@ Your Placement Profile
 </button>
 <h2 class="text-lg font-semibold mb-4 text-teal-700">Edit Start Date & Days</h2>
 <form id="startDateForm" onsubmit="saveStartDate(event)">
-<input type="hidden" id="profileId" value="{{ profile.profile_id }}">
+<input type="hidden" id="profileId" value="{{ profile.id }}">
 
 <div class="mb-4">
 <label for="officialStartDate" class="block text-sm font-medium text-gray-700">Start Date</label>
@@ -167,6 +168,123 @@ location.reload(); // Or update UI without reload
 <i class="fas fa-stop text-teal-500"></i>
 <span><strong>Exact Placement End Date:</strong> {{ profile.exact_placement_end_date|date:"M d, Y" }}</span>
 </p>
+<div>
+  <input type="hidden" id="profileIdStage" value="{{ profile.id }}">
+  <div class="font-semibold text-gray-700 flex ">Stage: &nbsp;
+      {% if profile.stage == "DONE" %}
+          <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+              <i class="fas fa-check-circle mr-2"></i> Done
+          </span>
+      {% elif profile.stage == "ENDORSED" %}
+          <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+              <i class="fas fa-thumbs-up mr-2"></i> Endorsed
+          </span>
+      {% elif profile.stage == "IN_PLACEMENT" %}
+          <span class="bg-yellow-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+              <i class="fas fa-briefcase mr-2"></i> In Placement
+          </span>
+      {% elif profile.stage == "CANCELLED" %}
+          <span class="bg-red-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+              <i class="fas fa-times-circle mr-2"></i> Cancelled
+          </span>
+      {% elif profile.stage == "TRANSFERRED" %}
+          <span class="bg-purple-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+              <i class="fas fa-exchange-alt mr-2"></i> Transferred
+          </span>
+      {% elif profile.stage == "ONHOLD" %}
+          <span class="bg-gray-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+              <i class="fas fa-pause-circle mr-2"></i> On Hold
+          </span>
+      {% elif profile.stage == "ONGOING_PROCESS" %}
+          <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+              <i class="fas fa-spinner mr-2"></i> Ongoing Process
+          </span>
+      {% elif profile.stage == "ORIENTATION_SCHEDULED" %}
+          <span class="bg-teal-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+              <i class="fas fa-calendar-check mr-2"></i> Orientation Scheduled
+          </span>
+      {% elif profile.stage == "READY" %}
+          <span class="bg-indigo-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+              <i class="fas fa-check-circle mr-2"></i> Ready
+          </span>
+      {% endif %}
+      <button class="ml-2 text-blue-500 hover:text-blue-700" onclick="openStageModal('{{ facility.id }}', '{{ facility.stage }}')">
+          <i class="fas fa-pencil-alt"></i> <!-- Font Awesome Pencil Icon -->
+      </button>
+    </div>
+</div>
+<!-- Stage Edit Modal -->
+<div id="stage-modal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white rounded-lg shadow-xl w-96 p-6">
+        <h2 class="text-lg font-semibold mb-4">Edit Stage</h2>
+        <form id="stage-form">
+            {% csrf_token %}
+            <input type="hidden" name="facility_id" id="modal-facility-id">
+            <label for="stage" class="block text-sm font-medium text-gray-700 mb-1">Select Stage:</label>
+            <select name="stage" id="modal-stage-select" class="w-full p-2 border border-gray-300 rounded-md mb-4">
+                <option value="DONE">Done</option>
+                <option value="ENDORSED">Endorsed</option>
+                <option value="IN_PLACEMENT">In Placement</option>
+                <option value="CANCELLED">Cancelled</option>
+                <option value="TRANSFERRED">Transferred</option>
+                <option value="ONHOLD">On Hold</option>
+                <option value="ONGOING_PROCESS">Ongoing Process</option>
+                <option value="ORIENTATION_SCHEDULED">Orientation Scheduled</option>
+                <option value="READY">Ready</option>
+            </select>
+
+            <div class="flex justify-end space-x-2">
+                <button type="button" onclick="closeStageModal()" class="px-3 py-1 bg-gray-200 rounded">Cancel</button>
+                <button type="submit" class="px-4 py-1 bg-blue-600 text-white rounded">Update</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    function openStageModal(currentStage) {
+        document.getElementById('stage-modal').classList.remove('hidden');
+        document.getElementById('modal-stage-select').value = currentStage;
+    }
+
+    function closeStageModal() {
+        document.getElementById('stage-modal').classList.add('hidden');
+    }
+
+    // AJAX to submit the form data
+    document.getElementById('stage-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const profileId = document.getElementById("profileIdStage").value;
+        console.log(profileId);
+        const selectedStage = document.getElementById('modal-stage-select').value;
+
+        fetch('/update-stage/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: JSON.stringify({
+                profile_id: profileId,
+                stage: selectedStage,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                closeStageModal();
+                location.reload(); // Optionally reload the page to reflect changes
+            } else {
+                alert('Failed to update stage');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred');
+        });
+    });
+</script>
+
         </div>
        
 

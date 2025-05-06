@@ -57,7 +57,7 @@ urlpatterns = [
     path('cities-and-provinces/', get_cities_and_provinces, name='cities_and_provinces'),
     path("pregnancy-policy/", pregnancy_policy_view, name="pregnancy_policy"),
     path('student-profile/<int:profile_id>/', get_student_profile_by_id, name='get_student_profile_by_id'),
-
+    path('update-stage/', update_stage, name='update-stage'),
 
 ]
 handler404 = 'private_healthcare_placement_optimization.custom_404'

@@ -16,7 +16,6 @@
             <thead class="bg-teal-600 text-white">
                 <tr>
                     <th class="py-3 px-4 text-left">Orientation Date</th>
-                    <th class="py-3 px-4 text-left">Created At</th>
                     <th class="py-3 px-4 text-left">Actions</th>
                 </tr>
             </thead>
@@ -24,7 +23,6 @@
                 {% for orientation in orientations %}
                 <tr id="orientationRow{{ orientation.id }}" class="border-b">
                     <td class="py-3 px-4">{{ orientation.orientation_date|date:"F j, Y" }}</td>
-                    <td class="py-3 px-4">{{ orientation.created_at|date:"F j, Y, g:i a" }}</td>
                     <td class="py-3 px-4">
                         <!-- Delete Button -->
                         <button type="button" class="bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 px-3 py-1 rounded-md" onclick="openDeleteModal({{ orientation.id }})">

@@ -711,12 +711,22 @@ class StudentProfileLogsView(View):
                 continue
 
             # # Skip profiles based on filter status
-            if (filter_status == "completed" and not complete) or (filter_status == "incomplete" and complete):
-                continue
+            if is_approver:
+                if (filter_status == "completed" and not complete) or (filter_status == "incomplete" and complete):
+                    continue
 
             # Prepare document data
             document_details = []
+            
+            latest_approved_log = None
+            approved_count = 0
             for doc in profile.documents.all():
+                latest_approval = ApprovalLog.objects.filter(document=doc, action="Approved").order_by('-timestamp').first()
+                if latest_approval:
+                    approved_count += 1
+                    if not latest_approved_log or latest_approval.timestamp > latest_approved_log.timestamp:
+                        latest_approved_log = latest_approval
+
                 approval_logs = ApprovalLog.objects.filter(document=doc)
                 approver_actions = [
                     {
@@ -737,19 +747,27 @@ class StudentProfileLogsView(View):
                     'uploaded_at': doc.uploaded_at.strftime("%Y-%m-%d %H:%M:%S"),
                     'approval_logs': approver_actions
                 })
+            
+            processed_by = latest_approved_log.approver.full_name if latest_approved_log and latest_approved_log.approver else "N/A"
             # Append profile info
             student_id = ''
+            assigned_facility = ''
             try:
                 student_id = profile.user.student_id_record.student_id
+                assigned_facility = profile.assigned_facility.name if profile.assigned_facility else 'N/A'
             except StudentID.DoesNotExist:
                 pass
-
+            document_upload_status = {}
+            for doc_type in self.REQUIRED_DOCUMENTS:
+                doc = documents.get(doc_type)
+                document_upload_status[doc_type] = bool(doc and doc.file)
             filtered_profile_details.append({
                 'profile_id': profile.id,
                 'first_name': profile.first_name,
                 'last_name': profile.last_name,
                 'college_email': profile.college_email,
                 'student_id': student_id,
+                'assigned_facility': assigned_facility,
                 'experience_level': profile.experience_level,
                 'shift_requested': profile.shift_requested,
                 'preferred_facility_name': profile.preferred_facility_name,
@@ -757,6 +775,7 @@ class StudentProfileLogsView(View):
                 'preferred_facility_contact_person': profile.preferred_facility_contact_person,
                 'official_start_date': profile.official_start_date,
                 'required_hours': profile.required_hours,
+                'document_upload_status': document_upload_status,
                 'exact_placement_end_date': profile.exact_placement_end_date,
                 'assigned_facility': profile.assigned_facility.name if profile.assigned_facility else 'N/A',
                 'orientation_date': profile.orientation_date.orientation_date if profile.orientation_date else 'Not Scheduled',
@@ -784,7 +803,9 @@ class StudentProfileLogsView(View):
                 'gender': profile.gender,
                 'facility_email_address': profile.facility_email_address,
                 'documents': document_details,
-                'is_completed': complete
+                'is_completed': complete,
+                'processed_by': processed_by,
+                'approved_documents_count': approved_count,
             })
         # Pagination (10 items per page)
         paginator = Paginator(filtered_profile_details, 10)
@@ -806,7 +827,6 @@ class StudentProfileLogsView(View):
                 'is_completed': completed_filter,
             }
         })
-
 
 
 class StudentIncompleteProfileLogsView(View):
@@ -906,7 +926,15 @@ class StudentIncompleteProfileLogsView(View):
 
             # Prepare document data
             document_details = []
+            latest_approved_log = None
+            approved_count = 0
             for doc in profile.documents.all():
+                latest_approval = ApprovalLog.objects.filter(document=doc, action="Approved").order_by('-timestamp').first()
+                if latest_approval:
+                    approved_count += 1
+                    if not latest_approved_log or latest_approval.timestamp > latest_approved_log.timestamp:
+                        latest_approved_log = latest_approval
+
                 approval_logs = ApprovalLog.objects.filter(document=doc)
                 approver_actions = [
                     {
@@ -927,8 +955,19 @@ class StudentIncompleteProfileLogsView(View):
                     'uploaded_at': doc.uploaded_at.strftime("%Y-%m-%d %H:%M:%S"),
                     'approval_logs': approver_actions
                 })
-
-            # Append profile info
+            
+            processed_by = latest_approved_log.approver.full_name if latest_approved_log and latest_approved_log.approver else "N/A"
+            student_id = ''
+            assigned_facility = ''
+            try:
+                student_id = profile.user.student_id_record.student_id
+                assigned_facility = profile.assigned_facility.name if profile.assigned_facility else 'N/A'
+            except StudentID.DoesNotExist:
+                pass
+            document_upload_status = {}
+            for doc_type in self.REQUIRED_DOCUMENTS:
+                doc = documents.get(doc_type)
+                document_upload_status[doc_type] = bool(doc and doc.file)
             filtered_profile_details.append({
                 'profile_id': profile.id,
                 'first_name': profile.first_name,
@@ -939,6 +978,9 @@ class StudentIncompleteProfileLogsView(View):
                 'city': profile.city,
                 'province': profile.province,
                 'postal_code': profile.postal_code,
+                'document_upload_status': document_upload_status,
+                'student_id': student_id,
+                'assigned_facility': assigned_facility,
                 'open_to_outside_city': profile.open_to_outside_city,
                 'experience_level': profile.experience_level,
                 'shift_requested': profile.shift_requested,
@@ -965,7 +1007,9 @@ class StudentIncompleteProfileLogsView(View):
                 'gender': profile.gender,
                 'facility_email_address': profile.facility_email_address,
                 'documents': document_details,
-                'is_completed': complete
+                'is_completed': complete,
+                'processed_by': processed_by,
+                'approved_documents_count': approved_count,
             })
 
         # Pagination (10 items per page)
@@ -1160,6 +1204,205 @@ def send_email_remind_fee(profile):
         [profile.college_email],
         html_message=message
     )
+    
+def get_document_file_paths(documents):
+    file_path = documents[0].file.name 
+
+    full_url = f"http://placement.peakcollege.ca/documents/{file_path}"
+    
+    return full_url
+
+    
+def send_email_notify_resume(profile, documents, student_id):
+    file_url = get_document_file_paths(documents)
+
+    subject = 'Resume Uploaded'
+    message = f"""
+    <html>
+    <head>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                background: linear-gradient(to bottom, rgba(0, 128, 128, 0.1), #ffffff);
+                padding: 20px;
+                color: #333;
+            }}
+            .container {{
+                background-color: #ffffff;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                width: 100%;
+                max-width: 100%;
+                margin: auto;
+            }}
+            h2 {{
+                color: #008080;
+                font-size: 24px;
+            }}
+            p {{
+                line-height: 1.6;
+                font-size: 16px;
+            }}
+            .footer {{
+                margin-top: 20px;
+                font-size: 14px;
+                color: #555;
+            }}
+            .footer a {{
+                color: #008080;
+                text-decoration: none;
+            }}
+            .bold {{
+                font-weight: bold;
+            }}
+            .highlight {{
+                color: #008080;
+            }}
+            img {{
+                width: 240px;
+                height: 90px;
+            }}
+        </style>
+    </head>
+    <body style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+        <p>Resume of <strong>{student_id} {profile.first_name} {profile.last_name}</strong> is now available in Google Drive.</p>
+        
+        <p>
+            <a href="{file_url}" target="_blank" style="
+                display: inline-block;
+                padding: 12px 24px;
+                background-color: #008080;
+                color: white;
+                text-decoration: none;
+                border-radius: 6px;
+                font-weight: bold;
+                margin-top: 15px;
+            ">View File(s)</a>
+        </p>
+<div class="footer">
+                <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
+                <span>Warm regards, </span>
+                <br>
+                <span> The Peak Healthcare Team</span>
+                <br>
+                <span>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></span>
+                <br>
+                <img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg"></img>
+                <br>
+                <span>1140 Sheppard Ave West</span>
+                <br>
+                <span>Unit #12, North York, ON</span>
+                <br>
+                <span>M3K 2A2</span>
+            </div>
+    </body>
+    </html>
+    """
+
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [profile.college_email],
+        html_message=message
+    )
+
+def send_email_notify_skills_passbook(profile, documents, student_id):
+    file_url = get_document_file_paths(documents)
+
+    subject = 'Skills Passbook Uploaded'
+    message = f"""
+    <html>
+    <head>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                background: linear-gradient(to bottom, rgba(0, 128, 128, 0.1), #ffffff);
+                padding: 20px;
+                color: #333;
+            }}
+            .container {{
+                background-color: #ffffff;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                width: 100%;
+                max-width: 100%;
+                margin: auto;
+            }}
+            h2 {{
+                color: #008080;
+                font-size: 24px;
+            }}
+            p {{
+                line-height: 1.6;
+                font-size: 16px;
+            }}
+            .footer {{
+                margin-top: 20px;
+                font-size: 14px;
+                color: #555;
+            }}
+            .footer a {{
+                color: #008080;
+                text-decoration: none;
+            }}
+            .bold {{
+                font-weight: bold;
+            }}
+            .highlight {{
+                color: #008080;
+            }}
+            img {{
+                width: 240px;
+                height: 90px;
+            }}
+        </style>
+    </head>
+    <body style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+        <p>Skills Passbook of <strong>{student_id} {profile.first_name} {profile.last_name}</strong> is now available in Google Drive.</p>
+        
+        <p>
+            <a href="{file_url}" target="_blank" style="
+                display: inline-block;
+                padding: 12px 24px;
+                background-color: #008080;
+                color: white;
+                text-decoration: none;
+                border-radius: 6px;
+                font-weight: bold;
+                margin-top: 15px;
+            ">View File(s)</a>
+        </p>
+<div class="footer">
+                <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
+                <span>Warm regards, </span>
+                <br>
+                <span> The Peak Healthcare Team</span>
+                <br>
+                <span>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></span>
+                <br>
+                <img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg"></img>
+                <br>
+                <span>1140 Sheppard Ave West</span>
+                <br>
+                <span>Unit #12, North York, ON</span>
+                <br>
+                <span>M3K 2A2</span>
+            </div>
+    </body>
+    </html>
+    """
+
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [profile.college_email],
+        html_message=message
+    )
+
     
 def send_email_notify_placement(profile, facility, orientation_date, requested_hours, sender_name):
     subject = 'Important: Placement Orientation'
@@ -1805,7 +2048,7 @@ def submit_new_file(request):
         file_path = os.path.join("documents/uploads", new_file_name)
 
         saved_path = default_storage.save(file_path, ContentFile(new_file.read()))
-        
+
         new_document = Document.objects.create(
             profile=profile,
             document_type=document_type,
@@ -1813,13 +2056,22 @@ def submit_new_file(request):
             file_name=new_file_name,
             status="In Review"
         )
-        
+
         existing_document.delete()
+        
+        try:
+            student_id = profile.user.student_id_record.student_id
+        except StudentID.DoesNotExist:
+            student_id = None 
+        print(document_type, "document type")
+        if document_type == "Resume":
+            send_email_notify_resume(profile, [new_document], student_id=student_id)
+        elif document_type == "Skills Passbook":
+            send_email_notify_skills_passbook(profile, [new_document], student_id=student_id)
 
         return JsonResponse({"success": True, "new_document_id": new_document.id})
-    
-    return JsonResponse({"success": False, "error": "Invalid request method."})
 
+    return JsonResponse({"success": False, "error": "Invalid request method."})
 
 @csrf_exempt  # Optional: For local testing. Remove or replace with CSRF handling in production.
 @login_required  # Ensure only authenticated users can access this endpoint
@@ -2190,3 +2442,26 @@ def get_student_profile_by_id(request, profile_id):
     }
 
     return render(request, 'student_profile.html', context)
+
+def update_stage(request):
+    try:
+        data = json.loads(request.body)
+        profile_id = data.get('profile_id')
+        new_stage = data.get('stage')
+
+        # Ensure stage is valid
+        valid_stages = ["DONE", "ENDORSED", "IN_PLACEMENT", "CANCELLED", "TRANSFERRED", "ONHOLD", "ONGOING_PROCESS", "ORIENTATION_SCHEDULED", "READY"]
+        if new_stage not in valid_stages:
+            return JsonResponse({"success": False, "error": "Invalid stage"}, status=400)
+
+        # Update the stage of the PlacementProfile
+        profile = PlacementProfile.objects.get(id=profile_id)
+        profile.stage = new_stage
+        profile.save()
+
+        return JsonResponse({"success": True})
+
+    except PlacementProfile.DoesNotExist:
+        return JsonResponse({"success": False, "error": "Profile not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)

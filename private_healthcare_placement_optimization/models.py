@@ -56,20 +56,21 @@ class PlacementProfile(models.Model):
     processed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='processed_profiles')
     
     stage = models.CharField(
-        max_length=30,
-        choices=[
-            ("DONE", "Done"),
-            ("ENDORSED", "Endorsed"),
-            ("IN_PLACEMENT", "In Placement"),
-            ("CANCELLED", "Cancelled"),
-            ("TRANSFERED", "Transferred"),
-            ("ONHOLD", "On Hold"),
-            ("ONGOING_PROCESS", "Ongoing Process"),
-            ("ORIENTATION_SCHEDULED", "Orientation Scheduled"),
-            ("READY", "Ready"),
-        ],
-        null=True,
-        blank=True
+    max_length=30,
+    choices=[
+        ("DONE", "Done"),
+        ("ENDORSED", "Endorsed"),
+        ("IN_PLACEMENT", "In Placement"),
+        ("CANCELLED", "Cancelled"),
+        ("TRANSFERED", "Transferred"),
+        ("ONHOLD", "On Hold"),
+        ("ONGOING_PROCESS", "Ongoing Process"),
+        ("ORIENTATION_SCHEDULED", "Orientation Scheduled"),
+        ("READY", "Ready"),
+    ],
+    default="ONGOING_PROCESS",
+    null=True,
+    blank=True
     )
     official_start_date = models.DateField(null=True, blank=True)
     exact_placement_end_date = models.DateField(null=True, blank=True)

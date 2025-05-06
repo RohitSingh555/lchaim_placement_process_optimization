@@ -154,7 +154,17 @@
                         <option value="Pending" {% if request.GET.stage == "Pending" %}selected{% endif %}>Pending</option>
                         <option value="Approved" {% if request.GET.stage == "Approved" %}selected{% endif %}>Approved</option>
                         <option value="Rejected" {% if request.GET.stage == "Rejected" %}selected{% endif %}>Rejected</option>
+                        <option value="DONE" {% if request.GET.stage == "DONE" %}selected{% endif %}>Done</option>
+                        <option value="ENDORSED" {% if request.GET.stage == "ENDORSED" %}selected{% endif %}>Endorsed</option>
+                        <option value="IN_PLACEMENT" {% if request.GET.stage == "IN_PLACEMENT" %}selected{% endif %}>In Placement</option>
+                        <option value="CANCELLED" {% if request.GET.stage == "CANCELLED" %}selected{% endif %}>Cancelled</option>
+                        <option value="TRANSFERED" {% if request.GET.stage == "TRANSFERED" %}selected{% endif %}>Transferred</option>
+                        <option value="ONHOLD" {% if request.GET.stage == "ONHOLD" %}selected{% endif %}>On Hold</option>
+                        <option value="ONGOING_PROCESS" {% if request.GET.stage == "ONGOING_PROCESS" %}selected{% endif %}>Ongoing Process</option>
+                        <option value="ORIENTATION_SCHEDULED" {% if request.GET.stage == "ORIENTATION_SCHEDULED" %}selected{% endif %}>Orientation Scheduled</option>
+                        <option value="READY" {% if request.GET.stage == "READY" %}selected{% endif %}>Ready</option>
                     </select>
+                    
                 
                     <select name="experience_level"
                         class="border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-teal-500">
@@ -167,12 +177,6 @@
                             Internationally Educated Nurse (IEN) : 200 Hrs</option>
                         <option value="Caregiver Experience" {% if request.GET.experience_level == "Caregiver Experience" %}selected{% endif %}>
                             Caregiver Experience in Canada : 200 Hrs</option>
-                    </select>
-                
-                    <select name="is_completed" class="border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-teal-500">
-                        <option value="">Completion Status</option>
-                        <option value="true" {% if request.GET.is_completed == "true" %}selected{% endif %}>Completed</option>
-                        <option value="false" {% if request.GET.is_completed == "false" %}selected{% endif %}>Incomplete</option>
                     </select>
                 
                     <div class="flex gap-2">
@@ -190,7 +194,7 @@
 
                 <div class="overflow-x-auto w-full">
                     <div class="relative max-w-full">
-                        <div class="sticky top-0 z-10 bg-white py-2">
+                        <div class="sticky top-0 bg-white py-2">
                             <div class="flex justify-end gap-4 px-4">
                               <button onclick="scrollTable('left')" class="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700 flex items-center gap-2">
                                 <i class="fas fa-arrow-left"></i>
@@ -214,140 +218,191 @@
                                 }
                               }
                             </script>
-                        <table class="bg-white shadow-lg min-w-full table-auto border-collapse border border-gray-300">
-                            <thead class="bg-gradient-to-r from-teal-400 to-teal-700 text-white">
-                                <tr class="border border-gray-300">
-                                    <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[80px] border border-gray-300 sticky left-0 bg-teal-600 z-12">Sr No.</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[160px] border border-gray-300 sticky left-16 bg-teal-600 z-12">Name</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[200px] border border-gray-300 sticky left-40 bg-teal-600 z-12">College Email</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[180px] border border-gray-300">Experience Level</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[160px] border border-gray-300">Shift Requested</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[150px] border border-gray-300">Apt/House No.</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[160px] border border-gray-300">Street</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[120px] border border-gray-300">City</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[140px] border border-gray-300">Province</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[140px] border border-gray-300">Postal Code</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[200px] border border-gray-300">Open to Outside City</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[180px] border border-gray-300">Preferred Facility</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[200px] border border-gray-300">Facility Address</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[180px] border border-gray-300">Facility Contact</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[140px] border border-gray-300">City Pref 1</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[140px] border border-gray-300">City Pref 2</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[180px] border border-gray-300">Assigned Facility</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[180px] border border-gray-300">Orientation Date</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[120px] border border-gray-300">Stage</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[140px] border border-gray-300">Start Date</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[140px] border border-gray-300">End Date</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[180px] border border-gray-300">Facility Feedback</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[180px] border border-gray-300">College Feedback</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[160px] border border-gray-300">Notes</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[160px] border border-gray-300">Date Completed</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[160px] border border-gray-300">Required Hours</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[160px] border border-gray-300">Time Period</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[140px] border border-gray-300">Days</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[180px] border border-gray-300">Module Completed</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[180px] border border-gray-300">Pregnancy Waiver</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[120px] border border-gray-300">Gender</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[200px] border border-gray-300">Facility Email</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[160px] border border-gray-300">Created At</th>
-<th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap min-w-[120px] border border-gray-300">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for profile in profile_details %}
-                                <tr class="border border-gray-300 hover:bg-teal-50 transition-colors duration-200">
-                                    <!-- Pinned Columns -->
-                                    <td class="px-6 py-10 border border-gray-300 sticky left-0 bg-white relative flex items-center">
-                                        <!-- Displaying the number with some styling -->
-                                        <span class="text-lg font-semibold text-gray-700 mr-2">{{ forloop.counter }}</span>
+                            <table class="bg-white shadow-lg min-w-full table-auto border-collapse border border-gray-300">
+                                <thead class="bg-gradient-to-r from-teal-400 to-teal-700 text-white">
+                                    <tr class="border border-gray-300">
+                                      <th class="sticky left-0 bg-teal-600 px-4 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px] w-[120px] max-w-[120px]">
+                                        Student ID
+                                      </th>
+                                      <th class="sticky left-[120px] bg-teal-600 px-4 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[140px] w-[140px] max-w-[140px]">
+                                        Actions
+                                      </th>
+                                      <th class="sticky left-[260px] bg-teal-600 px-4 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[150px] w-[150px] max-w-[150px]">
+                                        Name
+                                      </th>
+                                      <th class="sticky left-[410px] bg-teal-600 px-4 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px] w-[160px] max-w-[160px]">
+                                        Processed By
+                                      </th>
+                                      <th class="sticky left-[570px] bg-teal-600 px-4 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px] w-[160px] max-w-[160px]">
+                                        Files Approved
+                                      </th>
+                                      <th class="sticky left-[730px] bg-teal-600 px-4 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px] w-[160px] max-w-[160px]">
+                                        Stage
+                                      </th>
+                                      <th class="sticky left-[880px] bg-teal-600 px-4 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px] w-[160px] max-w-[160px]">
+                                        Assigned Facility
+                                      </th>
+                                      <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">College Email</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Orientation Date</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[140px]">Start Date</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[140px]">End Date</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Experience Level</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Shift Requested</th>
                                         
-                                        <!-- View Profile Link with an external link icon -->
-                                        <a href="{% url 'get_student_profile_by_id' profile.profile_id %}"
-                                           class="text-gray-400 hover:text-teal-600 transition-colors duration-200"
-                                           title="View Profile" target="_blank">
-                                          <i class="fas fa-external-link-alt text-xl"></i> <!-- External link icon -->
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Medical Certificate</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Covid Vaccination Certificate</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Vulnerable Sector Check</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">CPR or First Aid</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Mask Fit Certificate</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Experience Document</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Preferred Facility</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[200px]">Facility Address</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Facility Contact</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">City Pref 1</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">City Pref 2</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Assigned Facility</th>
+                                        
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[200px]">Facility Feedback</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[200px]">College Feedback</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Notes</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Date Completed</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Required Hours</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Time Period</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">Days</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Module Completed</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Pregnancy Waiver</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">Gender</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Facility Email</th>
+                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Created At</th>
+                                      </tr>
+                                      
+                                </thead>
+                                <tbody>
+                                    {% for profile in profile_details %}
+                                    <tr class="border border-gray-300 hover:bg-teal-50 transition-colors duration-200">
+                                      <td class="sticky left-0 bg-white px-4 py-9 whitespace-nowrap border border-gray-300 min-w-[120px] w-[120px] max-w-[120px] flex items-center">
+                                        <span class="text-lg font-semibold text-gray-700 mr-2">{{ profile.student_id }}</span>
+                                        <a href="{% url 'get_student_profile_by_id' profile.profile_id %}" class="text-gray-400 hover:text-teal-600" target="_blank">
+                                          <i class="fas fa-external-link-alt text-xl"></i>
                                         </a>
                                       </td>
-                                      <td class="px-6 py-4 whitespace-nowrap border border-gray-300 sticky left-16 border-b  bg-white">{{ profile.first_name }} {{ profile.last_name }}</td>
-                                      <td class="px-6 py-4 border border-gray-300 sticky left-40  border-b  bg-white">{{ profile.college_email }}</td>
-                                      
-                
-                                    <!-- Scrollable Columns -->
-                                    <td class="px-6 py-4">{{ profile.experience_level }}</td>
-                                    <td class="px-6 py-4">{{ profile.shift_requested }}</td>
-                                    <td class="px-6 py-4">{{ profile.apt_house_no }}</td>
-                                    <td class="px-6 py-4">{{ profile.street }}</td>
-                                    <td class="px-6 py-4">{{ profile.city }}</td>
-                                    <td class="px-6 py-4">{{ profile.province }}</td>
-                                    <td class="px-6 py-4">{{ profile.postal_code }}</td>
-                                    <td class="px-6 py-4">{{ profile.open_to_outside_city|yesno:"Yes,No" }}</td>
-                                    <td class="px-6 py-4">{{ profile.preferred_facility_name }}</td>
-                                    <td class="px-6 py-4">{{ profile.preferred_facility_address }}</td>
-                                    <td class="px-6 py-4">{{ profile.preferred_facility_contact_person }}</td>
-                                    <td class="px-6 py-4">{{ profile.city_preference_1 }}</td>
-                                    <td class="px-6 py-4">{{ profile.city_preference_2 }}</td>
-                                    <td class="px-6 py-4">{{ profile.assigned_facility }}</td>
-                                    <td class="px-6 py-4">{{ profile.orientation_date }}</td>
-                                    <td class="px-6 py-4">{{ profile.stage }}</td>
-                                    <td class="px-6 py-4">{{ profile.official_start_date }}</td>
-                                    <td class="px-6 py-4">{{ profile.exact_placement_end_date }}</td>
-                                    <td class="px-6 py-4">{{ profile.facility_feedback }}</td>
-                                    <td class="px-6 py-4">{{ profile.college_feedback }}</td>
-                                    <td class="px-6 py-4">{{ profile.notes }}</td>
-                                    <td class="px-6 py-4">{{ profile.date_completed }}</td>
-                                    <td class="px-6 py-4">{{ profile.required_hours }}</td>
-                                    <td class="px-6 py-4">{{ profile.time_period }}</td>
-                                    <td class="px-6 py-4">{{ profile.days }}</td>
-                                    <td class="px-6 py-4">{{ profile.module_completed|yesno:"Yes,No" }}</td>
-                                    <td class="px-6 py-4">{{ profile.pregnancy_waiver_check|yesno:"Yes,No" }}</td>
-                                    <td class="px-6 py-4">{{ profile.gender }}</td>
-                                    <td class="px-6 py-4">{{ profile.facility_email_address }}</td>
-                                    <td class="px-6 py-4">{{ profile.created_at|date:"Y-m-d H:i" }}</td>
-                                    <td class="px-6 py-4 flex justify-between items-center space-x-2">
-                                        <!-- Action Buttons -->
-                                         {% if not only_users_no_profile %}
-                                            <button onclick="openModal('{{ forloop.counter }}')" class="text-teal-600 hover:text-teal-800 font-semibold py-1 px-3 rounded-md text-sm border border-teal-300 hover:border-teal-500 flex items-center space-x-2 whitespace-nowrap">
-                                                <i class="fas fa-eye"></i>
-                                                <span>View Documents</span>
-                                            </button>
-                                        {% endif %}
-                                        {% if is_approver and not only_users_no_profile %}
-                                        <button onclick="sendEmailAction('{{ profile.profile_id }}', 'remind_fee')" class="bg-yellow-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-yellow-600 flex items-center space-x-2 whitespace-nowrap">
-                                            <i class="fas fa-credit-card"></i>
-                                            <span>Remind Fee</span>
+                                      <td class="sticky left-[120px] bg-white px-4 py-4 text-center border border-gray-300 min-w-[140px] w-[140px] max-w-[140px]">
+                                        <button onclick="openActionModal('{{ profile.profile_id }}')" class="bg-teal-600 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-teal-700">
+                                          <i class="fas fa-bars"></i> Actions
                                         </button>
-                                        <button onclick="sendEmailAction('{{ profile.profile_id }}', 'notify_result')" class="bg-blue-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-blue-600 flex items-center space-x-2 whitespace-nowrap">
-                                            <i class="fas fa-bell"></i>
-                                            <span>Notify Result</span>
-                                        </button>
-                                        <button onclick="sendEmailAction('{{ profile.profile_id }}', 'done')" class="bg-green-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-green-600 flex items-center space-x-2 whitespace-nowrap">
-                                            <i class="fas fa-check-circle"></i>
-                                            <span>Done</span>
-                                        </button>
-                                        {% comment %} <button onclick="sendEmailAction('{{ profile.profile_id }}', 'resubmit')" class="bg-orange-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-green-600 flex items-center space-x-2 whitespace-nowrap">
-                                            <i class="fas fa-check-circle"></i>
-                                            <span>Resubmit</span>
-                                        </button> {% endcomment %}
-                                        {% endif %}
-                                        {% if is_superuser %}
-                                       
-                                            {% if only_users_no_profile %}
-                                                <button onclick="deleteUser({{ profile.profile_id }})" class="delete-btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-red-600 flex items-center space-x-2 whitespace-nowrap">
-                                                    <i class="fas fa-trash"></i>
-                                                    <span>Delete</span>
-                                                </button>
-                                            {% else %}
-                                                <button onclick="deleteProfile({{ profile.profile_id }})" class="delete-btn bg-red-500 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-red-600 flex items-center space-x-2 whitespace-nowrap">
-                                                    <i class="fas fa-trash"></i>
-                                                    <span>Delete</span>
-                                                </button>
-                                            {% endif %}
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                      </td>
+                                      <td class="sticky left-[260px] bg-white px-4 py-4 whitespace-nowrap border border-gray-300 min-w-[150px] w-[150px] max-w-[150px]">
+                                        {{ profile.first_name }} {{ profile.last_name }}
+                                      </td>
+                                      <td class="sticky left-[410px] bg-white px-4 py-4 whitespace-nowrap border border-gray-300 min-w-[160px] w-[160px] max-w-[160px]">
+                                        {{ profile.processed_by }}
+                                      </td>
+                                      <td class="sticky left-[570px] bg-white px-4 py-4 whitespace-nowrap border border-gray-300 min-w-[160px] w-[160px] max-w-[160px]">
+                                        {{ profile.approved_documents_count }}
+                                      </td>
+                                      <td class="sticky left-[730px] bg-white px-4 py-4 whitespace-nowrap border border-gray-300 min-w-[160px] w-[160px] max-w-[160px]">
+                                        {{ profile.stage }}
+                                      </td>
+                                      <td class="sticky left-[880px] bg-white px-4 py-4 whitespace-nowrap border border-gray-300 min-w-[160px] w-[160px] max-w-[160px]">
+                                        {{ profile.assigned_facility }}
+                                      </td>
+                                        <td class="px-6 py-4">{{ profile.college_email }}</td>
+                                        <td class="px-6 py-4">{{ profile.orientation_date }}</td>
+                                        <td class="px-6 py-4">{{ profile.official_start_date }}</td>
+                                        <td class="px-6 py-4">{{ profile.exact_placement_end_date }}</td>
+                                        <td class="px-6 py-4">{{ profile.experience_level }}</td>
+                                        <td class="px-6 py-4">{{ profile.shift_requested }}</td>
+                                        {% for key, value in profile.document_upload_status.items %}
+                                                    <td class="px-6 py-4">{{ value }}</td>
+                                            {% endfor %}
+                                        <td class="px-6 py-4">{{ profile.preferred_facility_name }}</td>
+                                        <td class="px-6 py-4">{{ profile.preferred_facility_address }}</td>
+                                        <td class="px-6 py-4">{{ profile.preferred_facility_contact_person }}</td>
+                                        <td class="px-6 py-4">{{ profile.city_preference_1 }}</td>
+                                        <td class="px-6 py-4">{{ profile.city_preference_2 }}</td>
+                                        <td class="px-6 py-4">{{ profile.assigned_facility }}</td>
+                                        <td class="px-6 py-4">{{ profile.facility_feedback }}</td>
+                                        <td class="px-6 py-4">{{ profile.college_feedback }}</td>
+                                        <td class="px-6 py-4">{{ profile.notes }}</td>
+                                        <td class="px-6 py-4">{{ profile.date_completed }}</td>
+                                        <td class="px-6 py-4">{{ profile.required_hours }}</td>
+                                        <td class="px-6 py-4">{{ profile.time_period }}</td>
+                                        <td class="px-6 py-4">{{ profile.days }}</td>
+                                        <td class="px-6 py-4">{{ profile.module_completed|yesno:"Yes,No" }}</td>
+                                        <td class="px-6 py-4">{{ profile.pregnancy_waiver_check|yesno:"Yes,No" }}</td>
+                                        <td class="px-6 py-4">{{ profile.gender }}</td>
+                                        <td class="px-6 py-4">{{ profile.facility_email_address }}</td>
+                                        <td class="px-6 py-4">{{ profile.created_at }}</td>
+                                        <!-- Action Button -->
+        
+          
+          <!-- Modal -->
+          <div id="action-modal-{{ profile.profile_id }}" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative">
+                <button onclick="closeActionModal('{{ profile.profile_id }}')" class="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-lg">
+                    <i class="fas fa-times"></i>
+                  </button>
+                  
+          
+              <h2 class="text-xl font-semibold mb-4">Available Actions</h2>
+              
+              <div class="space-y-3">
+                {% if not only_users_no_profile %}
+                  <button onclick="openModal('{{ forloop.counter }}'); closeActionModal('{{ profile.profile_id }}')" class="w-full text-left text-teal-600 hover:text-teal-800 font-semibold py-2 px-3 rounded-md border border-teal-300 hover:border-teal-500 flex items-center space-x-2">
+                    <i class="fas fa-eye"></i>
+                    <span>View Documents</span>
+                  </button>
+                {% endif %}
+                {% if is_approver and not only_users_no_profile %}
+                  <button onclick="sendEmailAction('{{ profile.profile_id }}', 'remind_fee'); closeActionModal('{{ profile.profile_id }}')" class="w-full text-left bg-yellow-500 text-white px-3 py-2 rounded-md hover:bg-yellow-600 flex items-center space-x-2">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Remind Fee</span>
+                  </button>
+                  <button onclick="sendEmailAction('{{ profile.profile_id }}', 'notify_result'); closeActionModal('{{ profile.profile_id }}')" class="w-full text-left bg-blue-500 text-white px-3 py-2 rounded-md hover:bg-blue-600 flex items-center space-x-2">
+                    <i class="fas fa-bell"></i>
+                    <span>Notify Result</span>
+                  </button>
+                  <button onclick="sendEmailAction('{{ profile.profile_id }}', 'done'); closeActionModal('{{ profile.profile_id }}')" class="w-full text-left bg-green-500 text-white px-3 py-2 rounded-md hover:bg-green-600 flex items-center space-x-2">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Done</span>
+                  </button>
+                  <button onclick="sendEmailAction('{{ profile.profile_id }}', 'notify_placement'); closeActionModal('{{ profile.profile_id }}')" class="w-full text-left bg-orange-500 text-white px-3 py-2 rounded-md hover:bg-orange-600 flex items-center space-x-2">
+                    <i class="fas fa-building"></i>
+                    <span>Notify Placement</span>
+                  </button>
+                {% endif %}
+                {% if is_superuser %}
+                  {% if only_users_no_profile %}
+                    <button onclick="deleteUser({{ profile.profile_id }}); closeActionModal('{{ profile.profile_id }}')" class="w-full text-left bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600 flex items-center space-x-2">
+                      <i class="fas fa-trash"></i>
+                      <span>Delete User</span>
+                    </button>
+                  {% else %}
+                    <button onclick="deleteProfile({{ profile.profile_id }}); closeActionModal('{{ profile.profile_id }}')" class="w-full text-left bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600 flex items-center space-x-2">
+                      <i class="fas fa-trash"></i>
+                      <span>Delete Profile</span>
+                    </button>
+                  {% endif %}
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <script>
+            function openActionModal(profileId) {
+              const modal = document.getElementById(`action-modal-${profileId}`);
+              if (modal) modal.classList.remove('hidden');
+            }
+          
+            function closeActionModal(profileId) {
+              const modal = document.getElementById(`action-modal-${profileId}`);
+              if (modal) modal.classList.add('hidden');
+            }
+          </script>
+          
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                     </div>
                     </div>
                 </div>
