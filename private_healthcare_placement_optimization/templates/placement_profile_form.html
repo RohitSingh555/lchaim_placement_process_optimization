@@ -356,7 +356,7 @@ I have read and understood my responsibilities listed for placement</p>
       <span>Prefer not to say</span>
     </button>
   </div>
-  <input type="hidden" name="gender" id="selectedGender">
+  <input type="hidden" name="gender" id="gender">
   <p id="genderError" class="text-red-600 text-lg mt-2 hidden">Please select a gender before continuing.</p>
 </div>
 <!-- Pregnancy Policy Notice (hidden by default) -->
@@ -386,7 +386,7 @@ I have read and understood my responsibilities listed for placement</p>
       selectedTile.classList.remove("border-teal-300", "hover:bg-teal-100");
     }
 
-    document.getElementById("selectedGender").value = gender;
+    document.getElementById("gender").value = gender;
     document.getElementById("genderError").classList.add("hidden");
 
     // Show/hide pregnancy notice

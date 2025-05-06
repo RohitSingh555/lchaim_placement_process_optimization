@@ -234,6 +234,7 @@ class PlacementProfileView(View):
         preferred_facility_contact_person = request.POST.get('preferred_facility_contact_person')
         city_preference_1 = request.POST.get('city_preference_1')
         city_preference_2 = request.POST.get('city_preference_2')
+        gender = request.POST.get('gender')
 
         try:
             profile = PlacementProfile.objects.create(
@@ -254,8 +255,8 @@ class PlacementProfileView(View):
                 preferred_facility_contact_person=preferred_facility_contact_person,
                 city_preference_1=city_preference_1,
                 city_preference_2=city_preference_2,
+                gender=gender,
             )
-            print("PlacementProfile saved:", profile)
         except Exception as e:
             print(f"Error saving PlacementProfile: {e}")
             return render(request, 'placement_profile_form.html', {'error': 'Failed to save Placement'})
@@ -675,7 +676,6 @@ class StudentProfileLogsView(View):
             has_profile = profiles.exists()
 
         filtered_profile_details = []
-
         for profile in profiles:
             # Apply search query
             if search_query:
@@ -710,7 +710,7 @@ class StudentProfileLogsView(View):
             if completed_filter == "false" and complete:
                 continue
 
-            # Skip profiles based on filter status
+            # # Skip profiles based on filter status
             if (filter_status == "completed" and not complete) or (filter_status == "incomplete" and complete):
                 continue
 
@@ -737,7 +737,6 @@ class StudentProfileLogsView(View):
                     'uploaded_at': doc.uploaded_at.strftime("%Y-%m-%d %H:%M:%S"),
                     'approval_logs': approver_actions
                 })
-
             # Append profile info
             student_id = ''
             try:
@@ -768,7 +767,6 @@ class StudentProfileLogsView(View):
                 'postal_code': profile.postal_code,
                 'open_to_outside_city': profile.open_to_outside_city,
                 'employer_letter': profile.employer_letter.url if profile.employer_letter else None,
-                'created_at': profile.created_at,
                 'city_preference_1': profile.city_preference_1,
                 'city_preference_2': profile.city_preference_2,
                 'stage': profile.stage,
@@ -788,7 +786,6 @@ class StudentProfileLogsView(View):
                 'documents': document_details,
                 'is_completed': complete
             })
-
         # Pagination (10 items per page)
         paginator = Paginator(filtered_profile_details, 10)
         page_number = request.GET.get("page", 1)
@@ -2108,11 +2105,13 @@ def set_official_start_date_view(request, profile_id):
         try:
             data = json.loads(request.body)
             start_date = data.get("official_start_date")
+            end_date = data.get("end_date")
             module_completed_value = data.get("module_completed")
             print(module_completed_value)
 
             profile = PlacementProfile.objects.get(id=profile_id)
             profile.official_start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+            profile.exact_placement_end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
             profile.module_completed = module_completed_value 
             profile.save()
 
@@ -2126,3 +2125,68 @@ def set_official_start_date_view(request, profile_id):
 
 def pregnancy_policy_view(request):
     return render(request, "pregnancy_policy.html")
+
+def get_student_profile_by_id(request, profile_id):
+    profile = get_object_or_404(
+        PlacementProfile.objects.select_related('assigned_facility', 'orientation_date')
+        .prefetch_related('documents'),
+        id=profile_id
+    )
+
+    REQUIRED_DOCUMENTS = {
+        "Medical Certificate",
+        "Covid Vaccination Certificate",
+        "Vulnerable Sector Check",
+        "CPR or First Aid",
+        "Mask Fit Certificate",
+        "Experience Document"
+    }
+
+    documents = {doc.document_type: doc for doc in profile.documents.all()}
+    complete = True
+    for doc_type in REQUIRED_DOCUMENTS:
+        doc = documents.get(doc_type)
+        if not doc:
+            complete = False
+            break
+        latest_approval = ApprovalLog.objects.filter(document=doc).order_by('-timestamp').first()
+        if not latest_approval or latest_approval.action != "Approved":
+            complete = False
+            break
+
+    document_details = []
+    for doc in profile.documents.all():
+        approval_logs = ApprovalLog.objects.filter(document=doc)
+        approver_actions = [
+            {
+                "approver": log.approver.full_name if log.approver else "Unknown",
+                "action": log.action,
+                "reason": log.reason,
+                "timestamp": log.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+            }
+            for log in approval_logs
+        ]
+
+        document_details.append({
+            'id': doc.id,
+            'status': doc.status,
+            'document_type': doc.document_type,
+            'file': doc.file.url if doc.file else None,
+            'rejection_reason': doc.rejection_reason,
+            'uploaded_at': doc.uploaded_at.strftime("%Y-%m-%d %H:%M:%S"),
+            'approval_logs': approver_actions
+        })
+
+    try:
+        student_id = profile.user.student_id_record.student_id
+    except StudentID.DoesNotExist:
+        student_id = ''
+
+    context = {
+        'profile': profile,
+        'student_id': student_id,
+        'documents': document_details,
+        'is_completed': complete
+    }
+
+    return render(request, 'student_profile.html', context)

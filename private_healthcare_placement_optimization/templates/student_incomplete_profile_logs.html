@@ -190,6 +190,30 @@
 
                 <div class="overflow-x-auto w-full">
                     <div class="relative max-w-full">
+                        <div class="sticky top-0 z-10 bg-white py-2">
+                            <div class="flex justify-end gap-4 px-4">
+                              <button onclick="scrollTable('left')" class="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700 flex items-center gap-2">
+                                <i class="fas fa-arrow-left"></i>
+                              </button>
+                              <button onclick="scrollTable('right')" class="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700 flex items-center gap-2">
+                                <i class="fas fa-arrow-right"></i>
+                              </button>
+                            </div>
+                          </div>
+                          <div id="scroll-container" class="overflow-x-auto">
+                            <!-- Fixed Scroll Buttons -->
+        
+                            <script>
+                              function scrollTable(direction) {
+                                const container = document.getElementById('scroll-container');
+                                const scrollAmount = 300; // Adjust scroll step if needed
+                                if (direction === 'left') {
+                                  container.scrollLeft -= scrollAmount;
+                                } else {
+                                  container.scrollLeft += scrollAmount;
+                                }
+                              }
+                            </script>
                         <table class="bg-white shadow-lg min-w-full table-auto border-collapse border border-gray-300">
                             <thead class="bg-gradient-to-r from-teal-400 to-teal-700 text-white">
                                 <tr class="border border-gray-300">
@@ -233,9 +257,20 @@
                                 {% for profile in profile_details %}
                                 <tr class="border border-gray-300 hover:bg-teal-50 transition-colors duration-200">
                                     <!-- Pinned Columns -->
-                                    <td class="px-6 py-4 border border-gray-300 sticky left-0 bg-white z-10">{{ forloop.counter }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap border border-gray-300 sticky left-16 bg-white z-10">{{ profile.first_name }} {{ profile.last_name }}</td>
-                                    <td class="px-6 py-4 border border-gray-300 sticky left-40 bg-white z-10">{{ profile.college_email }}</td>
+                                    <td class="px-6 py-10 border border-gray-300 sticky left-0 bg-white relative flex items-center">
+                                        <!-- Displaying the number with some styling -->
+                                        <span class="text-lg font-semibold text-gray-700 mr-2">{{ forloop.counter }}</span>
+                                        
+                                        <!-- View Profile Link with an external link icon -->
+                                        <a href="{% url 'get_student_profile_by_id' profile.profile_id %}"
+                                           class="text-gray-400 hover:text-teal-600 transition-colors duration-200"
+                                           title="View Profile" target="_blank">
+                                          <i class="fas fa-external-link-alt text-xl"></i> <!-- External link icon -->
+                                        </a>
+                                      </td>
+                                      <td class="px-6 py-4 whitespace-nowrap border border-gray-300 sticky left-16 border-b  bg-white">{{ profile.first_name }} {{ profile.last_name }}</td>
+                                      <td class="px-6 py-4 border border-gray-300 sticky left-40  border-b  bg-white">{{ profile.college_email }}</td>
+                                      
                 
                                     <!-- Scrollable Columns -->
                                     <td class="px-6 py-4">{{ profile.experience_level }}</td>
@@ -314,29 +349,44 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
-                <div class="flex justify-between items-center p-4 bg-white border-t border-gray-300 rounded-b-md">
-                    <div class="text-sm text-gray-600">
-                        Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} entries
                     </div>
-                    <div class="space-x-1">
-                        {% if page_obj.has_previous %}
-                        <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 bg-gray-200 rounded-md hover:bg-teal-600 hover:text-white">Previous</a>
-                        {% endif %}
+                </div>
+                <div class="flex items-center justify-center space-x-2 mt-4">
+                    <!-- Previous Button with Icon -->
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-all duration-300 flex items-center space-x-2">
+                        <i class="fas fa-chevron-left"></i> <!-- Left Chevron Icon -->
+                    </a>
+                    {% else %}
+                    <span class="px-4 py-2 bg-gray-300 text-white rounded-lg cursor-not-allowed flex items-center space-x-2">
+                        <i class="fas fa-chevron-left"></i> <!-- Left Chevron Icon -->
+                    </span>
+                    {% endif %}
                 
+                    <!-- Page Numbers -->
+                    <div class="flex space-x-2">
                         {% for page_num in page_obj.paginator.page_range %}
                             {% if page_num == page_obj.number %}
-                                <span class="px-3 py-1 bg-teal-600 text-white rounded-md">{{ page_num }}</span>
+                                <span class="px-4 py-2 bg-teal-600 text-white border border-teal-600 rounded-lg">{{ page_num }}</span>
                             {% elif page_num > page_obj.number|add:'-3' and page_num < page_obj.number|add:'3' %}
-                                <a href="?page={{ page_num }}" class="px-3 py-1 bg-gray-100 rounded-md hover:bg-teal-600 hover:text-white">{{ page_num }}</a>
+                                <a href="?page={{ page_num }}" class="px-4 py-2 bg-white text-teal-600 border border-gray-300 rounded-lg hover:bg-teal-100 transition-all duration-300">{{ page_num }}</a>
                             {% endif %}
                         {% endfor %}
-                
-                        {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 bg-gray-200 rounded-md hover:bg-teal-600 hover:text-white">Next</a>
-                        {% endif %}
                     </div>
+                
+                    <!-- Next Button with Icon -->
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-all duration-300 flex items-center space-x-2">
+                     
+                        <i class="fas fa-chevron-right"></i> <!-- Right Chevron Icon -->
+                    </a>
+                    {% else %}
+                    <span class="px-4 py-2 bg-gray-300 text-white rounded-lg cursor-not-allowed flex items-center space-x-2">
+                        <i class="fas fa-chevron-right"></i> <!-- Right Chevron Icon -->
+                    </span>
+                    {% endif %}
                 </div>
+                
                 {% else %}
                 {% for profile in profile_details %}
                 <div class="flex items-center justify-center p-6">

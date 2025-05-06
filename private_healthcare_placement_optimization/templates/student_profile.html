@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+{% load forms_extras %}
+
+{% block content %}
+<h2 
+class="text-4xl font-extrabold text-center mb-12 bg-gradient-to-r from-teal-600 via-teal-400 to-cyan-400 text-transparent bg-clip-text drop-shadow-md tracking-wide opacity-0 translate-y-4 animate-fadeInUp"
+>
+Your Placement Profile
+</h2>
+<div class="flex items-center justify-center p-6">
+    <div class="w-full max-w-6xl bg-white rounded-2xl p-6 md:p-8 border border-gray-200 shadow-lg">
+        <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
+            <div class="w-16 h-16 bg-teal-500 text-white flex items-center justify-center rounded-full text-2xl font-bold">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="text-center sm:text-left">
+                <h3 class="text-xl md:text-2xl font-semibold text-gray-800">
+                    {{ profile.first_name }} {{ profile.last_name }}<button onclick="openEditStartDateModal()" class="ml-2 text-teal-600 hover:text-teal-800 focus:outline-none">
+                        <i class="fas fa-pencil-alt"></i>
+                        </button>
+                </h3>
+            
+                <!-- Email with icon -->
+                <p class="text-sm text-gray-500 flex items-center space-x-2">
+                    <i class="fas fa-envelope text-teal-500"></i>
+                    <span>{{ profile.college_email }}</span>
+                </p>
+            
+                <!-- Student ID with icon -->
+                <p class="text-sm text-gray-500 flex items-center space-x-2">
+                    <i class="fas fa-id-card text-teal-500"></i>
+                    <span>{{student_id }}</span>
+                </p>
+            </div>
+            
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
+            <p class="flex items-center space-x-2">
+                <i class="fas fa-briefcase text-teal-500"></i>
+                <span><strong>Experience Level:</strong> {{ profile.experience_level }}</span>
+            </p>
+            <p class="flex items-center space-x-2">
+                <i class="fas fa-clock text-teal-500"></i>
+                <span><strong>Shift Requested:</strong> {{ profile.shift_requested }}</span>
+            </p>
+            <p class="flex items-center space-x-2">
+                <i class="fas fa-file-upload text-teal-500"></i>
+                <span><strong>Employer Letter:</strong>
+                    {% if profile.employer_letter %}
+                        <a href="{{ profile.employer_letter }}" target="_blank" class="text-blue-600 hover:underline">View</a>
+                    {% else %}
+                        Not Uploaded
+                    {% endif %}
+                </span>
+            </p>
+            <p class="flex items-center space-x-2">
+                <i class="fas fa-calendar-alt text-teal-500"></i>
+                <span><strong>Submitted On:</strong> {{ profile.created_at|date:"M d, Y H:i" }}</span>
+            </p>
+            <!-- Newly added fields below -->
+<p class="flex items-center space-x-2">
+<i class="fas fa-hospital text-teal-500"></i>
+<span><strong>Assigned Facility:</strong> {{ profile.assigned_facility }}</span>
+</p>
+<p class="flex items-center space-x-2">
+<i class="fas fa-calendar-check text-teal-500"></i>
+<span><strong>Orientation Date:</strong> {{ profile.orientation_date|date:"M d, Y" }}</span>
+</p>
+<p class="flex items-center space-x-2">
+<i class="fas fa-calendar-check text-teal-500"></i>
+<span><strong>Modules Completed:</strong> {{ profile.module_completed }}</span>
+<i class="fas fa-pencil-alt text-gray-400  duration-150 text-sm"></i>
+</p>
+<p class="flex items-center space-x-2 group cursor-pointer">
+    <i class="fas fa-play text-teal-500"></i>
+    <span class="flex items-center space-x-1">
+      <strong>Official Start Date:</strong>
+      <span>{{ profile.official_start_date|date:"M d, Y" }}</span>
+      <i class="fas fa-pencil-alt text-gray-400  duration-150 text-sm"></i>
+    </span>
+  </p>
+  
+<!-- Modal -->
+<!-- Edit Start Date Modal -->
+<div id="editStartDateModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+<div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm relative">
+<button onclick="closeEditStartDateModal()" class="absolute top-2 right-2 text-gray-600 hover:text-red-600">
+<i class="fas fa-times"></i>
+</button>
+<h2 class="text-lg font-semibold mb-4 text-teal-700">Edit Start Date & Days</h2>
+<form id="startDateForm" onsubmit="saveStartDate(event)">
+<input type="hidden" id="profileId" value="{{ profile.profile_id }}">
+
+<div class="mb-4">
+<label for="officialStartDate" class="block text-sm font-medium text-gray-700">Start Date</label>
+<input type="date" id="officialStartDate" class="w-full mt-1 border-gray-300 rounded shadow-sm focus:ring-teal-500 focus:border-teal-500" required>
+</div>
+
+<div class="mb-4">
+<label for="module_completed" class="block text-sm font-medium text-gray-700">Modules Completed</label>
+<select id="module_completed" class="...">
+{% for i in "1,2,3,4,5,6,7,8,9,10,11,12,13"|split:"," %}
+<option value="{{ i }}">{{ i }}</option>
+{% endfor %}
+
+</select>
+
+</div>
+
+<div class="flex justify-end">
+<button type="submit" class="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700">Save</button>
+</div>
+</form>
+</div>
+</div>
+
+
+<script>
+function openEditStartDateModal() {
+// Get values from template context
+const startDate = "{{ profile.official_start_date|date:'Y-m-d' }}";
+const module_completed = "{{ profile.module_completed|default_if_none:'' }}";
+
+// Populate form fields
+if (startDate) {
+document.getElementById("officialStartDate").value = startDate;
+}
+
+if (module_completed) {
+document.getElementById("module_completed").value = module_completed;
+}
+
+// Show the modal
+document.getElementById("editStartDateModal").classList.remove("hidden");
+}
+
+function closeEditStartDateModal() {
+document.getElementById("editStartDateModal").classList.add("hidden");
+}
+
+function saveStartDate(event) {
+event.preventDefault();
+const profileId = document.getElementById("profileId").value;
+const startDate = document.getElementById("officialStartDate").value;
+const module_completed = document.getElementById("module_completed").value;
+
+// Example AJAX call to update backend (you can customize this)
+fetch(`/set-official-start-date/${profileId}/`, {
+method: "POST",
+headers: {
+"Content-Type": "application/json",
+"X-CSRFToken": "{{ csrf_token }}"
+},
+body: JSON.stringify({ official_start_date: startDate, module_completed: module_completed })
+}).then(response => {
+if (response.ok) {
+closeEditStartDateModal();
+location.reload(); // Or update UI without reload
+}
+});
+}
+</script>  
+
+
+<p class="flex items-center space-x-2">
+<i class="fas fa-stop text-teal-500"></i>
+<span><strong>Exact Placement End Date:</strong> {{ profile.exact_placement_end_date|date:"M d, Y" }}</span>
+</p>
+        </div>
+       
+
+    </div>
+</div>       
+<div class="flex justify-center mt-6 px-4">
+    <div class="bg-white border border-gray-200 rounded-lg shadow-md p-6 w-full max-w-6xl mx-auto">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">Document Status Table</h3>
+      
+      <div class="overflow-x-auto">
+        <table class="min-w-full table-auto">
+          <thead class="bg-teal-500 text-white">
+            <tr>
+              <th class="px-4 py-2 text-left">Document Type</th>
+              <th class="px-4 py-2 text-left">Uploaded At</th>
+              <th class="px-4 py-2 text-left">Status</th>
+              <th class="px-4 py-2 text-left">Comments</th>
+              <th class="px-4 py-2 text-left">Approval Details</th>
+              <th class="px-4 py-2 text-left">Date Checked</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for document in documents %}
+              <tr class="border-b hover:bg-gray-50 transition">
+                <td class="px-4 py-2 font-medium text-gray-700">
+                  {{ document.document_type }}
+                </td>
+                <td class="px-4 py-2 text-gray-600">
+                  {{ document.uploaded_at }}
+                </td>
+                <td class="px-4 py-2">
+                    <span class="inline-block text-xs px-3 py-1 rounded-full font-semibold tracking-wide
+                    {% if document.status == 'Approved' %}
+                      bg-green-600 text-white
+                    {% elif document.status == 'Rejected' %}
+                      bg-red-600 text-white
+                    {% elif document.status == 'In Review' %}
+                      bg-yellow-400 text-gray-900
+                    {% elif document.status == 'Pending' %}
+                      bg-blue-500 text-white
+                    {% else %}
+                      bg-gray-300 text-gray-800
+                    {% endif %}">
+                    {% if document.file %}
+                      {{ document.status }}
+                    {% else %}
+                      File Not Uploaded
+                    {% endif %}
+                  </span>
+                  
+                </td>
+                <td class="px-4 py-2">
+                  {% if document.rejection_reason %}
+                    <p class="text-sm text-red-600">{{ document.rejection_reason }}</p>
+                  {% else %}
+                    <span class="text-sm text-gray-600">N/A</span>
+                  {% endif %}
+                </td>
+                <td class="px-4 py-2">
+                  {% if document.approval_logs %}
+                    {% with latest_approval=document.approval_logs|last %}
+                      <div class="text-sm space-y-1">
+                        {% if latest_approval.action == 'Approved' %}
+                          <p> {{ latest_approval.approver }}</p>
+                        {% else %}
+                          <p>{{ latest_approval.approver }}</p>
+                        {% endif %}
+                      </div>
+                    {% endwith %}
+                  {% else %}
+                    <span class="text-sm text-gray-600">Pending</span>
+                  {% endif %}
+                </td>
+                <td class="px-4 py-2">
+                    {% if document.approval_logs %}
+                    {% with latest_approval=document.approval_logs|last %}
+                    <p>{{ latest_approval.timestamp }}</p>
+                    {% endwith %}
+                  {% else %}
+                    <span class="text-sm text-gray-600">N/A</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+  </div>
+  <!-- Address Information Card -->
+
+  <div class="flex flex-col justify-center mt-6 px-4 gap-6">
+    <div class="bg-white border border-gray-200 rounded-lg shadow-md p-6 w-full max-w-6xl mx-auto">
+        <h4 class="text-lg font-semibold text-teal-700 mb-4 flex items-center space-x-2">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>Address Information</span>
+        </h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
+            <p class="flex items-center space-x-2">
+                <i class="fas fa-check-circle text-teal-500"></i>
+                <span><strong>Address Updated:</strong> {{ profile.address_updated|yesno:"Yes,No" }}</span>
+            </p>
+            <p class="flex items-center space-x-2">
+                <i class="fas fa-home text-teal-500"></i>
+                <span><strong>Apt/House No:</strong> {{ profile.apt_house_no }}</span>
+            </p>
+            <p class="flex items-center space-x-2">
+                <i class="fas fa-road text-teal-500"></i>
+                <span><strong>Street:</strong> {{ profile.street }}</span>
+            </p>
+            <p class="flex items-center space-x-2">
+                <i class="fas fa-city text-teal-500"></i>
+                <span><strong>City:</strong> {{ profile.city }}</span>
+            </p>
+            <p class="flex items-center space-x-2">
+                <i class="fas fa-flag text-teal-500"></i>
+                <span><strong>Province:</strong> {{ profile.province }}</span>
+            </p>
+            <p class="flex items-center space-x-2">
+                <i class="fas fa-mail-bulk text-teal-500"></i>
+                <span><strong>Postal Code:</strong> {{ profile.postal_code }}</span>
+            </p>
+            <p class="flex items-center space-x-2">
+                <i class="fas fa-globe-americas text-teal-500"></i>
+                <span><strong>Open to Other Cities:</strong> {{ profile.open_to_outside_city|yesno:"Yes,No" }}</span>
+            </p>
+        </div>
+    </div>
+
+    <div class="bg-white border border-gray-200 rounded-lg shadow-md p-6 w-full max-w-6xl mx-auto">
+        <h4 class="text-lg font-semibold text-teal-700 mb-4 flex items-center space-x-2">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>Facility Address Information</span>
+        </h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
+            <p class="flex items-center space-x-2">
+                <i class="fas fa-hospital text-teal-500"></i>
+                <span><strong>Preferred Facility:</strong> {{ profile.preferred_facility_name }}</span>
+            </p>
+            {% if profile.preferred_facility_address %}
+            <p class="flex items-center space-x-2">
+                <i class="fas fa-map text-teal-500"></i>
+                <span><strong>Facility Address:</strong> {{ profile.preferred_facility_address }}</span>
+            </p>
+            {% endif %}
+            <p class="flex items-center space-x-2">
+                <i class="fas fa-phone text-teal-500"></i>
+                <span><strong>Facility Contact:</strong> {{ profile.preferred_facility_contact_person }}</span>
+            </p>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<div class="flex justify-center mt-6 ">
+    <div class=" w-full max-w-6xl mx-auto">
+  <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+    <p class="text-base text-gray-800">
+      <strong>Check Tuition Fee Balance:</strong>
+      <a href="https://app.tuiopay.com/signin" target="_blank" class="text-blue-600 hover:underline hover:text-blue-800 transition">
+        Click here
+      </a>
+    </p>
+    <p class="mt-2 text-sm text-gray-600 italic">
+      Note: Log in using your personal email address and the password you created during registration.
+    </p>
+  </div>
+  </div>
+  </div>       
+
+  {% endblock %}
