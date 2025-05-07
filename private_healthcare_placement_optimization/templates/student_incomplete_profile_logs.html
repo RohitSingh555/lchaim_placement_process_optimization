@@ -77,7 +77,7 @@
             <!-- Search Input -->
             <div class="flex-1">
               <label for="search" class="block text-sm font-medium text-teal-700 mb-1">
-                <i class="fas fa-search mr-1 text-teal-500"></i>Search Name / Email
+                <i class="fas fa-search mr-1 text-teal-500"></i>Search Name, Email or Student ID
               </label>
               <input
                 type="text"
@@ -141,55 +141,119 @@
             <div class="overflow-x-auto custom-scrollbar">
                 {% if is_approver %}
                 <!-- Filter Section -->
-                <form method="get" class="flex flex-wrap items-center justify-between p-4 bg-white shadow rounded-t-md gap-4">
-                    <select name="gender" class="border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-teal-500">
-                        <option value="">All Genders</option>
-                        <option value="Male" {% if request.GET.gender == "Male" %}selected{% endif %}>Male</option>
-                        <option value="Female" {% if request.GET.gender == "Female" %}selected{% endif %}>Female</option>
-                        <option value="Other" {% if request.GET.gender == "Other" %}selected{% endif %}>Other</option>
+                <form method="get" class="bg-white shadow-md rounded-xl p-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  
+                      <!-- Gender -->
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                        <select name="gender" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
+                          <option value="">All Genders</option>
+                          <option value="Male" {% if request.GET.gender == "Male" %}selected{% endif %}>Male</option>
+                          <option value="Female" {% if request.GET.gender == "Female" %}selected{% endif %}>Female</option>
+                          <option value="Other" {% if request.GET.gender == "Other" %}selected{% endif %}>Other</option>
+                        </select>
+                      </div>
+                  
+                      <!-- Stage -->
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Stage</label>
+                        <select name="stage" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
+                          <option value="">All Stages</option>
+                          <option value="Pending" {% if request.GET.stage == "Pending" %}selected{% endif %}>Pending</option>
+                          <option value="Approved" {% if request.GET.stage == "Approved" %}selected{% endif %}>Approved</option>
+                          <option value="Rejected" {% if request.GET.stage == "Rejected" %}selected{% endif %}>Rejected</option>
+                          <option value="DONE" {% if request.GET.stage == "DONE" %}selected{% endif %}>Done</option>
+                          <option value="ENDORSED" {% if request.GET.stage == "ENDORSED" %}selected{% endif %}>Endorsed</option>
+                          <option value="IN_PLACEMENT" {% if request.GET.stage == "IN_PLACEMENT" %}selected{% endif %}>In Placement</option>
+                          <option value="CANCELLED" {% if request.GET.stage == "CANCELLED" %}selected{% endif %}>Cancelled</option>
+                          <option value="TRANSFERED" {% if request.GET.stage == "TRANSFERED" %}selected{% endif %}>Transferred</option>
+                          <option value="ONHOLD" {% if request.GET.stage == "ONHOLD" %}selected{% endif %}>On Hold</option>
+                          <option value="ONGOING_PROCESS" {% if request.GET.stage == "ONGOING_PROCESS" %}selected{% endif %}>Ongoing Process</option>
+                          <option value="ORIENTATION_SCHEDULED" {% if request.GET.stage == "ORIENTATION_SCHEDULED" %}selected{% endif %}>Orientation Scheduled</option>
+                          <option value="READY" {% if request.GET.stage == "READY" %}selected{% endif %}>Ready</option>
+                        </select>
+                      </div>
+                  
+                      <!-- Experience Level -->
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Experience Level</label>
+                        <select name="experience_level" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
+                          <option value="">All Experience Levels</option>
+                          <option value="No Experience" {% if request.GET.experience_level == "No Experience" %}selected{% endif %}>No Experience (300 Hrs)</option>
+                          <option value="1 Year PSW Experience" {% if request.GET.experience_level == "1 Year PSW Experience" %}selected{% endif %}>1 Year PSW Experience (200 Hrs)</option>
+                          <option value="International Nurse" {% if request.GET.experience_level == "International Nurse" %}selected{% endif %}>International Nurse (200 Hrs)</option>
+                          <option value="Caregiver Experience" {% if request.GET.experience_level == "Caregiver Experience" %}selected{% endif %}>Caregiver Experience (200 Hrs)</option>
+                        </select>
+                      </div>
+                  
+                     <!-- Shift Requested -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Shift Requested</label>
+                    <select name="shift_requested" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
+                      <option value="">All Shifts</option>
+                      <option value="Morning" {% if request.GET.shift_requested == "Morning" %}selected{% endif %}>
+                        Morning - Mon to Fri - 7AM to 3PM
+                      </option>
+                      <option value="Evening" {% if request.GET.shift_requested == "Evening" %}selected{% endif %}>
+                        Evening - Mon to Fri - 3PM to 11PM
+                      </option>
+                      <option value="Night" {% if request.GET.shift_requested == "Night" %}selected{% endif %}>
+                        Night - Mon to Fri - 11PM to 7AM
+                      </option>
+                      <option value="Weekend Morning" {% if request.GET.shift_requested == "Weekend Morning" %}selected{% endif %}>
+                        Weekend Morning - Sat & Sun
+                      </option>
+                      <option value="Weekend Evening" {% if request.GET.shift_requested == "Weekend Evening" %}selected{% endif %}>
+                        Weekend Evening - Sat & Sun
+                      </option>
+                      <option value="Weekend Night" {% if request.GET.shift_requested == "Weekend Night" %}selected{% endif %}>
+                        Weekend Night - Sat & Sun
+                      </option>
                     </select>
-                
-                    <select name="stage" class="border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-teal-500">
-                        <option value="">All Stages</option>
-                        <option value="Pending" {% if request.GET.stage == "Pending" %}selected{% endif %}>Pending</option>
-                        <option value="Approved" {% if request.GET.stage == "Approved" %}selected{% endif %}>Approved</option>
-                        <option value="Rejected" {% if request.GET.stage == "Rejected" %}selected{% endif %}>Rejected</option>
-                        <option value="DONE" {% if request.GET.stage == "DONE" %}selected{% endif %}>Done</option>
-                        <option value="ENDORSED" {% if request.GET.stage == "ENDORSED" %}selected{% endif %}>Endorsed</option>
-                        <option value="IN_PLACEMENT" {% if request.GET.stage == "IN_PLACEMENT" %}selected{% endif %}>In Placement</option>
-                        <option value="CANCELLED" {% if request.GET.stage == "CANCELLED" %}selected{% endif %}>Cancelled</option>
-                        <option value="TRANSFERED" {% if request.GET.stage == "TRANSFERED" %}selected{% endif %}>Transferred</option>
-                        <option value="ONHOLD" {% if request.GET.stage == "ONHOLD" %}selected{% endif %}>On Hold</option>
-                        <option value="ONGOING_PROCESS" {% if request.GET.stage == "ONGOING_PROCESS" %}selected{% endif %}>Ongoing Process</option>
-                        <option value="ORIENTATION_SCHEDULED" {% if request.GET.stage == "ORIENTATION_SCHEDULED" %}selected{% endif %}>Orientation Scheduled</option>
-                        <option value="READY" {% if request.GET.stage == "READY" %}selected{% endif %}>Ready</option>
+                  </div>
+                  
+                  
+                      <!-- Assigned Facility -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Assigned Facility</label>
+                    <select name="assigned_facility" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
+                      <option value="">All Facilities</option>
+                      {% for facility in facilities %}
+                      <option value="{{ facility }}" {% if request.GET.assigned_facility == facility %}selected{% endif %}>{{ facility }}</option>
+                      {% endfor %}
                     </select>
-                    
-                
-                    <select name="experience_level"
-                        class="border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-teal-500">
-                        <option value="">All Experience Levels</option>
-                        <option value="No Experience" {% if request.GET.experience_level == "No Experience" %}selected{% endif %}>
-                            No Experience (300 Hrs)</option>
-                        <option value="1 Year PSW Experience" {% if request.GET.experience_level == "1 Year PSW Experience" %}selected{% endif %}>
-                            One (1) Year PSW Experience in Canada : 200 Hrs</option>
-                        <option value="International Nurse" {% if request.GET.experience_level == "International Nurse" %}selected{% endif %}>
-                            Internationally Educated Nurse (IEN) : 200 Hrs</option>
-                        <option value="Caregiver Experience" {% if request.GET.experience_level == "Caregiver Experience" %}selected{% endif %}>
-                            Caregiver Experience in Canada : 200 Hrs</option>
+                  </div>
+                  
+              
+                  <!-- Orientation Date -->
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Orientation Date</label>
+                    <select name="orientation_date" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
+                      <option value="">All Dates</option>
+                      {% for date in orientation_dates %}
+                      <option value="{{ date|date:'Y-m-d' }}" {% if request.GET.orientation_date == date|date:'Y-m-d' %}selected{% endif %}>
+                        {{ date|date:'F j, Y' }}
+                      </option>
+                      {% endfor %}
                     </select>
-                
-                    <div class="flex gap-2">
+                  </div>
+                  
+                      <!-- Actions -->
+                      <div class="flex items-end gap-2 mt-1 col-span-full md:col-span-2 lg:col-span-1">
                         <button type="submit"
-                            class="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 flex items-center">
-                            <i class="fas fa-filter mr-2"></i>Apply Filters
+                          class="flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition text-sm shadow">
+                          <i class="fas fa-filter"></i> Apply Filters
                         </button>
                         <a href="{% url request.resolver_match.view_name %}"
-                            class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 flex items-center">
-                            <i class="fas fa-times mr-2"></i>Clear Filters
+                          class="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition text-sm shadow">
+                          <i class="fas fa-times"></i> Clear
                         </a>
+                      </div>
+                  
                     </div>
-                </form>
+                  </form>
+                  
                 
 
                 <div class="overflow-x-auto w-full">
@@ -279,7 +343,7 @@
                                 </thead>
                                 <tbody>
                                     {% for profile in profile_details %}
-                                    <tr class="border border-gray-300 hover:bg-teal-50 transition-colors duration-200">
+                                    <tr style="border-width: 2px;" class="border-8 border-gray-300 hover:bg-teal-50 transition-colors duration-200">
                                       <td class="sticky left-0 bg-white px-4 py-9 whitespace-nowrap border border-gray-300 min-w-[120px] w-[120px] max-w-[120px] flex items-center">
                                         <span class="text-lg font-semibold text-gray-700 mr-2">{{ profile.student_id }}</span>
                                         <a href="{% url 'get_student_profile_by_id' profile.profile_id %}" class="text-gray-400 hover:text-teal-600" target="_blank">
@@ -301,8 +365,49 @@
                                         {{ profile.approved_documents_count }}
                                       </td>
                                       <td class="sticky left-[730px] bg-white px-4 py-4 whitespace-nowrap border border-gray-300 min-w-[160px] w-[160px] max-w-[160px]">
-                                        {{ profile.stage }}
+                                        {% if profile.stage == "DONE" %}
+                                          <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm flex items-center justify-center">
+                                            <i class="fas fa-check-circle mr-2"></i> Done
+                                          </span>
+                                        {% elif profile.stage == "ENDORSED" %}
+                                          <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm flex items-center justify-center">
+                                            <i class="fas fa-thumbs-up mr-2"></i> Endorsed
+                                          </span>
+                                        {% elif profile.stage == "IN_PLACEMENT" %}
+                                          <span class="bg-yellow-500 text-white px-3 py-1 rounded-full text-sm flex items-center justify-center">
+                                            <i class="fas fa-briefcase mr-2"></i> In Placement
+                                          </span>
+                                        {% elif profile.stage == "CANCELLED" %}
+                                          <span class="bg-red-500 text-white px-3 py-1 rounded-full text-sm flex items-center justify-center">
+                                            <i class="fas fa-times-circle mr-2"></i> Cancelled
+                                          </span>
+                                        {% elif profile.stage == "TRANSFERRED" %}
+                                          <span class="bg-purple-500 text-white px-3 py-1 rounded-full text-sm flex items-center justify-center">
+                                            <i class="fas fa-exchange-alt mr-2"></i> Transferred
+                                          </span>
+                                        {% elif profile.stage == "ONHOLD" %}
+                                          <span class="bg-gray-500 text-white px-3 py-1 rounded-full text-sm flex items-center justify-center">
+                                            <i class="fas fa-pause-circle mr-2"></i> On Hold
+                                          </span>
+                                        {% elif profile.stage == "ONGOING_PROCESS" %}
+                                          <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-sm flex items-center justify-center">
+                                            <i class="fas fa-spinner mr-2"></i> Ongoing Process
+                                          </span>
+                                        {% elif profile.stage == "ORIENTATION_SCHEDULED" %}
+                                          <span class="bg-teal-500 text-white px-3 py-1 rounded-full text-sm flex items-center justify-center">
+                                            <i class="fas fa-calendar-check mr-2"></i> Orientation Scheduled
+                                          </span>
+                                        {% elif profile.stage == "READY" %}
+                                          <span class="bg-indigo-500 text-white px-3 py-1 rounded-full text-sm flex items-center justify-center">
+                                            <i class="fas fa-check-circle mr-2"></i> Ready
+                                          </span>
+                                        {% else %}
+                                          <span class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm flex items-center justify-center">
+                                            {{ profile.stage|default:"N/A" }}
+                                          </span>
+                                        {% endif %}
                                       </td>
+                                      
                                       <td class="sticky left-[880px] bg-white px-4 py-4 whitespace-nowrap border border-gray-300 min-w-[160px] w-[160px] max-w-[160px]">
                                         {{ profile.assigned_facility }}
                                       </td>

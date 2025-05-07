@@ -666,6 +666,9 @@ class StudentProfileLogsView(View):
         stage_filter = request.GET.get("stage", "")
         experience_level_filter = request.GET.get("experience_level", "")
         completed_filter = request.GET.get("is_completed")  # "true"/"false"/None
+        shift_requested_filter = request.GET.get("shift_requested", "")
+        assigned_facility_filter = request.GET.get("assigned_facility", "")
+        orientation_date_filter = request.GET.get("orientation_date", "")
 
         if is_approver:
             profiles = PlacementProfile.objects.prefetch_related('documents').all()
@@ -681,7 +684,12 @@ class StudentProfileLogsView(View):
             if search_query:
                 full_name = f"{profile.first_name} {profile.last_name}".lower()
                 email = profile.college_email.lower()
-                if search_query not in full_name and search_query not in email:
+                try:
+                    student_id = profile.user.student_id_record.student_id.lower()
+                except StudentID.DoesNotExist:
+                    student_id = ""
+
+                if search_query not in full_name and search_query not in email and search_query not in student_id:
                     continue
 
             # Apply filters
@@ -690,6 +698,20 @@ class StudentProfileLogsView(View):
             if stage_filter and profile.stage != stage_filter:
                 continue
             if experience_level_filter and profile.experience_level != experience_level_filter:
+                continue
+            if shift_requested_filter and profile.shift_requested != shift_requested_filter:
+                continue
+
+            if assigned_facility_filter and (not profile.assigned_facility or profile.assigned_facility.name != assigned_facility_filter):
+                continue
+            orientation_date_obj = None
+
+            if orientation_date_filter:
+                try:
+                    orientation_date_obj = datetime.strptime(orientation_date_filter, '%Y-%m-%d').date()
+                except ValueError:
+                    orientation_date_obj = None  
+            if orientation_date_obj and (not profile.orientation_date or profile.orientation_date.orientation_date != orientation_date_obj):
                 continue
 
             # Check document completeness
@@ -811,7 +833,8 @@ class StudentProfileLogsView(View):
         paginator = Paginator(filtered_profile_details, 10)
         page_number = request.GET.get("page", 1)
         page_obj = paginator.get_page(page_number)
-
+        facilities = Facility.objects.values_list('name', flat=True).distinct()
+        orientation_dates = OrientationDate.objects.values_list('orientation_date', flat=True).distinct().order_by('orientation_date')
         return render(request, 'student_profile_logs.html', {
             'page_obj': page_obj,
             'profile_details': page_obj.object_list,
@@ -820,11 +843,16 @@ class StudentProfileLogsView(View):
             'filter_status': filter_status,
             'search_query': search_query,
             'has_profile': has_profile,
+            'facilities': facilities,   
+            'orientation_dates': orientation_dates,
             'filters': {
                 'gender': gender_filter,
                 'stage': stage_filter,
                 'experience_level': experience_level_filter,
                 'is_completed': completed_filter,
+                'shift_requested': shift_requested_filter,
+                'assigned_facility': assigned_facility_filter,
+                'orientation_date': orientation_date_filter,
             }
         })
 
@@ -855,6 +883,9 @@ class StudentIncompleteProfileLogsView(View):
         stage_filter = request.GET.get("stage", "")
         experience_level_filter = request.GET.get("experience_level", "")
         completed_filter = request.GET.get("is_completed")  # "true"/"false"/None
+        shift_requested_filter = request.GET.get("shift_requested", "")
+        assigned_facility_filter = request.GET.get("assigned_facility", "")
+        orientation_date_filter = request.GET.get("orientation_date", "")
 
         if is_approver:
             profiles = PlacementProfile.objects.prefetch_related('documents').all()
@@ -893,7 +924,12 @@ class StudentIncompleteProfileLogsView(View):
             if search_query:
                 full_name = f"{profile.first_name} {profile.last_name}".lower()
                 email = profile.college_email.lower()
-                if search_query not in full_name and search_query not in email:
+                try:
+                    student_id = profile.user.student_id_record.student_id.lower()
+                except StudentID.DoesNotExist:
+                    student_id = ""
+
+                if search_query not in full_name and search_query not in email and search_query not in student_id:
                     continue
 
             if gender_filter and profile.gender != gender_filter:
@@ -901,6 +937,20 @@ class StudentIncompleteProfileLogsView(View):
             if stage_filter and profile.stage != stage_filter:
                 continue
             if experience_level_filter and profile.experience_level != experience_level_filter:
+                continue
+            if shift_requested_filter and profile.shift_requested != shift_requested_filter:
+                continue
+
+            if assigned_facility_filter and (not profile.assigned_facility or profile.assigned_facility.name != assigned_facility_filter):
+                continue
+            orientation_date_obj = None
+
+            if orientation_date_filter:
+                try:
+                    orientation_date_obj = datetime.strptime(orientation_date_filter, '%Y-%m-%d').date()
+                except ValueError:
+                    orientation_date_obj = None  
+            if orientation_date_obj and (not profile.orientation_date or profile.orientation_date.orientation_date != orientation_date_obj):
                 continue
 
             # Check document completeness
@@ -1016,6 +1066,8 @@ class StudentIncompleteProfileLogsView(View):
         paginator = Paginator(filtered_profile_details, 10)
         page_number = request.GET.get("page", 1)
         page_obj = paginator.get_page(page_number)
+        facilities = Facility.objects.values_list('name', flat=True).distinct()
+        orientation_dates = OrientationDate.objects.values_list('orientation_date', flat=True).distinct().order_by('orientation_date')
 
         return render(request, 'student_incomplete_profile_logs.html', {
             'page_obj': page_obj,
@@ -1025,11 +1077,16 @@ class StudentIncompleteProfileLogsView(View):
             'filter_status': filter_status,
             'search_query': search_query,
             'has_profile': has_profile,
+            'facilities': facilities,   
+            'orientation_dates': orientation_dates,
             'filters': {
                 'gender': gender_filter,
                 'stage': stage_filter,
                 'experience_level': experience_level_filter,
                 'is_completed': completed_filter,
+                'shift_requested': shift_requested_filter,
+                'assigned_facility': assigned_facility_filter,
+                'orientation_date': orientation_date_filter,
             }
         })
 
@@ -1720,7 +1777,15 @@ def send_placement_email(profile):
             .container {{ background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }}
             h2 {{ color: #008080; }}
             p {{ font-size: 16px; line-height: 1.5; }}
-            .footer {{ margin-top: 20px; font-size: 14px; color: #555; }}
+            .footer {{
+                margin-top: 20px;
+                font-size: 14px;
+                color: #555;
+            }}
+            .footer a {{
+                color: #008080;
+                text-decoration: none;
+            }}
             img {{
                 width: 240px;
                 height: 90px;
@@ -1732,6 +1797,22 @@ def send_placement_email(profile):
             <h2>{profile.first_name} {profile.last_name} is now ready for placement.</h2>
             
         </div>
+        <div class="footer">
+<p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
+<span>Warm regards, </span>
+<br>
+<span> The Peak Healthcare Team</span>
+<br>
+<span>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></span>
+<br>
+<img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg"></img>
+<br>
+<span>1140 Sheppard Ave West</span>
+<br>
+<span>Unit #12, North York, ON</span>
+<br>
+<span>M3K 2A2</span>
+</div>
     </body>
     </html>
 '''
@@ -1755,6 +1836,15 @@ def send_documents_email(profile, documents, zip_url):
             .container {{ background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }}
             h2 {{ color: #008080; }}
             p {{ font-size: 16px; line-height: 1.5; }}
+            .footer {{
+                margin-top: 20px;
+                font-size: 14px;
+                color: #555;
+            }}
+            .footer a {{
+                color: #008080;
+                text-decoration: none;
+            }}
         </style>
     </head>
     <body>
@@ -1764,7 +1854,22 @@ def send_documents_email(profile, documents, zip_url):
             <p>You can find the documents in the following ZIP file:</p>
             <p><a href="http://placement.peakcollege.ca{zip_url}">Download Documents</a></p>
         </div>
-        
+        <div class="footer">
+<p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
+<span>Warm regards, </span>
+<br>
+<span> The Peak Healthcare Team</span>
+<br>
+<span>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></span>
+<br>
+<img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg"></img>
+<br>
+<span>1140 Sheppard Ave West</span>
+<br>
+<span>Unit #12, North York, ON</span>
+<br>
+<span>M3K 2A2</span>
+</div>
     </body>
     </html>
     '''
@@ -2303,33 +2408,39 @@ def assign_facility_view(request):
         facility_id = request.POST.get('facility_id')
         orientation_id = request.POST.get('orientation_id')
 
-        context = get_profiles_facilities_orientations()  # ensure this is called regardless of errors
+        context = get_profiles_facilities_orientations()  # Always load context
 
         if not user_ids:
             context["error"] = "No users selected."
             return render(request, 'assign_facility.html', context)
 
-        if not facility_id or not orientation_id:
-            context["error"] = "Both facility and orientation date must be selected."
+        if not facility_id and not orientation_id:
+            context["error"] = "Please select at least a facility or orientation date."
             return render(request, 'assign_facility.html', context)
 
         try:
-            facility = Facility.objects.get(id=facility_id)
-            orientation_date = OrientationDate.objects.get(id=orientation_id)
+            facility = Facility.objects.get(id=facility_id) if facility_id else None
+            orientation_date = OrientationDate.objects.get(id=orientation_id) if orientation_id else None
         except (Facility.DoesNotExist, OrientationDate.DoesNotExist):
             context["error"] = "Invalid facility or orientation date."
             return render(request, 'assign_facility.html', context)
 
-        PlacementProfile.objects.filter(user__id__in=user_ids).update(
-            assigned_facility=facility,
-            orientation_date=orientation_date
-        )
+        profiles = PlacementProfile.objects.filter(user__id__in=user_ids)
 
-        context["success"] = "Facility and orientation date assigned successfully."
+        update_fields = {}
+        if facility:
+            update_fields["assigned_facility"] = facility
+        if orientation_date:
+            update_fields["orientation_date"] = orientation_date
+
+        if update_fields:
+            profiles.update(**update_fields)
+
+        context["success"] = "Assignment updated successfully."
         return render(request, 'assign_facility.html', context)
 
-    # GET request fallback
-    return redirect('assign_facility')  # Or handle gracefully if needed
+    return redirect('assign_facility')
+
 
 def get_cities_and_provinces(request):
     try:
@@ -2465,3 +2576,10 @@ def update_stage(request):
         return JsonResponse({"success": False, "error": "Profile not found"}, status=404)
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)}, status=500)
+    
+def base_view(request):
+    has_profile = PlacementProfile.objects.filter(user=request.user).exists()
+    context = {
+        'has_profile': has_profile,
+    }
+    return render(request, 'base.html', context)

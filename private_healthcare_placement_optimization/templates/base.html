@@ -1,179 +1,218 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Placement System{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.7.107/pdf.min.js"></script>
-    {% block extra_head %}
-    {% endblock %}
-</head>
-<body class="bg-gray-50">
-
-<!-- Navbar -->
-<header class="bg-teal-700 text-white shadow-md">
-    <nav class="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between">
+    {% block extra_head %}{% endblock %}
+  </head>
+  <body class="bg-gray-50">
+    <!-- Navbar -->
+    <header class="bg-teal-700 text-white shadow-md">
+      <nav
+        class="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between"
+      >
         <div class="flex items-center space-x-4">
-            <a href="/" class="text-2xl font-bold text-turquoise-300 pr-6">Peak College</a>
-            <div class="hidden md:flex space-x-6">
-                {% if user.is_authenticated %}
-                <a href="{% url 'create_placement_profile' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
-                    <i class="fas fa-id-card"></i>
-                    <span>Create Placement Profile</span>
-                </a>
-                
-                <a href="/" class="hover:text-turquoise-300 flex items-center space-x-2">
-                    <i class="fas fa-clipboard-list"></i>
-                    <span>Placement Profiles</span>
-                </a>
-                
-                {% if user.is_superuser %}
-                    <!-- <a href="{% url 'complete_profiles' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
-                        <i class="fas fa-users"></i>
-                        <span>Completed Profiles</span>
-                    </a> -->
-                    <a href="{% url 'incomplete_profiles' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
-                        <i class="fas fa-user-edit"></i>
-                        <span>Incomplete Profiles</span>
-                    </a>
-                    
-                    <a href="{% url 'pending_users' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
-                        <i class="fas fa-user-clock"></i>
-                        <span>Pending Users</span>
-                    </a>
-                    
-                    <a href="{% url 'assign_facility_and_orientation_date_to_users' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
-                        <i class="fas fa-building"></i>
-                        <span>Assign Facility</span>
-                    </a>
-                    
-                {% endif %}
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- User Profile and Mobile menu -->
-        <div class="flex items-center space-x-4">
-            {% if user.is_authenticated %}
-                <!-- Profile Dropdown -->
-                <div class="relative">
-                    <button id="normal-menu-button" class="flex items-center hidden md:flex space-x-2 bg-teal-700 text-white rounded-full px-4 py-2 hover:bg-teal-600 focus:outline-none">
-                        <span>{{ user.username }}</span>
-                        <i class="fas fa-user-circle"></i>
-                    </button>
-
-                    <!-- Dropdown menu -->
-                    <div id="normal-menu" class="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg z-10 hidden">
-                        <a href="{% url 'profile' %}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
-                            <i class="fas fa-user-circle mr-2"></i> Profile
-                        </a>
-                        {% if user.is_superuser %}
-                            <a href="{% url 'approvers_view' %}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
-                                <i class="fas fa-users mr-2"></i> 
-                                <span>Approvers</span>
-                            </a>
-                            <a href="{% url 'facility_list' %}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
-                                <i class="fas fa-building mr-2"></i> 
-                                <span>Facilities</span>
-                            </a>
-                            <a href="{% url 'orientation_list' %}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
-                                <i class="fas fa-calendar-alt mr-2"></i> 
-                                <span>Orientation Date</span>
-                            </a>
-                            
-                        {% endif %}
-                        <a href="{% url 'logout' %}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
-                            <i class="fas fa-sign-out-alt mr-2"></i> Logout
-                        </a>
-                    </div>
-                </div>
-            {% else %}
-                <!-- Login Button -->
-                <a href="{% url 'login' %}" class="text-white px-6 py-3 bg-teal-500 rounded-md hover:bg-teal-600">Login</a>
+          <a href="/" class="text-2xl font-bold text-teal-300 pr-6"
+            >Peak College</a
+          >
+          <div class="hidden md:flex space-x-6">
+            {% if user.is_authenticated %} {% if not has_profile %}
+            <a
+              href="{% url 'create_placement_profile' %}"
+              class="hover:text-teal-300 flex items-center space-x-2"
+            >
+              <i class="fas fa-id-card"></i
+              ><span>Create Placement Profile</span>
+            </a>
             {% endif %}
-
-            <!-- Mobile menu button -->
-            <div class="md:hidden flex items-center">
-                <button id="mobile-menu-button" class="text-white focus:outline-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Mobile Menu -->
-    <div id="mobile-menu" class="md:hidden bg-teal-700 text-white hidden">
-        <div class="px-6 py-4 space-y-4">
-            <a href="/" class="hover:text-turquoise-300 flex items-center space-x-2">
-                <i class="fas fa-clipboard-list"></i>
-                <span>Placement Profiles</span>
+            <a href="/" class="hover:text-teal-300 flex items-center space-x-2">
+              <i class="fas fa-clipboard-list"></i
+              ><span>Placement Profiles</span>
             </a>
-            <a href="{% url 'create_placement_profile' %}" class="flex items-center space-x-2">
-                <i class="fas fa-id-card"></i>
-                <span>Create Placement Profile</span>
-            </a>
-            
+
             {% if user.is_superuser %}
-            <a href="{% url 'incomplete_profiles' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
-                <i class="fas fa-users"></i>
-                <span>Incomplete Profiles</span>
+            <a
+              href="{% url 'incomplete_profiles' %}"
+              class="hover:text-teal-300 flex items-center space-x-2"
+            >
+              <i class="fas fa-user-edit"></i><span>Incomplete Profiles</span>
             </a>
-            <a href="{% url 'pending_users' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
-                <i class="fas fa-users"></i>
-                <span>Pending Users</span>
+            <a
+              href="{% url 'pending_users' %}"
+              class="hover:text-teal-300 flex items-center space-x-2"
+            >
+              <i class="fas fa-user-clock"></i><span>Pending Users</span>
             </a>
-                    <a href="{% url 'approvers_view' %}" class="hover:text-turquoise-300 flex items-center space-x-2">
-                        <i class="fas fa-users"></i>
-                        <span>Approvers</span>
-                    </a>
-            {% endif %}
-            <!-- <a href="/" class="flex items-center space-x-2">
-                <i class="fas fa-clipboard-list"></i>
-                <span>Approval Logs</span>
-            </a> -->
-            <a href="{% url 'profile' %}" class="flex items-center space-x-2">
-                <i class="fas fa-user-circle"></i>
-                <span>Profile</span>
+            <a
+              href="{% url 'assign_facility_and_orientation_date_to_users' %}"
+              class="hover:text-teal-300 flex items-center space-x-2"
+            >
+              <i class="fas fa-building"></i><span>Assign Facility</span>
             </a>
-            <a href="{% url 'logout' %}" class="flex items-center space-x-2">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span>
-            </a>
+            {% endif %} {% endif %}
+          </div>
         </div>
-    </div>
-</header>
 
-<!-- Main content -->
-<main class="min-h-[100vh]">
-    <div class="max-w-screen-xxl mx-auto py-6 px-12">
-        {% block content %}
-        {% endblock %}
-    </div>
-</main>
+        <!-- User Profile + Mobile Menu Button -->
+        <div class="flex items-center space-x-4">
+          {% if user.is_authenticated %}
+          <div class="relative">
+            <button
+              id="normal-menu-button"
+              class="flex items-center hidden md:flex space-x-2 bg-teal-700 rounded-full px-4 py-2 hover:bg-teal-600 focus:outline-none"
+            >
+              <span>{{ user.username }}</span>
+              <i class="fas fa-user-circle"></i>
+            </button>
+            <div
+              id="normal-menu"
+              class="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg z-10 hidden"
+            >
+              <a
+                href="{% url 'profile' %}"
+                class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
+              >
+                <i class="fas fa-user-circle mr-2"></i> Profile
+              </a>
+              {% if user.is_superuser %}
+              <a
+                href="{% url 'approvers_view' %}"
+                class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
+              >
+                <i class="fas fa-users mr-2"></i> Approvers
+              </a>
+              <a
+                href="{% url 'facility_list' %}"
+                class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
+              >
+                <i class="fas fa-building mr-2"></i> Facilities
+              </a>
+              <a
+                href="{% url 'orientation_list' %}"
+                class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
+              >
+                <i class="fas fa-calendar-alt mr-2"></i> Orientation Dates
+              </a>
+              {% endif %}
+              <a
+                href="{% url 'logout' %}"
+                class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
+              >
+                <i class="fas fa-sign-out-alt mr-2"></i> Logout
+              </a>
+            </div>
+          </div>
+          {% else %}
+          <a
+            href="{% url 'login' %}"
+            class="text-white px-6 py-3 bg-teal-500 rounded-md hover:bg-teal-600"
+            >Login</a
+          >
+          {% endif %}
+          <div class="md:hidden flex items-center">
+            <button
+              id="mobile-menu-button"
+              class="text-white focus:outline-none"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </nav>
 
-<!-- Footer -->
-<footer class="bg-teal-800 text-white py-8 mt-12">
-    <div class="max-w-screen-xl mx-auto px-6 text-center">
+      <!-- Mobile Menu -->
+      <div id="mobile-menu" class="md:hidden bg-teal-700 text-white hidden">
+        <div class="px-6 py-4 space-y-4">
+          <a href="/" class="hover:text-teal-300 flex items-center space-x-2">
+            <i class="fas fa-clipboard-list"></i><span>Placement Profiles</span>
+          </a>
+          {% if user.is_authenticated %}
+          <a
+            href="{% url 'create_placement_profile' %}"
+            class="flex items-center space-x-2"
+          >
+            <i class="fas fa-id-card"></i><span>Create Placement Profile</span>
+          </a>
+          {% if user.is_superuser %}
+          <a
+            href="{% url 'incomplete_profiles' %}"
+            class="hover:text-teal-300 flex items-center space-x-2"
+          >
+            <i class="fas fa-user-edit"></i><span>Incomplete Profiles</span>
+          </a>
+          <a
+            href="{% url 'pending_users' %}"
+            class="hover:text-teal-300 flex items-center space-x-2"
+          >
+            <i class="fas fa-user-clock"></i><span>Pending Users</span>
+          </a>
+          <a
+            href="{% url 'approvers_view' %}"
+            class="hover:text-teal-300 flex items-center space-x-2"
+          >
+            <i class="fas fa-users"></i><span>Approvers</span>
+          </a>
+          {% endif %}
+          <a href="{% url 'profile' %}" class="flex items-center space-x-2">
+            <i class="fas fa-user-circle"></i><span>Profile</span>
+          </a>
+          <a href="{% url 'logout' %}" class="flex items-center space-x-2">
+            <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="min-h-[100vh]">
+      <div class="max-w-screen-xxl mx-auto py-6 px-12">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-teal-800 text-white py-8 mt-12">
+      <div class="max-w-screen-xl mx-auto px-6 text-center">
         <p>&copy; 2025 Peak College. All rights reserved.</p>
-        <p class="text-sm">A placement management system for students and faculty</p>
-    </div>
-</footer>
+        <p class="text-sm">
+          A placement management system for students and faculty
+        </p>
+      </div>
+    </footer>
 
-<script>
-    // Toggle the mobile menu
-    document.getElementById("mobile-menu-button").addEventListener("click", function () {
-        const menu = document.getElementById("mobile-menu");
-        menu.classList.toggle("hidden");
-    });
-    document.getElementById("normal-menu-button").addEventListener("click", function () {
-        const menu = document.getElementById("normal-menu");
-        menu.classList.toggle("hidden");
-    });
-</script>
-
-</body>
+    <!-- Scripts -->
+    <script>
+      document
+        .getElementById("mobile-menu-button")
+        .addEventListener("click", function () {
+          document.getElementById("mobile-menu").classList.toggle("hidden");
+        });
+      document
+        .getElementById("normal-menu-button")
+        .addEventListener("click", function () {
+          document.getElementById("normal-menu").classList.toggle("hidden");
+        });
+    </script>
+  </body>
 </html>
