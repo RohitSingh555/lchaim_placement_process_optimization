@@ -91,86 +91,100 @@ Your Placement Profile
 </button>
 <h2 class="text-lg font-semibold mb-4 text-teal-700">Edit Start Date & Days</h2>
 <form id="startDateForm" onsubmit="saveStartDate(event)">
-<input type="hidden" id="profileId" value="{{ profile.id }}">
+  <input type="hidden" id="profileId" value="{{ profile.id }}">
+  
+  <div class="mb-4">
+    <label for="officialStartDate" class="block text-sm font-medium text-gray-700">Start Date</label>
+    <input type="date" id="officialStartDate" class="w-full mt-1 border-gray-300 rounded shadow-sm focus:ring-teal-500 focus:border-teal-500" required>
+  </div>
+  
+  <div class="mb-4">
+    <label for="officialEndDate" class="block text-sm font-medium text-gray-700">End Date</label>
+    <input type="date" id="officialEndDate" class="w-full mt-1 border-gray-300 rounded shadow-sm focus:ring-teal-500 focus:border-teal-500" required>
+  </div>
 
-<div class="mb-4">
-<label for="officialStartDate" class="block text-sm font-medium text-gray-700">Start Date</label>
-<input type="date" id="officialStartDate" class="w-full mt-1 border-gray-300 rounded shadow-sm focus:ring-teal-500 focus:border-teal-500" required>
-</div>
-
-<div class="mb-4">
-<label for="module_completed" class="block text-sm font-medium text-gray-700">Modules Completed</label>
-<select id="module_completed" class="...">
-{% for i in "1,2,3,4,5,6,7,8,9,10,11,12,13"|split:"," %}
+  <div class="mb-4">
+    <label for="module_completed" class="block text-sm font-medium text-gray-700">Modules Completed</label>
+    <select id="module_completed" class="...">
+      {% for i in "1,2,3,4,5,6,7,8,9,10,11,12,13"|split:"," %}
 <option value="{{ i }}">{{ i }}</option>
 {% endfor %}
 
-</select>
+    </select>
+    
+  </div>
 
-</div>
-
-<div class="flex justify-end">
-<button type="submit" class="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700">Save</button>
-</div>
+  <div class="flex justify-end">
+    <button type="submit" class="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700">Save</button>
+  </div>
 </form>
 </div>
 </div>
 
-
 <script>
-function openEditStartDateModal() {
-// Get values from template context
-const startDate = "{{ profile.official_start_date|date:'Y-m-d' }}";
-const module_completed = "{{ profile.module_completed|default_if_none:'' }}";
+    function openEditStartDateModal() {
+      // Get values from template context
+      const startDate = "{{ profile.official_start_date|date:'Y-m-d' }}";
+      const endDate = "{{ profile.exact_placement_end_date|date:'Y-m-d' }}";
+      const module_completed = "{{ profile.module_completed|default_if_none:'' }}";
+  
+      // Populate form fields
+      if (startDate) {
+        document.getElementById("officialStartDate").value = startDate;
+      }
 
-// Populate form fields
-if (startDate) {
-document.getElementById("officialStartDate").value = startDate;
-}
-
-if (module_completed) {
-document.getElementById("module_completed").value = module_completed;
-}
-
-// Show the modal
-document.getElementById("editStartDateModal").classList.remove("hidden");
-}
-
-function closeEditStartDateModal() {
-document.getElementById("editStartDateModal").classList.add("hidden");
-}
-
-function saveStartDate(event) {
-event.preventDefault();
-const profileId = document.getElementById("profileId").value;
-const startDate = document.getElementById("officialStartDate").value;
-const module_completed = document.getElementById("module_completed").value;
-
-// Example AJAX call to update backend (you can customize this)
-fetch(`/set-official-start-date/${profileId}/`, {
-method: "POST",
-headers: {
-"Content-Type": "application/json",
-"X-CSRFToken": "{{ csrf_token }}"
-},
-body: JSON.stringify({ official_start_date: startDate, module_completed: module_completed })
-}).then(response => {
-if (response.ok) {
-closeEditStartDateModal();
-location.reload(); // Or update UI without reload
-}
-});
-}
-</script>  
+      if (endDate) {
+        document.getElementById("officialEndDate").value = endDate;
+      }
+  
+      if (module_completed) {
+        document.getElementById("module_completed").value = module_completed;
+      }
+  
+      // Show the modal
+      document.getElementById("editStartDateModal").classList.remove("hidden");
+    }
+  
+    function closeEditStartDateModal() {
+      document.getElementById("editStartDateModal").classList.add("hidden");
+    }
+  
+    function saveStartDate(event) {
+      event.preventDefault();
+      const profileId = document.getElementById("profileId").value;
+      const startDate = document.getElementById("officialStartDate").value;
+      const endDate = document.getElementById("officialEndDate").value;
+      const module_completed = document.getElementById("module_completed").value;
+  
+      // Example AJAX call to update backend (you can customize this)
+      fetch(`/set-official-start-date/${profileId}/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify({ official_start_date: startDate,  end_date: endDate, module_completed: module_completed })
+      }).then(response => {
+        if (response.ok) {
+          closeEditStartDateModal();
+          location.reload(); // Or update UI without reload
+        }
+      });
+    }
+  </script>   
 
 
 <p class="flex items-center space-x-2">
 <i class="fas fa-stop text-teal-500"></i>
 <span><strong>Exact Placement End Date:</strong> {{ profile.exact_placement_end_date|date:"M d, Y" }}</span>
 </p>
+<p class="flex items-center space-x-2">
+<i class="fas fa-stop text-teal-500"></i>
+<span><strong>Hours Requested:</strong> {{ profile.required_hours }}</span>
+</p>
 <div>
   <input type="hidden" id="profileIdStage" value="{{ profile.id }}">
-  <div class="font-semibold text-gray-700 flex ">Stage: &nbsp;
+  <div class="font-semibold text-gray-700 flex "><i class="fas fa-flag mr-2 text-teal-500"></i> Stage: &nbsp;
       {% if profile.stage == "DONE" %}
           <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
               <i class="fas fa-check-circle mr-2"></i> Done
@@ -313,7 +327,11 @@ location.reload(); // Or update UI without reload
                   {{ document.document_type }}
                 </td>
                 <td class="px-4 py-2 text-gray-600">
+                  {% if document.file %}
                   {{ document.uploaded_at }}
+                    {% else %}
+                      N/A
+                    {% endif %}
                 </td>
                 <td class="px-4 py-2">
                     <span class="inline-block text-xs px-3 py-1 rounded-full font-semibold tracking-wide

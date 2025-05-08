@@ -2295,8 +2295,11 @@ def delete_user(request, user_id):
 
 @user_passes_test(superuser_required, login_url='/404/')
 def get_users_without_profiles_view(request):
-    users_no_profile = User.objects.exclude(id__in=PlacementProfile.objects.values_list('user', flat=True))
-    return render(request, 'users_without_profiles.html', {'users': users_no_profile})
+    profile_user_ids = PlacementProfile.objects.values_list('user', flat=True)
+    approver_user_ids = Approver.objects.values_list('user', flat=True)
+
+    users = User.objects.exclude(id__in=profile_user_ids).exclude(id__in=approver_user_ids)
+    return render(request, 'users_without_profiles.html', {'users': users})
 
 # Facility Views
 class FacilityListView(ListView):
