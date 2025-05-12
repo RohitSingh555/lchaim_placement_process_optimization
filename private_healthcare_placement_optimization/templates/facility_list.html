@@ -10,6 +10,35 @@
     </button>
   </div>
 
+  <!-- Filters -->
+  <div class="mb-6">
+    <form method="get" class="flex space-x-4">
+      <select name="status" class="px-4 py-2 border border-gray-300 rounded-md">
+        <option value="">Select Status</option>
+        <option value="Active" {% if request.GET.status == "Active" %}selected{% endif %}>Active</option>
+        <option value="Inactive" {% if request.GET.status == "Inactive" %}selected{% endif %}>Inactive</option>
+      </select>
+
+      <select name="province" class="px-4 py-2 border border-gray-300 rounded-md">
+        <option value="">Select Province</option>
+        <!-- Add options dynamically from the list of provinces -->
+        {% for province in provinces %}
+          <option value="{{ province }}" {% if request.GET.province == province %}selected{% endif %}>{{ province }}</option>
+        {% endfor %}
+      </select>
+
+      <select name="city" class="px-4 py-2 border border-gray-300 rounded-md">
+        <option value="">Select City</option>
+        <!-- Add options dynamically from the list of cities -->
+        {% for city in cities %}
+          <option value="{{ city }}" {% if request.GET.city == city %}selected{% endif %}>{{ city }}</option>
+        {% endfor %}
+      </select>
+
+      <button type="submit" class="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700">Filter</button>
+    </form>
+  </div>
+
   <div class="overflow-x-auto bg-white shadow rounded-lg border border-gray-200">
     <table class="min-w-full text-sm text-left text-gray-700">
       <thead class="bg-teal-50 text-teal-700 uppercase text-xs font-semibold">
@@ -36,7 +65,6 @@
             <button onclick="confirmDelete('{{ facility.id }}')" class="text-red-600 hover:text-red-700">
               <i class="fas fa-trash-alt"></i> Delete
             </button>
-            
           </td>
         </tr>
         {% endfor %}
@@ -44,6 +72,7 @@
     </table>
   </div>
 </div>
+
 
 <!-- Add Facility Modal -->
 <div id="addFacilityModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">

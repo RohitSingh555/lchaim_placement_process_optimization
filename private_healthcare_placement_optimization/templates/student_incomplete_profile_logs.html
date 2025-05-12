@@ -344,10 +344,10 @@
                                 <tbody>
                                     {% for profile in profile_details %}
                                     <tr style="border-width: 2px;" class="border-8 border-gray-300 hover:bg-teal-50 transition-colors duration-200">
-                                      <td class="sticky left-0 bg-white px-4 py-9 whitespace-nowrap border border-gray-300 min-w-[120px] w-[120px] max-w-[120px] flex items-center">
-                                        <span class="text-lg font-semibold text-gray-700 mr-2">{{ profile.student_id }}</span>
-                                        <a href="{% url 'get_student_profile_by_id' profile.profile_id %}" class="text-gray-400 hover:text-teal-600" target="_blank">
-                                          <i class="fas fa-external-link-alt text-xl"></i>
+                                      <td class="sticky left-0 bg-white px-2 py-9 whitespace-nowrap border border-gray-300 min-w-[120px] w-[120px] max-w-[120px] items-center">
+                                        <a href="{% url 'get_student_profile_by_id' profile.profile_id %}" class="text-gray-400 hover:text-teal-600 flex items-center" target="_blank">
+                                          <i class="fas fa-external-link-alt text-md pr-2"></i>
+                                        <span class="text-md font-semibold text-gray-700 mr-2">{{ profile.student_id }}</span>
                                         </a>
                                       </td>
                                       <td class="sticky left-[120px] bg-white px-4 py-4 text-center border border-gray-300 min-w-[140px] w-[140px] max-w-[140px]">

@@ -399,7 +399,6 @@ def send_documents_incomplete_email(profile, missing_documents):
                 {remaining_documents_html}
             </ul>
             <p><a href="https://www.peakcollege.ca" class="highlight">Placement Link: Click here.</a></p>
-            <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
             <div class="footer">
                 <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
                 <span>Warm regards, </span>
@@ -490,7 +489,6 @@ def send_welcome_email(profile, submitted_documents):
             <p>Greetings!</p>
             <p>Your documents are now <span class="bold">UNDER REVIEW</span> by our team.</p>
             <p>Next step, wait for the approval of your submitted documents. You’ll receive another email once all are approved.</p>
-            <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
             <div class="footer">
                 <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
                 <span>Warm regards, </span>
@@ -515,7 +513,6 @@ def send_welcome_email(profile, submitted_documents):
     try:
         send_mail(
             subject,
-            "",  # Empty text version
             settings.DEFAULT_FROM_EMAIL,
             [profile.college_email],
             html_message=message,
@@ -1232,7 +1229,8 @@ def send_email_remind_fee(profile):
                 <li>Cash, Credit, or Debit Payment on Campus</li>
             </ul>
             <h4>School Office Hours:</h4>
-            <p><span class="bold">Monday to Thursday:</span> 9:30 AM to 5:00 PM</p>
+            <p><span class="bold">School Office Hours:</span></p>
+            <p><span class="bold">Monday to Thursday:</span> 9:00 AM to 5:00PM</p>
             <p><span class="bold">Saturday:</span> 9:30 AM to 4:00 PM</p>
             <div class="footer">
                 <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
@@ -1643,9 +1641,6 @@ def send_email_notify_result(profile, rejected_documents, zip_url):
             <p>Next step: address the reasons and resubmit the documents by clicking the link below.</p>
             <p><a href="https://www.peakcollege.ca" class="highlight">Resubmission Link: Click here!</a></p>
             <p>You’ll receive another email once all are approved.</p>
-            <p><strong>You can find the files attached at the bottom:</strong> 
-                <br><a href="http://placement.peakcollege.ca{zip_url}" target="_blank">http://placement.peakcollege.ca{zip_url}</a>
-            </p>
             <div class="footer">
                 <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
                 <span>Warm regards, </span>
@@ -1733,7 +1728,7 @@ def send_email_done(profile, documents):
 <p>The Placement Coordinator: We will reach out to you through email or phone call. Once you finalize with her which facility you’re going to do your placement, she will inform you of your Placement Orientation Date.</p>
 <p>Then you can pick up your Skills Passbook and NACC Reviewer from the school on any operating day.</p>
 <h4>School Office Hours:</h4>
-<p><span class="bold">Monday to Thursday:</span> 9:30 AM to 5:00 PM</p>
+<p><span class="bold">Monday to Thursday:</span> 9:00 AM to 5:00PM</p>
 <p><span class="bold">Saturday:</span> 9:30 AM to 4:00 PM</p>
 <div class="footer">
 <p>Best of luck with your placement process and thanks again for completing your Placement Profile at Peak College!</p>
@@ -1820,7 +1815,7 @@ def send_placement_email(profile):
         subject,
         message,
         settings.DEFAULT_FROM_EMAIL,
-        [profile.college_email]
+        ['placement@peakcollege.ca']
     )
     email.content_subtype = "html"
  
@@ -1844,6 +1839,10 @@ def send_documents_email(profile, documents, zip_url):
             .footer a {{
                 color: #008080;
                 text-decoration: none;
+            }}
+            img {{
+                width: 240px;
+                height: 90px;
             }}
         </style>
     </head>
@@ -1878,7 +1877,7 @@ def send_documents_email(profile, documents, zip_url):
         subject,
         message,
         settings.DEFAULT_FROM_EMAIL,
-        [profile.college_email]
+        ['documents@peakcollege.ca']
     )
     email.content_subtype = "html"
  
@@ -2306,6 +2305,33 @@ class FacilityListView(ListView):
     model = Facility
     template_name = 'facility_list.html'
     context_object_name = 'facilities'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        status = self.request.GET.get('status')
+        province = self.request.GET.get('province')
+        city = self.request.GET.get('city')
+
+        # Apply filters if they exist
+        if status:
+            queryset = queryset.filter(status=status)
+        if province:
+            queryset = queryset.filter(province=province)
+        if city:
+            queryset = queryset.filter(city=city)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Get distinct provinces and cities
+        provinces = list(set(Facility.objects.values_list('province', flat=True)))
+
+        cities = list(set(Facility.objects.values_list('city', flat=True)))
+
+        context['provinces'] = provinces
+        context['cities'] = cities
+        return context
 
 class FacilityCreateView(CreateView):
     model = Facility

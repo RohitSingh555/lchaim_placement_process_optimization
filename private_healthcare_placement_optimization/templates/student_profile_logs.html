@@ -340,6 +340,7 @@
                                 <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Preferred Facility</th>
                                 <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[200px]">Facility Address</th>
                                 <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Facility Contact</th>
+                                <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">Home City</th>
                                 <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">City Pref 1</th>
                                 <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">City Pref 2</th>
                                 <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Assigned Facility</th>
@@ -362,10 +363,10 @@
                         <tbody>
                             {% for profile in profile_details %}
                             <tr class="border border-gray-300 hover:bg-teal-50 transition-colors duration-200">
-                              <td class="sticky left-0 bg-white px-4 py-9 whitespace-nowrap border border-gray-300 min-w-[120px] w-[120px] max-w-[120px] flex items-center">
-                                <span class="text-lg font-semibold text-gray-700 mr-2">{{ profile.student_id }}</span>
-                                <a href="{% url 'get_student_profile_by_id' profile.profile_id %}" class="text-gray-400 hover:text-teal-600" target="_blank">
-                                  <i class="fas fa-external-link-alt text-xl"></i>
+                              <td class="sticky left-0 bg-white px-2 py-9 whitespace-nowrap border border-gray-300 min-w-[120px] w-[120px] max-w-[120px] items-center">
+                                <a href="{% url 'get_student_profile_by_id' profile.profile_id %}" class="text-gray-400 hover:text-teal-600 flex items-center" target="_blank">
+                                  <i class="fas fa-external-link-alt text-md pr-2"></i>
+                                <span class="text-md font-semibold text-gray-700 mr-2">{{ profile.student_id }}</span>
                                 </a>
                               </td>
                               <td class="sticky left-[120px] bg-white px-4 py-4 text-center border border-gray-300 min-w-[140px] w-[140px] max-w-[140px]">
@@ -440,6 +441,7 @@
                                 <td class="px-6 py-4">{{ profile.preferred_facility_name }}</td>
                                 <td class="px-6 py-4">{{ profile.preferred_facility_address }}</td>
                                 <td class="px-6 py-4">{{ profile.preferred_facility_contact_person }}</td>
+                                <td class="px-6 py-4">{{ profile.city }}</td>
                                 <td class="px-6 py-4">{{ profile.city_preference_1 }}</td>
                                 <td class="px-6 py-4">{{ profile.city_preference_2 }}</td>
                                 <td class="px-6 py-4">{{ profile.assigned_facility }}</td>
@@ -607,9 +609,7 @@
                         
                             <div class="text-center sm:text-left">
                                 <h3 class="text-xl md:text-2xl font-semibold text-gray-800">
-                                    {{ profile.first_name }} {{ profile.last_name }}<button onclick="openEditStartDateModal()" class="ml-2 text-teal-600 hover:text-teal-800 focus:outline-none">
-                                      <i class="fas fa-pencil-alt"></i>
-                                    </button>
+                                    {{ profile.first_name }} {{ profile.last_name }}
                                 </h3>
                             
                                 <!-- Email with icon -->
@@ -628,144 +628,131 @@
                         </div>
                 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
-                            <p class="flex items-center space-x-2">
-                                <i class="fas fa-briefcase text-teal-500"></i>
-                                <span><strong>Experience Level:</strong> {{ profile.experience_level }}</span>
-                            </p>
-                            <p class="flex items-center space-x-2">
-                                <i class="fas fa-clock text-teal-500"></i>
-                                <span><strong>Shift Requested:</strong> {{ profile.shift_requested }}</span>
-                            </p>
-                            <p class="flex items-center space-x-2">
-                                <i class="fas fa-file-upload text-teal-500"></i>
-                                <span><strong>Employer Letter:</strong>
-                                    {% if profile.employer_letter %}
-                                        <a href="{{ profile.employer_letter }}" target="_blank" class="text-blue-600 hover:underline">View</a>
-                                    {% else %}
-                                        Not Uploaded
-                                    {% endif %}
-                                </span>
-                            </p>
-                            <p class="flex items-center space-x-2">
-                                <i class="fas fa-calendar-alt text-teal-500"></i>
-                                <span><strong>Submitted On:</strong> {{ profile.created_at|date:"M d, Y H:i" }}</span>
-                            </p>
-                            <!-- Newly added fields below -->
-    <p class="flex items-center space-x-2">
-        <i class="fas fa-hospital text-teal-500"></i>
-        <span><strong>Assigned Facility:</strong> {{ profile.assigned_facility }}</span>
-    </p>
-    <p class="flex items-center space-x-2">
-        <i class="fas fa-calendar-check text-teal-500"></i>
-        <span><strong>Orientation Date:</strong> {{ profile.orientation_date|date:"M d, Y" }}</span>
-    </p>
-    <p class="flex items-center space-x-2">
-      <i class="fas fa-calendar-check text-teal-500"></i>
-      <span><strong>Modules Completed:</strong> {{ profile.module_completed }}</span>
-      <i class="fas fa-pencil-alt text-gray-400  duration-150 text-sm"></i>
-      </p>
-      <p class="flex items-center space-x-2 group cursor-pointer">
-          <i class="fas fa-play text-teal-500"></i>
-          <span class="flex items-center space-x-1">
-            <strong>Official Start Date:</strong>
-            <span>{{ profile.official_start_date|date:"M d, Y" }}</span>
-            <i class="fas fa-pencil-alt text-gray-400  duration-150 text-sm"></i>
-          </span>
-        </p>
-      <!-- Modal -->
-      <!-- Edit Start Date Modal -->
-<div id="editStartDateModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
-    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm relative">
-      <button onclick="closeEditStartDateModal()" class="absolute top-2 right-2 text-gray-600 hover:text-red-600">
-        <i class="fas fa-times"></i>
-      </button>
-      <h2 class="text-lg font-semibold mb-4 text-teal-700">Edit Start Date & Days</h2>
-      <form id="startDateForm" onsubmit="saveStartDate(event)">
-        <input type="hidden" id="profileId" value="{{ profile.profile_id }}">
-        
-        <div class="mb-4">
-          <label for="officialStartDate" class="block text-sm font-medium text-gray-700">Start Date</label>
-          <input type="date" id="officialStartDate" class="w-full mt-1 border-gray-300 rounded shadow-sm focus:ring-teal-500 focus:border-teal-500" required>
-        </div>
-        
-        <div class="mb-4">
-          <label for="officialEndDate" class="block text-sm font-medium text-gray-700">End Date</label>
-          <input type="date" id="officialEndDate" class="w-full mt-1 border-gray-300 rounded shadow-sm focus:ring-teal-500 focus:border-teal-500" required>
-        </div>
-  
-        <div class="mb-4">
-          <label for="module_completed" class="block text-sm font-medium text-gray-700">Modules Completed</label>
-          <select id="module_completed" class="...">
-            {% for i in "1,2,3,4,5,6,7,8,9,10,11,12,13"|split:"," %}
-  <option value="{{ i }}">{{ i }}</option>
-{% endfor %}
 
-          </select>
-          
-        </div>
-  
-        <div class="flex justify-end">
-          <button type="submit" class="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700">Save</button>
-        </div>
-      </form>
-    </div>
-  </div>
-  
-    <p class="flex items-center space-x-2">
-        <i class="fas fa-stop text-teal-500"></i>
-        <span><strong>Exact Placement End Date:</strong> {{ profile.exact_placement_end_date|date:"M d, Y" }}</span>
-        <i class="fas fa-pencil-alt text-gray-400  duration-150 text-sm"></i>
-    </p>
-    <p class="flex items-center space-x-2">
-      <i class="fas fa-stop text-teal-500"></i>
-      <span><strong>Hours Requested:</strong> {{ profile.required_hours }}</span>
-      </p>
-        <input type="hidden" id="profileIdStage" value="{{ profile.id }}">
-        <div class="font-semibold text-gray-700 flex ">
-        <i class="fas fa-flag mr-2 text-teal-500"></i> Stage: &nbsp;
-        {% if profile.stage == "DONE" %}
-                                  <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm flex items-center justify-center">
-                                    <i class="fas fa-check-circle mr-2"></i> Done
-                                  </span>
-                                {% elif profile.stage == "ENDORSED" %}
-                                  <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm flex items-center justify-center">
-                                    <i class="fas fa-thumbs-up mr-2"></i> Endorsed
-                                  </span>
-                                {% elif profile.stage == "IN_PLACEMENT" %}
-                                  <span class="bg-yellow-500 text-white px-3 py-1 rounded-full text-sm flex items-center justify-center">
-                                    <i class="fas fa-briefcase mr-2"></i> In Placement
-                                  </span>
-                                {% elif profile.stage == "CANCELLED" %}
-                                  <span class="bg-red-500 text-white px-3 py-1 rounded-full text-sm flex items-center justify-center">
-                                    <i class="fas fa-times-circle mr-2"></i> Cancelled
-                                  </span>
-                                {% elif profile.stage == "TRANSFERRED" %}
-                                  <span class="bg-purple-500 text-white px-3 py-1 rounded-full text-sm flex items-center justify-center">
-                                    <i class="fas fa-exchange-alt mr-2"></i> Transferred
-                                  </span>
-                                {% elif profile.stage == "ONHOLD" %}
-                                  <span class="bg-gray-500 text-white px-3 py-1 rounded-full text-sm flex items-center justify-center">
-                                    <i class="fas fa-pause-circle mr-2"></i> On Hold
-                                  </span>
-                                {% elif profile.stage == "ONGOING_PROCESS" %}
-                                  <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-sm flex items-center justify-center">
-                                    <i class="fas fa-spinner mr-2"></i> Ongoing Process
-                                  </span>
-                                {% elif profile.stage == "ORIENTATION_SCHEDULED" %}
-                                  <span class="bg-teal-500 text-white px-3 py-1 rounded-full text-sm flex items-center justify-center">
-                                    <i class="fas fa-calendar-check mr-2"></i> Orientation Scheduled
-                                  </span>
-                                {% elif profile.stage == "READY" %}
-                                  <span class="bg-indigo-500 text-white px-3 py-1 rounded-full text-sm flex items-center justify-center">
-                                    <i class="fas fa-check-circle mr-2"></i> Ready
-                                  </span>
+                          <!-- LEFT SIDE -->
+                          <div class="space-y-3">
+                            <p class="flex items-center space-x-2">
+                              <i class="fas fa-briefcase text-teal-500"></i>
+                              <span><strong>Experience Level:</strong> {{ profile.experience_level }}</span>
+                            </p>
+                        
+                            <p class="flex items-center space-x-2">
+                              <i class="fas fa-file-upload text-teal-500"></i>
+                              <span><strong>Required Document:</strong>
+                                {% if profile.employer_letter %}
+                                  <a href="{{ profile.employer_letter }}" target="_blank" class="text-blue-600 hover:underline">View</a>
                                 {% else %}
-                                  <span class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm flex items-center justify-center">
-                                    {{ profile.stage|default:"N/A" }}
-                                  </span>
+                                  Not Uploaded
                                 {% endif %}
-    </p>
-  </div>
+                              </span>
+                            </p>
+                        
+                            <p class="flex items-center space-x-2">
+                              <i class="fas fa-city text-teal-500"></i>
+                              <span><strong>Home City:</strong> {{ profile.city }}</span>
+                            </p>
+                        
+                            <div class="space-y-1">
+                              <p class="flex items-center space-x-2">
+                                <i class="fas fa-map-marked-alt text-teal-500"></i>
+                                <span><strong>Open to Other Cities:</strong> {{ profile.city_preference_1|yesno:"Yes,No" }}</span>
+                              </p>
+                              <div class="ml-6 text-sm text-gray-600 space-y-2">
+                                {% if profile.city_preference_1 %}
+                                  <p class="flex items-center space-x-2">
+                                    <i class="fas fa-map-marker-alt text-teal-500"></i>
+                                    <span><strong>City Preference 1:</strong> {{ profile.city_preference_1 }}</span>
+                                  </p>
+                                {% endif %}
+                                {% if profile.city_preference_2 %}
+                                  <p class="flex items-center space-x-2">
+                                    <i class="fas fa-map-marker-alt text-teal-500"></i>
+                                    <span><strong>City Preference 2:</strong> {{ profile.city_preference_2 }}</span>
+                                  </p>
+                                {% endif %}
+                                {% if not profile.city_preference_1 %}
+                                  <p class="flex items-center space-x-2">
+                                    <i class="fas fa-exclamation-circle text-red-500"></i>
+                                    <span>No cities listed.</span>
+                                  </p>
+                                {% endif %}
+                              </div>
+                              
+                            </div>
+                          </div>
+                        
+                          <!-- RIGHT SIDE -->
+                          <div class="space-y-3">
+                            <div class="flex items-center space-x-2">
+                              <i class="fas fa-flag text-teal-500"></i>
+                              <span><strong>Stage:</strong></span>
+                              {% if profile.stage == "DONE" %}
+                                <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+                                  <i class="fas fa-check-circle mr-2"></i> Done
+                                </span>
+                              {% elif profile.stage == "ENDORSED" %}
+                                <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+                                  <i class="fas fa-thumbs-up mr-2"></i> Endorsed
+                                </span>
+                              {% elif profile.stage == "IN_PLACEMENT" %}
+                                <span class="bg-yellow-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+                                  <i class="fas fa-briefcase mr-2"></i> In Placement
+                                </span>
+                              {% elif profile.stage == "CANCELLED" %}
+                                <span class="bg-red-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+                                  <i class="fas fa-times-circle mr-2"></i> Cancelled
+                                </span>
+                              {% elif profile.stage == "TRANSFERRED" %}
+                                <span class="bg-purple-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+                                  <i class="fas fa-exchange-alt mr-2"></i> Transferred
+                                </span>
+                              {% elif profile.stage == "ONHOLD" %}
+                                <span class="bg-gray-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+                                  <i class="fas fa-pause-circle mr-2"></i> On Hold
+                                </span>
+                              {% elif profile.stage == "ONGOING_PROCESS" %}
+                                <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+                                  <i class="fas fa-spinner mr-2"></i> Ongoing Process
+                                </span>
+                              {% elif profile.stage == "ORIENTATION_SCHEDULED" %}
+                                <span class="bg-teal-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+                                  <i class="fas fa-calendar-check mr-2"></i> Orientation Scheduled
+                                </span>
+                              {% elif profile.stage == "READY" %}
+                                <span class="bg-indigo-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
+                                  <i class="fas fa-check-circle mr-2"></i> Ready
+                                </span>
+                              {% else %}
+                                <span class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm flex items-center">
+                                  {{ profile.stage|default:"N/A" }}
+                                </span>
+                              {% endif %}
+                            </div>
+                        
+                            <p class="flex items-center space-x-2">
+                              <i class="fas fa-stop text-teal-500"></i>
+                              <span><strong>Hours Requested:</strong> {{ profile.required_hours }}</span>
+                            </p>
+                        
+                            <p class="flex items-center space-x-2">
+                              <i class="fas fa-clock text-teal-500"></i>
+                              <span><strong>Shift Requested:</strong> {{ profile.shift_requested }}</span>
+                            </p>
+                        
+                            <p class="flex items-center space-x-2">
+                              <i class="fas fa-hospital text-teal-500"></i>
+                              <span><strong>Assigned Facility:</strong> {{ profile.assigned_facility }}</span>
+                            </p>
+                        
+                            <p class="flex items-center space-x-2">
+                              <i class="fas fa-calendar-check text-teal-500"></i>
+                              <span><strong>Orientation Date:</strong> {{ profile.orientation_date|date:"M d, Y" }}</span>
+                            </p>
+                        
+                            <input type="hidden" id="profileIdStage" value="{{ profile.id }}">
+                          </div>
+                        </div>
+                        
   <script>
     function openEditStartDateModal() {
       // Get values from template context
@@ -819,7 +806,6 @@
   </script>  
   
   
-                        </div>
                         <div class="mt-6 flex justify-center">
                             <button onclick="openModal('{{ forloop.counter }}')" class="text-white bg-teal-600 hover:bg-teal-700 font-semibold py-3 px-6 rounded-lg text-lg flex items-center space-x-2 transition">
                                 <i class="fas fa-file-alt"></i>
@@ -828,7 +814,25 @@
                         </div>
             
                     </div>
-                </div>       
+                </div>     
+
+                {% comment %} Tuition section {% endcomment %}
+                <div class="flex justify-center mt-6 ">
+                  <div class=" w-full max-w-6xl mx-auto">
+                <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p class="text-base text-gray-800">
+                    <strong>Check Tuition Fee Balance:</strong>
+                    <a href="https://app.tuiopay.com/signin" target="_blank" class="text-blue-600 hover:underline hover:text-blue-800 transition">
+                      Click here
+                    </a>
+                  </p>
+                  <p class="mt-2 text-sm text-gray-600 italic">
+                    Note: Log in using your personal email address and the password you created during registration.
+                  </p>
+                </div>
+              </div>
+              </div>
+
                 <div class="flex justify-center mt-6 px-4">
                     <div class="bg-white border border-gray-200 rounded-lg shadow-md p-6 w-full max-w-6xl mx-auto">
                       <h3 class="text-xl font-semibold text-gray-800 mb-4">Document Status Table</h3>
@@ -918,6 +922,81 @@
                     </div>
                     
                   </div>
+
+
+                {% comment %} edit section {% endcomment %}
+                <div class="flex justify-center mt-6">
+                  <div class="w-full max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-md space-y-4">
+                    
+                    <!-- Section Header with One Edit Button -->
+                    <div class="flex items-center justify-between">
+                      <h2 class="text-xl font-semibold text-gray-800">Student's Responsibility To Input:</h2>
+                      <button onclick="openEditStartDateModal()" class="text-teal-600 hover:text-teal-800 focus:outline-none text-sm flex items-center space-x-1">
+                        <i class="fas fa-pencil-alt"></i>
+                        <span>Edit</span>
+                      </button>
+                    </div>
+                
+                    <!-- Info Display -->
+                    <div class="space-y-2 text-gray-800">
+                      <p class="flex items-center space-x-2">
+                        <i class="fas fa-play text-teal-500"></i>
+                        <span><strong>Official Start Date:</strong> {{ profile.official_start_date|date:"M d, Y" }}</span>
+                      </p>
+                      <p class="flex items-center space-x-2">
+                        <i class="fas fa-stop text-teal-500"></i>
+                        <span><strong>Exact Placement End Date:</strong> {{ profile.exact_placement_end_date|date:"M d, Y" }}</span>
+                      </p>
+                      <p class="flex items-center space-x-2">
+                        <i class="fas fa-calendar-check text-teal-500"></i>
+                        <span><strong>Modules Completed:</strong> {{ profile.module_completed }}</span>
+                      </p>
+                    </div>
+                
+                    <!-- Edit Modal -->
+                    <div id="editStartDateModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+                      <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative animate-fade-in">
+                        <button onclick="closeEditStartDateModal()" class="absolute top-3 right-3 text-gray-500 hover:text-red-500">
+                          <i class="fas fa-times"></i>
+                        </button>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Edit Placement Information</h3>
+                        <form id="startDateForm" onsubmit="saveStartDate(event)">
+                          <input type="hidden" id="profileId" value="{{ profile.profile_id }}">
+                
+                          <!-- Start Date (Optional) -->
+                          <div class="mb-4">
+                            <label for="officialStartDate" class="block text-sm font-medium text-gray-700">Start Date</label>
+                            <input type="date" id="officialStartDate" class="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 shadow-sm focus:ring-teal-500 focus:border-teal-500">
+                          </div>
+                
+                          <!-- End Date (Optional) -->
+                          <div class="mb-4">
+                            <label for="officialEndDate" class="block text-sm font-medium text-gray-700">End Date</label>
+                            <input type="date" id="officialEndDate" class="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 shadow-sm focus:ring-teal-500 focus:border-teal-500">
+                          </div>
+                
+                          <!-- Modules Completed (Optional) -->
+                          <div class="mb-4">
+                            <label for="module_completed" class="block text-sm font-medium text-gray-700">Modules Completed</label>
+                            <select id="module_completed" class="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 shadow-sm focus:ring-teal-500 focus:border-teal-500">
+                              <option value="">Select</option>
+                              {% for i in "1,2,3,4,5,6,7,8,9,10,11,12,13"|split:"," %}
+                                <option value="{{ i }}">{{ i }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                
+                          <div class="flex justify-end mt-4">
+                            <button type="submit" class="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-all">Save</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>                
+                
+
+
                   <!-- Address Information Card -->
 
                   <div class="flex flex-col justify-center mt-6 px-4 gap-6">
@@ -982,26 +1061,10 @@
                     </div>
                 </div>
                 
-</div>
-</div>
+  </div>
+  </div>
 
-                <div class="flex justify-center mt-6 ">
-                    <div class=" w-full max-w-6xl mx-auto">
-                  <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <p class="text-base text-gray-800">
-                      <strong>Check Tuition Fee Balance:</strong>
-                      <a href="https://app.tuiopay.com/signin" target="_blank" class="text-blue-600 hover:underline hover:text-blue-800 transition">
-                        Click here
-                      </a>
-                    </p>
-                    <p class="mt-2 text-sm text-gray-600 italic">
-                      Note: Log in using your personal email address and the password you created during registration.
-                    </p>
-                  </div>
-                  </div>
-                  </div>
-                  
-                  
+               
                 {% endfor %}         
                 
                 {% endif %}

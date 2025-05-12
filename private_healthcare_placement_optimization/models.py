@@ -176,7 +176,7 @@ class Facility(models.Model):
     province = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
     address = models.TextField()
-    facility_phone = models.CharField(max_length=20, blank=True, null=True)
+    facility_phone = models.CharField(max_length=100, blank=True, null=True)
     website = models.URLField(blank=True, null=True)
 
     person_in_charge = models.CharField(max_length=100)

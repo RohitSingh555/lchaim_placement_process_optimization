@@ -1,762 +1,1407 @@
-{% extends 'base.html' %}
-
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 <div class="max-w-3xl mx-auto py-12">
-    <div class="relative flex items-center justify-center w-full mb-6">
-        <!-- Stylish Back Button -->
-        <button id="backButton" 
-            class="absolute left-0 flex items-center gap-2 px-4 py-2 bg-gray-300 text-gray-700 font-medium rounded-full 
-                   shadow-md hover:bg-gray-400 hover:shadow-lg transition-all duration-300 hidden"
-            onclick="prevStep()">
-            <i class="fas fa-arrow-left"></i> Back
-        </button>
-    
-        <!-- Title (Centered) -->
-        <h2 class="text-2xl font-bold text-center">
-            Create Placement Profile
-        </h2>
-    </div>
-    
-    <form method="POST" enctype="multipart/form-data" id="wizardForm" class="space-y-6" onsubmit="showLoadingOverlay()">
-        {% csrf_token %}
+  <div class="relative flex items-center justify-center w-full mb-6">
+    <!-- Stylish Back Button -->
+    <button
+      id="backButton"
+      class="absolute left-0 flex items-center gap-2 px-4 py-2 bg-gray-300 text-gray-700 font-medium rounded-full shadow-md hover:bg-gray-400 hover:shadow-lg transition-all duration-300 hidden"
+      onclick="prevStep()"
+    >
+      <i class="fas fa-arrow-left"></i> Back
+    </button>
 
+    <!-- Title (Centered) -->
+    <h2 class="text-2xl font-bold text-center">Create Placement Profile</h2>
+  </div>
 
-        <!-- Last Name (Step 4) -->
-        <div class="form-step hidden" id="step1">
-            <!-- Sub-Step Container -->
-            <div class="sub-step" id="subStep1">
-              <div class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4">
-                <i class="fas fa-info-circle text-teal-600 text-3xl flex-shrink-0"></i>
-                <div class="flex-1">
-                  <h3 class="text-xl font-semibold text-teal-700">Peak College Student Responsibilities</h3>
-                  <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
-                    <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Ensure my tuition fee is settled to avoid delays.</li>
-                    <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Submit clear and readable placement documents for approval by the Placement Coordinator.</li>
-                    <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Resubmit documents that were rejected due to unclear submission.</li>
-                    <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Ensure the college has my present home address.</li>
-                    <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Regularly check my email for document approval notifications and coordinate with the Placement Coordinator.</li>
-                    <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Wait for an email confirmation once all required documents are approved and tuition fee is fully paid.</li>
-                  </ul>
-                  <div class="mt-5 flex items-center">
-                    <input type="checkbox" id="subStep1Checkbox" class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
-                    <label for="subStep1Checkbox" class="ml-3 text-gray-800 text-lg">
-                      I have read and understood my responsibilities listed for placement.
-                    </label>
-                  </div>
-                  <p id="subStep1Error" class="text-red-600 text-lg mt-2 hidden">You must acknowledge this section before proceeding.</p>
-                </div>
-              </div>
-              <div class="flex justify-center mt-4">
-                <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
-                  hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
-                  onclick="goToSubStep(2)">
-                  Next <i class="fas fa-arrow-right ml-2"></i>
-                </button>
-              </div>
+  <form
+    method="POST"
+    enctype="multipart/form-data"
+    id="wizardForm"
+    class="space-y-6"
+    onsubmit="showLoadingOverlay()"
+  >
+    {% csrf_token %}
+
+    <!-- Last Name (Step 4) -->
+    <div class="form-step hidden" id="step1">
+      <!-- Sub-Step Container -->
+      <div class="sub-step" id="subStep1">
+        <div
+          class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4"
+        >
+          <i
+            class="fas fa-info-circle text-teal-600 text-3xl flex-shrink-0"
+          ></i>
+          <div class="flex-1">
+            <h3 class="text-xl font-semibold text-teal-700">
+              Peak College Student Responsibilities
+            </h3>
+            <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Ensure my
+                tuition fee is settled to avoid delays.
+              </li>
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Submit
+                clear and readable placement documents for approval by the
+                Placement Coordinator.
+              </li>
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Resubmit
+                documents that were rejected due to unclear submission.
+              </li>
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Ensure the
+                college has my present home address.
+              </li>
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Regularly
+                check my email for document approval notifications and
+                coordinate with the Placement Coordinator.
+              </li>
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Wait for
+                an email confirmation once all required documents are approved
+                and tuition fee is fully paid.
+              </li>
+            </ul>
+            <div class="mt-5 flex items-center">
+              <input
+                type="checkbox"
+                id="subStep1Checkbox"
+                class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+              />
+              <label for="subStep1Checkbox" class="ml-3 text-gray-800 text-lg">
+                I have read and understood my responsibilities listed for
+                placement.
+              </label>
             </div>
-          
-            <!-- Substeps 2–7 (see below for full content) -->
-            <div class="sub-step hidden" id="subStep2">
-                <div class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4">
-                    <i class="fas fa-clipboard-list text-teal-600 text-3xl flex-shrink-0 mt-1"></i>  
-                  <div class="flex-1 h-[500px] overflow-y-auto pr-4"> 
-                    <h3 class="text-xl font-semibold text-teal-700">Before Placement</h3>
-                    <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Submit Medical Report with supporting lab results or proof of immunization for:</li>
-                      <ul class="ml-8 list-none space-y-2">
-                        <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i> 2-Step TB Test (or Chest X-ray if positive). For LTC placements, must be within 6 months.</li>
-                        <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i> MMR (Measles, Mumps, Rubella), Varicella, Tdap (Tetanus, Diphtheria, Pertussis), Hepatitis B.</li>
-                      </ul>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Police Vulnerable Sector Check (VSC) – Criminal and Judicial Checks are NOT accepted. Must be within 6 months for LTC placements.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> COVID-19 Vaccination Certificate – Proof of two doses required (see Placement Guide for details).</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> First Aid & CPR (Level C).</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Mask Fit Test Certificate.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Flu Shot Record (for fall/winter intakes).</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Pregnancy Policy:</li>
-                      <ul class="ml-8 list-none space-y-2">
-                        <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i> 1st & 3rd trimester: not allowed.</li>
-                        <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i> 2nd trimester: allowed with doctor’s note and facility approval.</li>
-                      </ul>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Do not contact facilities directly. All communication is handled by the college.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Placements are offered based on document completion and availability. Suggesting facilities is allowed, but communication goes through the college.</li>
-                    </ul>
-                    <div class="mt-5 flex items-center">
-                      <input type="checkbox" id="subStep2Checkbox" class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
-                      <label for="subStep2Checkbox" class="ml-3 text-gray-800 text-lg">
-                        I have read and understood my responsibilities listed for placement
-                      </label>
-                    </div>
-                    <p id="subStep2Error" class="text-red-600 text-lg mt-2 hidden">
-                      Please confirm you have read and understood the responsibilities.
-                    </p>
-                  </div>
-                </div>
-                <div class="flex justify-center mt-4">
-                  <button onclick="goToSubStep(3)" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
-                    hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300">
-                    Next <i class="fas fa-arrow-right ml-2"></i>
-                  </button>
-                </div>
-              </div>
-              
-              <div class="sub-step hidden" id="subStep3">
-                <div class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4">
-                  <i class="fas fa-university text-teal-600 text-3xl flex-shrink-0"></i>
-                  <div class="flex-1">
-                    <h3 class="text-xl font-semibold text-teal-700">College Responsibilities</h3>
-                    <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Review documents and confirm eligibility.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Ensure student has zero tuition balance.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Coordinate placement logistics (proposal, agreement, status).</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Provide orientation and relevant policies.</li>
-                    </ul>
-                    <div class="mt-5 flex items-center">
-                      <input type="checkbox" id="subStep3Checkbox" class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
-                      <label for="subStep3Checkbox" class="ml-3 text-gray-800 text-lg">
-I have read and understood my responsibilities listed for placement</label>
-                    </div>
-                    <p id="subStep3Error" class="text-red-600 text-lg mt-2 hidden">
-I have read and understood my responsibilities listed for placement</p>
-                  </div>
-                </div>
-                <div class="flex justify-center mt-4">
-                  <button onclick="goToSubStep(4)" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
-                    hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300">
-                    Next <i class="fas fa-arrow-right ml-2"></i>
-                  </button>
-                </div>
-              </div>
-              <div class="sub-step hidden" id="subStep4">
-                <div class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4">
-                  <i class="fas fa-hospital-symbol text-teal-600 text-3xl flex-shrink-0"></i>
-                  <div class="flex-1">
-                    <h3 class="text-xl font-semibold text-teal-700">Facility Responsibilities</h3>
-                    <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Confirm capacity and schedule.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Share intake and orientation dates.</li>
-                    <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Share number of available spots.</li>
-                    <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Share shift schedule and shift requirements.</li>
-                    </ul>
-                    <div class="mt-5 flex items-center">
-                      <input type="checkbox" id="subStep4Checkbox" class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
-                      <label for="subStep4Checkbox" class="ml-3 text-gray-800 text-lg">
-I have read and understood my responsibilities listed for placement</label>
-                    </div>
-                    <p id="subStep4Error" class="text-red-600 text-lg mt-2 hidden">
-I have read and understood my responsibilities listed for placement</p>
-                  </div>
-                </div>
-                <div class="flex justify-center mt-4">
-                  <button onclick="goToSubStep(5)" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
-                    hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300">
-                    Next <i class="fas fa-arrow-right ml-2"></i>
-                  </button>
-                </div>
-              </div>
-              <div class="sub-step hidden" id="subStep5">
-                <div class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4">
-                  <i class="fas fa-user-clock text-teal-600 text-3xl flex-shrink-0"></i>
-                  <div class="flex-1 h-[500px] overflow-y-auto pr-4">
-                    <h3 class="text-xl font-semibold text-teal-700">During Placement</h3>
-                    <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i><strong>Attendance & Punctuality:</strong> Report absences to both college and facility via email.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>More than 2 absences require explanation.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>No unauthorized schedule changes.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i><strong>Illness:</strong> Immediately notify both the facility and college.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i><strong>Commitment:</strong> Placement site cannot be changed once assigned.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i><strong>Professional Conduct:</strong> Respect workplace policies and people.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Disrespectful or abusive behavior may lead to disciplinary action.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i><strong>College Support:</strong> Monitor student performance.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Conduct mid-placement check-ins.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Maintain accurate placement records.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i><strong>Facility Responsibilities:</strong> Provide supervision and orientation.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Notify college of any student issues.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Submit preceptor evaluations by placement end.</li>
-                    </ul>
-                    <div class="mt-5 flex items-center">
-                      <input type="checkbox" id="subStep5Checkbox" class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
-                      <label for="subStep5Checkbox" class="ml-3 text-gray-800 text-lg">
-                        I have read and understood my responsibilities listed for placement
-                      </label>
-                    </div>
-                    <p id="subStep5Error" class="text-red-600 text-lg mt-2 hidden">
-                      Please acknowledge the responsibilities by checking the box above.
-                    </p>
-                  </div>
-                </div>
-                <div class="flex justify-center mt-4">
-                  <button onclick="goToSubStep(6)" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
-                    hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300">
-                    Next <i class="fas fa-arrow-right ml-2"></i>
-                  </button>
-                </div>
-              </div>
-              
-              <div class="sub-step hidden" id="subStep6">
-                <div class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4">
-                  <i class="fas fa-handshake text-teal-600 text-3xl flex-shrink-0"></i>
-                  <div class="flex-1">
-                    <h3 class="text-xl font-semibold text-teal-700">After Placement</h3>
-                    <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i><strong>Student Responsibilities:</strong> Email the college with exact placement end date.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Submit completed timesheet (Skills Passbook or Facility Log Sheet).</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Submit preceptor evaluation.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i><strong>College Responsibilities:</strong> Verify placement hours and evaluation.</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>File documentation for records.</li>
-                    </ul>
-                    <div class="mt-5 flex items-center">
-                      <input type="checkbox" id="subStep6Checkbox" class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
-                      <label for="subStep6Checkbox" class="ml-3 text-gray-800 text-lg">
-                        I have read and understood my responsibilities listed for placement
-                      </label>
-                    </div>
-                    <p id="subStep6Error" class="text-red-600 text-lg mt-2 hidden">
-                      Please acknowledge the responsibilities by checking the box above.
-                    </p>
-                  </div>
-                </div>
-                <div class="flex justify-center mt-4">
-                  <button onclick="goToSubStep(7)" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
-                    hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300">
-                    Next <i class="fas fa-arrow-right ml-2"></i>
-                  </button>
-                </div>
-              </div>
-              
-              
-              <div class="sub-step hidden" id="subStep7">
-                <div class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4">
-                  <i class="fas fa-handshake text-teal-600 text-3xl flex-shrink-0"></i>
-                  <div class="flex-1">
-                    <h3 class="text-xl font-semibold text-teal-700">Conduct & Respect Policy</h3>
-                    <p class="text-gray-800 mt-2 text-lg">
-                      Peak College adheres to the Occupational Health and Safety Act (OHSA) and the Ontario Human Rights Code (OHRC) to ensure a respectful, inclusive learning environment.
-                    </p>
-                    <h4 class="mt-4 font-semibold text-teal-700 text-lg">Unacceptable Behaviors Include:</h4>
-                    <ul class="list-none text-gray-800 mt-2 space-y-2 text-lg">
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Dismissive or demeaning acts</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Public embarrassment</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Undermining work</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Harassment or discrimination</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Retaliation for reporting concerns</li>
-                    </ul>
-                    <h4 class="mt-4 font-semibold text-teal-700 text-lg">Expectations:</h4>
-                    <ul class="list-none text-gray-800 mt-2 space-y-2 text-lg">
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Treat everyone with dignity and respect</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Communicate professionally</li>
-                      <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Report violations confidentially and safely</li>
-                    </ul>
-                    <div class="mt-5 flex items-center">
-                      <input type="checkbox" id="subStep7Checkbox" class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
-                      <label for="subStep7Checkbox" class="ml-3 text-gray-800 text-lg">
-                        I have read and understood the Conduct and Respect Policy
-                      </label>
-                    </div>
-                    <p id="subStep7Error" class="text-red-600 text-lg mt-2 hidden">
-                      Please acknowledge the policy by checking the box above.
-                    </p>
-                  </div>
-                </div>
-                <div class="flex justify-center mt-4">
-                  <button onclick="goToSubStep(8)" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
-                    hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300">
-                    Next <i class="fas fa-arrow-right ml-2"></i>
-                  </button>
-                </div>
-              </div>
-              
-              <div class="sub-step hidden" id="subStep8">
-                <div class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4">
-                  <i class="fas fa-envelope-open-text text-teal-600 text-3xl flex-shrink-0 mt-1"></i>
-                  <div class="flex-1 h-[400px] overflow-y-auto pr-4">
-                    <h3 class="text-xl font-semibold text-teal-700">Communication, Hours & Stipend Policy</h3>
-                    <ul class="list-none text-gray-800 mt-3 space-y-4 text-lg">
-                      <!-- COMMUNICATION POLICY -->
-                      <li><strong class="text-teal-700">Communication Policy</strong></li>
-                      <ul class="ml-6 space-y-2">
-                        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> All formal communication must be via email.</li>
-                        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Expect responses within 1–2 business days.</li>
-                        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Contact: <a href="mailto:placement@peakcollege.ca" class="text-teal-700 underline">placement@peakcollege.ca</a></li>
-                      </ul>
-              
-                      <!-- PLACEMENT HOURS & ACCREDITATION -->
-                      <li class="pt-2"><strong class="text-teal-700">Placement Hours & Accreditation Evaluation</strong></li>
-                      <ul class="ml-6 space-y-2">
-                        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Placement Requirement: 100 hours.</li>
-                        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Other recognized credentials (evaluated case-by-case with proof):</li>
-                        <ul class="ml-6 space-y-1">
-                          <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i> IEN (Diploma & Transcript)</li>
-                          <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i> HCSW/Elderly Care (Certificate & Job Description)</li>
-                          <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i> PSW Experience (Letter of Employment)</li>
-                        </ul>
-                      </ul>
-              
-                      <!-- CLINICAL STIPEND POLICY -->
-                      <li class="pt-2"><strong class="text-teal-700">Clinical Stipend Policy</strong></li>
-                      <ul class="ml-6 space-y-2">
-                        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Paid placements are limited and not guaranteed.</li>
-                        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Availability is subject to:</li>
-                        <ul class="ml-6 space-y-1">
-                          <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i> Facility capacity and discretion</li>
-                          <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i> Provincial guidelines (Ministry of Health & Ontario Health)</li>
-                        </ul>
-                        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i> Peak College does not manage or distribute stipends; payments (if any) are handled by the facility or provincial agency.</li>
-                      </ul>
-                    </ul>
-              
-                    <!-- Acknowledgment Checkbox -->
-                    <div class="mt-6 flex items-center">
-                      <input type="checkbox" id="subStep8Checkbox" class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
-                      <label for="subStep8Checkbox" class="ml-3 text-gray-800 text-lg">
-                        I have read and understood my responsibilities listed for placement
-                      </label>
-                    </div>
-                    <p id="subStep8Error" class="text-red-600 text-lg mt-2 hidden">
-                      Please acknowledge this section before finishing.
-                    </p>
-                  </div>
-                </div>
-              
-                <!-- Next Button -->
-                <div class="flex justify-center mt-4">
-                  <button onclick="goToSubStep(9)" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
-                  hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300">
-                  Next <i class="fas fa-arrow-right ml-2"></i>
-                </button>
-                </div>
-              </div>
-              
-              <div class="sub-step hidden" id="subStep9">
-                <div class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4">
-                  <i class="fas fa-envelope-open-text text-teal-600 text-3xl flex-shrink-0 mt-1"></i>
-                  <div class="flex-1 h-[400px] overflow-y-auto pr-4">
-                    <!-- Gender Selection Grid -->
-<!-- Gender Selection Grid -->
-<div class="mt-6">
-  <h4 class="text-teal-700 font-semibold text-lg mb-2">Select Your Gender</h4>
-  <div id="genderSelector" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-    <button type="button" onclick="selectGender('Male')" id="gender-Male"
-      class="flex flex-col items-center justify-center p-4 border border-teal-300 rounded-lg hover:bg-teal-100 cursor-pointer transition duration-200">
-      <i class="fas fa-mars text-2xl mb-1"></i>
-      <span>Male</span>
-    </button>
-    <button type="button" onclick="selectGender('Female')" id="gender-Female"
-      class="flex flex-col items-center justify-center p-4 border border-teal-300 rounded-lg hover:bg-teal-100 cursor-pointer transition duration-200">
-      <i class="fas fa-venus text-2xl mb-1"></i>
-      <span>Female</span>
-    </button>
-    <button type="button" onclick="selectGender('Other')" id="gender-Other"
-      class="flex flex-col items-center justify-center p-4 border border-teal-300 rounded-lg hover:bg-teal-100 cursor-pointer transition duration-200">
-      <i class="fas fa-genderless text-2xl mb-1"></i>
-      <span>Other</span>
-    </button>
-    <button type="button" onclick="selectGender('Prefer not to say')" id="gender-Prefer not to say"
-      class="flex flex-col items-center justify-center p-4 border border-teal-300 rounded-lg hover:bg-teal-100 cursor-pointer transition duration-200">
-      <i class="fas fa-user-secret text-2xl mb-1"></i>
-      <span>Prefer not to say</span>
-    </button>
-  </div>
-  <input type="hidden" name="gender" id="gender">
-  <p id="genderError" class="text-red-600 text-lg mt-2 hidden">Please select a gender before continuing.</p>
-</div>
-<!-- Pregnancy Policy Notice (hidden by default) -->
-<div id="pregnancyNotice" class="mt-6 p-4 bg-yellow-100 border-l-4 border-yellow-500 rounded hidden">
-  <h5 class="text-yellow-700 font-semibold mb-2">
-    Please read our:
-  </h5>
-  <a href="/pregnancy-policy" target="_blank"
-     class="inline-block px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition">
-    Pregnancy Policy & Waiver for Clinical Placement
-  </a>
-  <!-- Acknowledgement Checkbox -->
-  <div class="mt-4 flex items-start gap-2">
-    <input type="checkbox" id="genderAcknowledgement" class="mt-1 h-5 w-5 text-teal-600 border-gray-300 rounded focus:ring-teal-500" onchange="toggleNextButton()">
-    <label for="genderAcknowledgement" class="text-gray-700 text-sm">
-      I acknowledge the information provided above and confirm my selection.
-    </label>
-  </div>
-</div>
-
-                  </div>
-                </div>
-              
-                <!-- Next Button -->
-                <div class="flex justify-center mt-4">
-                  <button id="nextstep_2" type="button" disabled class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
-                  hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 
-                  transition-all duration-300"
-                  onclick="nextStep(2)">
-                  Next <i class="fas fa-arrow-right ml-2"></i>
-                </button>
-                </div>
-              </div>
-              
-              <script>
-                function selectGender(gender) {
-                  const options = ["Male", "Female", "Other", "Prefer not to say"];
-                  options.forEach(opt => {
-                    const el = document.getElementById("gender-" + opt);
-                    if (el) {
-                      el.classList.remove("bg-teal-500", "text-white", "border-teal-600", "shadow-lg");
-                      el.classList.add("border-teal-300", "hover:bg-teal-100");
-                    }
-                  });
-              
-                  const selectedTile = document.getElementById("gender-" + gender);
-                  if (selectedTile) {
-                    selectedTile.classList.add("bg-teal-500", "text-white", "border-teal-600", "shadow-lg");
-                    selectedTile.classList.remove("border-teal-300", "hover:bg-teal-100");
-                  }
-              
-                  document.getElementById("gender").value = gender;
-                  document.getElementById("genderError").classList.add("hidden");
-              
-                  const pregnancyNotice = document.getElementById("pregnancyNotice");
-                  const checkbox = document.getElementById("genderAcknowledgement");
-                  const nextButton = document.getElementById("nextstep_2");
-              
-                  if (gender === "Female") {
-                    pregnancyNotice.classList.remove("hidden");
-                    checkbox.checked = false;
-                    nextButton.disabled = true;
-                  } else {
-                    pregnancyNotice.classList.add("hidden");
-                    nextButton.disabled = false;
-                  }
-                }
-              
-                function toggleNextButton() {
-                  const checkbox = document.getElementById("genderAcknowledgement");
-                  const gender = document.getElementById("gender").value;
-                  const nextButton = document.getElementById("nextstep_2");
-              
-                  if (gender === "Female") {
-                    nextButton.disabled = !checkbox.checked;
-                  }
-                }
-              </script>
-              
-              
-            <!-- You can copy the rest of the sub-steps from here: -->
+            <p id="subStep1Error" class="text-red-600 text-lg mt-2 hidden">
+              You must acknowledge this section before proceeding.
+            </p>
           </div>
-          
+        </div>
+        <div class="flex justify-center mt-4">
+          <button
+            type="button"
+            class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
+            onclick="goToSubStep(2)"
+          >
+            Next <i class="fas fa-arrow-right ml-2"></i>
+          </button>
+        </div>
+      </div>
 
-        <div class="form-step hidden" id="step2">
-            <!-- Display Read-Only User Details -->
-            <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 mb-5">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">Your Details</h3>
-                
-                <div class="space-y-3">
-                    <div class="flex items-center">
-                        <span class="font-semibold text-gray-700 w-40">First Name:</span>
-                        <span class="text-gray-600">{{ first_name }}</span>
-                    </div>
-                    
-                    <div class="flex items-center">
-                        <span class="font-semibold text-gray-700 w-40">Last Name:</span>
-                        <span class="text-gray-600">{{ last_name }}</span>
-                    </div>
-                    
-                    <div class="flex items-center">
-                        <span class="font-semibold text-gray-700 w-40">College Email:</span>
-                        <span class="text-gray-600">{{ college_email }}</span>
-                    </div>
-                </div>
+      <!-- Substeps 2–7 (see below for full content) -->
+      <div class="sub-step hidden" id="subStep2">
+        <div
+          class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4"
+        >
+          <i
+            class="fas fa-clipboard-list text-teal-600 text-3xl flex-shrink-0 mt-1"
+          ></i>
+          <div class="flex-1 h-[500px] overflow-y-auto pr-4">
+            <h3 class="text-xl font-semibold text-teal-700">
+              Before Placement Responsibilities
+            </h3>
+            <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Submit
+                required documents:
+              </li>
+              <ul class="ml-8 list-none space-y-2">
+                <li>
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>
+                  Medical Report with supporting lab results or proof of
+                  immunization for:
+                </li>
+                <ul class="ml-8 list-none space-y-2">
+                  <li>
+                    <i class="fas fa-circle text-teal-400 text-xs mr-2"></i>
+                    2-Step TB Test (or Chest X-ray if skin test is positive).
+                    Must be within 6 months for LTC placements.
+                  </li>
+                  <li>
+                    <i class="fas fa-circle text-teal-400 text-xs mr-2"></i> MMR
+                    (Measles, Mumps, Rubella), Varicella, Tdap (Tetanus,
+                    Diphtheria, Pertussis), and Hepatitis B.
+                  </li>
+                </ul>
+                <li>
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i> Police
+                  Vulnerable Sector Check (VSC) – Criminal and Judicial Checks
+                  are NOT accepted. Must be within 6 months for LTC placements.
+                </li>
+                <li>
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>
+                  COVID-19 Vaccination Certificate – Proof of two doses required
+                  (see Placement Guide for details).
+                </li>
+                <li>
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i> First
+                  Aid & CPR (Level C).
+                </li>
+                <li>
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i> Mask
+                  Fit Test Certificate.
+                </li>
+                <li>
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i> Flu
+                  Shot Record (for fall/winter intakes).
+                </li>
+              </ul>
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Pregnancy
+                Policy:
+              </li>
+              <ul class="ml-8 list-none space-y-2">
+                <li>
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i> 1st &
+                  3rd trimester: not allowed.
+                </li>
+                <li>
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i> 2nd
+                  trimester: allowed with doctor’s note and facility approval.
+                </li>
+              </ul>
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Do not
+                contact facilities directly. All communication is handled by the
+                college.
+              </li>
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Placements
+                are offered based on document completion and availability.
+                Suggesting facilities is allowed, but communication goes through
+                the college.
+              </li>
+            </ul>
+            <div class="mt-5 flex items-center">
+              <input
+                type="checkbox"
+                id="subStep2Checkbox"
+                class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+              />
+              <label for="subStep2Checkbox" class="ml-3 text-gray-800 text-lg">
+                I have read and understood my responsibilities listed for
+                placement
+              </label>
             </div>
-            
-        
-            <div class="flex justify-center mt-4">
-                <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
-                    hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 
-                    transition-all duration-300" onclick="nextStep(3)">
-                    Next <i class="fas fa-arrow-right ml-2"></i>
+            <p id="subStep2Error" class="text-red-600 text-lg mt-2 hidden">
+              Please confirm you have read and understood the responsibilities.
+            </p>
+          </div>
+        </div>
+        <div class="flex justify-center mt-4">
+          <button
+            onclick="goToSubStep(3)"
+            class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
+          >
+            Next <i class="fas fa-arrow-right ml-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="sub-step hidden" id="subStep3">
+        <div
+          class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4"
+        >
+          <i class="fas fa-university text-teal-600 text-3xl flex-shrink-0"></i>
+          <div class="flex-1">
+            <h3 class="text-xl font-semibold text-teal-700">
+              College Responsibilities
+            </h3>
+            <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Review
+                documents and confirm eligibility.
+              </li>
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Ensure
+                student has zero tuition balance.
+              </li>
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Coordinate
+                placement logistics (proposal, agreement, status).
+              </li>
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Provide
+                orientation and relevant policies.
+              </li>
+            </ul>
+            <div class="mt-5 flex items-center">
+              <input
+                type="checkbox"
+                id="subStep3Checkbox"
+                class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+              />
+              <label for="subStep3Checkbox" class="ml-3 text-gray-800 text-lg">
+                I have read and understood my responsibilities listed for
+                placement</label
+              >
+            </div>
+            <p id="subStep3Error" class="text-red-600 text-lg mt-2 hidden">
+              I have read and understood my responsibilities listed for
+              placement
+            </p>
+          </div>
+        </div>
+        <div class="flex justify-center mt-4">
+          <button
+            onclick="goToSubStep(4)"
+            class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
+          >
+            Next <i class="fas fa-arrow-right ml-2"></i>
+          </button>
+        </div>
+      </div>
+      <div class="sub-step hidden" id="subStep4">
+        <div
+          class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4"
+        >
+          <i
+            class="fas fa-hospital-symbol text-teal-600 text-3xl flex-shrink-0"
+          ></i>
+          <div class="flex-1">
+            <h3 class="text-xl font-semibold text-teal-700">
+              Facility Responsibilities
+            </h3>
+            <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Confirm
+                capacity and schedule.
+              </li>
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Share
+                intake and orientation dates.
+              </li>
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Share
+                number of available spots.
+              </li>
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Share
+                shift schedule and shift requirements.
+              </li>
+            </ul>
+            <div class="mt-5 flex items-center">
+              <input
+                type="checkbox"
+                id="subStep4Checkbox"
+                class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+              />
+              <label for="subStep4Checkbox" class="ml-3 text-gray-800 text-lg">
+                I have read and understood my responsibilities listed for
+                placement</label
+              >
+            </div>
+            <p id="subStep4Error" class="text-red-600 text-lg mt-2 hidden">
+              I have read and understood my responsibilities listed for
+              placement
+            </p>
+          </div>
+        </div>
+        <div class="flex justify-center mt-4">
+          <button
+            onclick="goToSubStep(5)"
+            class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
+          >
+            Next <i class="fas fa-arrow-right ml-2"></i>
+          </button>
+        </div>
+      </div>
+      <div class="sub-step hidden" id="subStep5">
+        <div
+          class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4"
+        >
+          <i class="fas fa-user-clock text-teal-600 text-3xl flex-shrink-0"></i>
+          <div class="flex-1 h-[500px] overflow-y-auto pr-4">
+            <h3 class="text-xl font-semibold text-teal-700">
+              During Placement
+            </h3>
+            <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i
+                ><strong>Student Expectations:</strong>
+              </li>
+              <ul class="ml-8 list-none space-y-2">
+                <li>
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i
+                  ><strong>Attendance & Punctuality:</strong>
+                </li>
+                <ul class="ml-8 list-none space-y-1">
+                  <li>
+                    <i class="fas fa-circle text-teal-400 text-xs mr-2"></i
+                    >Report absences to both college and facility via email.
+                  </li>
+                  <li>
+                    <i class="fas fa-circle text-teal-400 text-xs mr-2"></i>More
+                    than 2 absences require explanation.
+                  </li>
+                  <li>
+                    <i class="fas fa-circle text-teal-400 text-xs mr-2"></i>No
+                    unauthorized schedule changes.
+                  </li>
+                </ul>
+
+                <li>
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i
+                  ><strong>Illness:</strong>
+                </li>
+                <ul class="ml-8 list-none space-y-1">
+                  <li>
+                    <i class="fas fa-circle text-teal-400 text-xs mr-2"></i
+                    >Immediately notify both the facility and college.
+                  </li>
+                </ul>
+
+                <li>
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i
+                  ><strong>Commitment:</strong>
+                </li>
+                <ul class="ml-8 list-none space-y-1">
+                  <li>
+                    <i class="fas fa-circle text-teal-400 text-xs mr-2"></i
+                    >Placement site cannot be changed once assigned.
+                  </li>
+                </ul>
+
+                <li>
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i
+                  ><strong>Professional Conduct:</strong>
+                </li>
+                <ul class="ml-8 list-none space-y-1">
+                  <li>
+                    <i class="fas fa-circle text-teal-400 text-xs mr-2"></i
+                    >Respect workplace policies and people.
+                  </li>
+                  <li>
+                    <i class="fas fa-circle text-teal-400 text-xs mr-2"></i
+                    >Disrespectful or abusive behavior may lead to disciplinary
+                    action.
+                  </li>
+                </ul>
+              </ul>
+
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i
+                ><strong>College Support:</strong>
+              </li>
+              <ul class="ml-8 list-none space-y-1">
+                <li>
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>Monitor
+                  student performance.
+                </li>
+                <li>
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>Conduct
+                  mid-placement check-ins.
+                </li>
+                <li>
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i
+                  >Maintain accurate placement records.
+                </li>
+              </ul>
+
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i
+                ><strong>Facility Responsibilities:</strong>
+              </li>
+              <ul class="ml-8 list-none space-y-1">
+                <li>
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>Provide
+                  supervision and orientation.
+                </li>
+                <li>
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>Notify
+                  college of any student issues.
+                </li>
+                <li>
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>Submit
+                  preceptor evaluations by placement end.
+                </li>
+              </ul>
+            </ul>
+            <div class="mt-5 flex items-center">
+              <input
+                type="checkbox"
+                id="subStep5Checkbox"
+                class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+              />
+              <label for="subStep5Checkbox" class="ml-3 text-gray-800 text-lg">
+                I have read and understood my responsibilities listed for
+                placement
+              </label>
+            </div>
+            <p id="subStep5Error" class="text-red-600 text-lg mt-2 hidden">
+              Please acknowledge the responsibilities by checking the box above.
+            </p>
+          </div>
+        </div>
+        <div class="flex justify-center mt-4">
+          <button
+            onclick="goToSubStep(6)"
+            class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
+          >
+            Next <i class="fas fa-arrow-right ml-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="sub-step hidden" id="subStep6">
+        <div
+          class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4"
+        >
+          <i class="fas fa-handshake text-teal-600 text-3xl flex-shrink-0"></i>
+          <div class="flex-1">
+            <h3 class="text-xl font-semibold text-teal-700">
+              After Placement Responsibilities
+            </h3>
+            <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i
+                ><strong>Student Responsibilities:</strong>
+              </li>
+              <ul class="ml-8 list-none space-y-2">
+                <li>
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>Email
+                  the college with exact placement end date.
+                </li>
+                <li>
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>Submit:
+                </li>
+                <ul class="ml-8 list-none space-y-1">
+                  <li>
+                    <i class="fas fa-circle text-teal-400 text-xs mr-2"></i
+                    >Completed Timesheet (Skills Passbook or Facility Log
+                    Sheet).
+                  </li>
+                  <li>
+                    <i class="fas fa-circle text-teal-400 text-xs mr-2"></i
+                    >Preceptor Evaluation.
+                  </li>
+                </ul>
+              </ul>
+
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i
+                ><strong>College Responsibilities:</strong>
+              </li>
+              <ul class="ml-8 list-none space-y-2">
+                <li>
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>Verify
+                  placement hours and evaluation.
+                </li>
+                <li>
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>File
+                  documentation for records.
+                </li>
+              </ul>
+            </ul>
+            <div class="mt-5 flex items-center">
+              <input
+                type="checkbox"
+                id="subStep6Checkbox"
+                class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+              />
+              <label for="subStep6Checkbox" class="ml-3 text-gray-800 text-lg">
+                I have read and understood my responsibilities listed for
+                placement
+              </label>
+            </div>
+            <p id="subStep6Error" class="text-red-600 text-lg mt-2 hidden">
+              Please acknowledge the responsibilities by checking the box above.
+            </p>
+          </div>
+        </div>
+        <div class="flex justify-center mt-4">
+          <button
+            onclick="goToSubStep(7)"
+            class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
+          >
+            Next <i class="fas fa-arrow-right ml-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="sub-step hidden" id="subStep7">
+        <div
+          class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4"
+        >
+          <i class="fas fa-handshake text-teal-600 text-3xl flex-shrink-0"></i>
+          <div class="flex-1">
+            <h3 class="text-xl font-semibold text-teal-700">
+              Conduct & Respect Policy
+            </h3>
+            <p class="text-gray-800 mt-2 text-lg">
+              Peak College adheres to the Occupational Health and Safety Act
+              (OHSA) and the Ontario Human Rights Code (OHRC) to ensure a
+              respectful, inclusive learning environment.
+            </p>
+            <h4 class="mt-4 font-semibold text-teal-700 text-lg">
+              Unacceptable Behaviors Include:
+            </h4>
+            <ul class="list-none text-gray-800 mt-2 space-y-2 text-lg">
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Dismissive
+                or demeaning acts
+              </li>
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Public
+                embarrassment
+              </li>
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
+                Undermining work
+              </li>
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Harassment
+                or discrimination
+              </li>
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
+                Retaliation for reporting concerns
+              </li>
+            </ul>
+            <h4 class="mt-4 font-semibold text-teal-700 text-lg">
+              Expectations:
+            </h4>
+            <ul class="list-none text-gray-800 mt-2 space-y-2 text-lg">
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Treat
+                everyone with dignity and respect
+              </li>
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
+                Communicate professionally
+              </li>
+              <li>
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Report
+                violations confidentially and safely
+              </li>
+            </ul>
+            <div class="mt-5 flex items-center">
+              <input
+                type="checkbox"
+                id="subStep7Checkbox"
+                class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+              />
+              <label for="subStep7Checkbox" class="ml-3 text-gray-800 text-lg">
+                I have read and understood the Conduct and Respect Policy
+              </label>
+            </div>
+            <p id="subStep7Error" class="text-red-600 text-lg mt-2 hidden">
+              Please acknowledge the policy by checking the box above.
+            </p>
+          </div>
+        </div>
+        <div class="flex justify-center mt-4">
+          <button
+            onclick="goToSubStep(8)"
+            class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
+          >
+            Next <i class="fas fa-arrow-right ml-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="sub-step hidden" id="subStep8">
+        <div
+          class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4"
+        >
+          <i
+            class="fas fa-envelope-open-text text-teal-600 text-3xl flex-shrink-0 mt-1"
+          ></i>
+          <div class="flex-1 h-[400px] overflow-y-auto pr-4">
+            <h3 class="text-xl font-semibold text-teal-700">
+              Communication, Hours & Stipend Policy
+            </h3>
+            <ul class="list-none text-gray-800 mt-3 space-y-4 text-lg">
+              <!-- COMMUNICATION POLICY -->
+              <li>
+                <strong class="text-teal-700">Communication Policy</strong>
+              </li>
+              <ul class="ml-6 space-y-2">
+                <li>
+                  <i class="fas fa-arrow-right text-teal-600 mr-2"></i> All
+                  formal communication must be via email.
+                </li>
+                <li>
+                  <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Expect
+                  responses within 1–2 business days.
+                </li>
+                <li>
+                  <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Contact:
+                  <a
+                    href="mailto:placement@peakcollege.ca"
+                    class="text-teal-700 underline"
+                    >placement@peakcollege.ca</a
+                  >
+                </li>
+              </ul>
+
+              <!-- PLACEMENT HOURS & ACCREDITATION -->
+              <li class="pt-2">
+                <strong class="text-teal-700"
+                  >Placement Hours & Accreditation Evaluation</strong
+                >
+              </li>
+              <ul class="ml-6 space-y-2">
+                <li>
+                  <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
+                  Placement Requirement: 100 hours.
+                </li>
+                <li>
+                  <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Other
+                  recognized credentials (evaluated case-by-case with proof):
+                </li>
+                <ul class="ml-6 space-y-1">
+                  <li>
+                    <i class="fas fa-chevron-right text-teal-500 mr-2"></i> IEN
+                    (Diploma & Transcript)
+                  </li>
+                  <li>
+                    <i class="fas fa-chevron-right text-teal-500 mr-2"></i>
+                    HCSW/Elderly Care (Certificate & Job Description)
+                  </li>
+                  <li>
+                    <i class="fas fa-chevron-right text-teal-500 mr-2"></i> PSW
+                    Experience (Letter of Employment)
+                  </li>
+                </ul>
+              </ul>
+
+              <!-- CLINICAL STIPEND POLICY -->
+              <li class="pt-2">
+                <strong class="text-teal-700">Clinical Stipend Policy</strong>
+              </li>
+              <ul class="ml-6 space-y-2">
+                <li>
+                  <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Paid
+                  placements are limited and not guaranteed.
+                </li>
+                <li>
+                  <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
+                  Availability is subject to:
+                </li>
+                <ul class="ml-6 space-y-1">
+                  <li>
+                    <i class="fas fa-chevron-right text-teal-500 mr-2"></i>
+                    Facility capacity and discretion
+                  </li>
+                  <li>
+                    <i class="fas fa-chevron-right text-teal-500 mr-2"></i>
+                    Provincial guidelines (Ministry of Health & Ontario Health)
+                  </li>
+                </ul>
+                <li>
+                  <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Peak
+                  College does not manage or distribute stipends; payments (if
+                  any) are handled by the facility or provincial agency.
+                </li>
+              </ul>
+            </ul>
+
+            <!-- Acknowledgment Checkbox -->
+            <div class="mt-6 flex items-center">
+              <input
+                type="checkbox"
+                id="subStep8Checkbox"
+                class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+              />
+              <label for="subStep8Checkbox" class="ml-3 text-gray-800 text-lg">
+                I have read and understood my responsibilities listed for
+                placement
+              </label>
+            </div>
+            <p id="subStep8Error" class="text-red-600 text-lg mt-2 hidden">
+              Please acknowledge this section before finishing.
+            </p>
+          </div>
+        </div>
+
+        <!-- Next Button -->
+        <div class="flex justify-center mt-4">
+          <button
+            onclick="goToSubStep(9)"
+            class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
+          >
+            Next <i class="fas fa-arrow-right ml-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="sub-step hidden" id="subStep9">
+        <div
+          class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4"
+        >
+          <i
+            class="fas fa-envelope-open-text text-teal-600 text-3xl flex-shrink-0 mt-1"
+          ></i>
+          <div class="flex-1 h-[400px] overflow-y-auto pr-4">
+            <!-- Gender Selection Grid -->
+            <!-- Gender Selection Grid -->
+            <div class="mt-6">
+              <h4 class="text-teal-700 font-semibold text-lg mb-2">
+                Select Your Gender
+              </h4>
+              <div
+                id="genderSelector"
+                class="grid grid-cols-2 sm:grid-cols-4 gap-4"
+              >
+                <button
+                  type="button"
+                  onclick="selectGender('Male')"
+                  id="gender-Male"
+                  class="flex flex-col items-center justify-center p-4 border border-teal-300 rounded-lg hover:bg-teal-100 cursor-pointer transition duration-200"
+                >
+                  <i class="fas fa-mars text-2xl mb-1"></i>
+                  <span>Male</span>
                 </button>
+                <button
+                  type="button"
+                  onclick="selectGender('Female')"
+                  id="gender-Female"
+                  class="flex flex-col items-center justify-center p-4 border border-teal-300 rounded-lg hover:bg-teal-100 cursor-pointer transition duration-200"
+                >
+                  <i class="fas fa-venus text-2xl mb-1"></i>
+                  <span>Female</span>
+                </button>
+                <button
+                  type="button"
+                  onclick="selectGender('Other')"
+                  id="gender-Other"
+                  class="flex flex-col items-center justify-center p-4 border border-teal-300 rounded-lg hover:bg-teal-100 cursor-pointer transition duration-200"
+                >
+                  <i class="fas fa-genderless text-2xl mb-1"></i>
+                  <span>Other</span>
+                </button>
+                <button
+                  type="button"
+                  onclick="selectGender('Prefer not to say')"
+                  id="gender-Prefer not to say"
+                  class="flex flex-col items-center justify-center p-4 border border-teal-300 rounded-lg hover:bg-teal-100 cursor-pointer transition duration-200"
+                >
+                  <i class="fas fa-user-secret text-2xl mb-1"></i>
+                  <span>Prefer not to say</span>
+                </button>
+              </div>
+              <input type="hidden" name="gender" id="gender" />
+              <p id="genderError" class="text-red-600 text-lg mt-2 hidden">
+                Please select a gender before continuing.
+              </p>
             </div>
+            <!-- Pregnancy Policy Notice (hidden by default) -->
+            <div
+              id="pregnancyNotice"
+              class="mt-6 p-4 bg-yellow-100 border-l-4 border-yellow-500 rounded hidden"
+            >
+              <h5 class="text-yellow-700 font-semibold mb-2">
+                Please read our:
+              </h5>
+              <a
+                href="/pregnancy-policy"
+                target="_blank"
+                class="inline-block px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
+              >
+                Pregnancy Policy & Waiver for Clinical Placement
+              </a>
+              <!-- Acknowledgement Checkbox -->
+              <div class="mt-4 flex items-start gap-2">
+                <input
+                  type="checkbox"
+                  id="genderAcknowledgement"
+                  class="mt-1 h-5 w-5 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+                  onchange="toggleNextButton()"
+                />
+                <label
+                  for="genderAcknowledgement"
+                  class="text-gray-700 text-sm"
+                >
+                  I acknowledge the information provided above and confirm my
+                  selection.
+                </label>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Address Updated Dropdown (Step 4) -->
-<div class="form-step hidden bg-white p-6 rounded-lg shadow-lg" id="step3">
-    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Address Information</h2>
+        <!-- Next Button -->
+        <div class="flex justify-center mt-4">
+          <button
+            id="nextstep_2"
+            type="button"
+            disabled
+            class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
+            onclick="nextStep(2)"
+          >
+            Next <i class="fas fa-arrow-right ml-2"></i>
+          </button>
+        </div>
+      </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <script>
+        function selectGender(gender) {
+          const options = ["Male", "Female", "Other", "Prefer not to say"];
+          options.forEach((opt) => {
+            const el = document.getElementById("gender-" + opt);
+            if (el) {
+              el.classList.remove(
+                "bg-teal-500",
+                "text-white",
+                "border-teal-600",
+                "shadow-lg"
+              );
+              el.classList.add("border-teal-300", "hover:bg-teal-100");
+            }
+          });
+
+          const selectedTile = document.getElementById("gender-" + gender);
+          if (selectedTile) {
+            selectedTile.classList.add(
+              "bg-teal-500",
+              "text-white",
+              "border-teal-600",
+              "shadow-lg"
+            );
+            selectedTile.classList.remove(
+              "border-teal-300",
+              "hover:bg-teal-100"
+            );
+          }
+
+          document.getElementById("gender").value = gender;
+          document.getElementById("genderError").classList.add("hidden");
+
+          const pregnancyNotice = document.getElementById("pregnancyNotice");
+          const checkbox = document.getElementById("genderAcknowledgement");
+          const nextButton = document.getElementById("nextstep_2");
+
+          if (gender === "Female") {
+            pregnancyNotice.classList.remove("hidden");
+            checkbox.checked = false;
+            nextButton.disabled = true;
+          } else {
+            pregnancyNotice.classList.add("hidden");
+            nextButton.disabled = false;
+          }
+        }
+
+        function toggleNextButton() {
+          const checkbox = document.getElementById("genderAcknowledgement");
+          const gender = document.getElementById("gender").value;
+          const nextButton = document.getElementById("nextstep_2");
+
+          if (gender === "Female") {
+            nextButton.disabled = !checkbox.checked;
+          }
+        }
+      </script>
+
+      <!-- You can copy the rest of the sub-steps from here: -->
+    </div>
+
+    <div class="form-step hidden" id="step2">
+      <!-- Display Read-Only User Details -->
+      <div
+        class="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 mb-5"
+      >
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Your Details</h3>
+
+        <div class="space-y-3">
+          <div class="flex items-center">
+            <span class="font-semibold text-gray-700 w-40">First Name:</span>
+            <span class="text-gray-600">{{ first_name }}</span>
+          </div>
+
+          <div class="flex items-center">
+            <span class="font-semibold text-gray-700 w-40">Last Name:</span>
+            <span class="text-gray-600">{{ last_name }}</span>
+          </div>
+
+          <div class="flex items-center">
+            <span class="font-semibold text-gray-700 w-40">College Email:</span>
+            <span class="text-gray-600">{{ college_email }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-center mt-4">
+        <button
+          type="button"
+          class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
+          onclick="nextStep(3)"
+        >
+          Next <i class="fas fa-arrow-right ml-2"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Address Updated Dropdown (Step 4) -->
+    <div class="form-step hidden bg-white p-6 rounded-lg shadow-lg" id="step3">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-4">
+        Address Information
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="flex flex-col">
-            <label for="apt_house_no" class="text-lg font-medium text-gray-700">Apt/House No.</label>
-            <input type="text" name="apt_house_no" id="apt_house_no"
-                class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <label for="apt_house_no" class="text-lg font-medium text-gray-700"
+            >Apt/House No.</label
+          >
+          <input
+            type="text"
+            name="apt_house_no"
+            id="apt_house_no"
+            class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
         </div>
 
         <div class="flex flex-col">
-            <label for="street" class="text-lg font-medium text-gray-700">Street <strong style="color:red">*</strong></label>
-            <input type="text" name="street" id="street" required
-                class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <label for="street" class="text-lg font-medium text-gray-700"
+            >Street <strong style="color: red">*</strong></label
+          >
+          <input
+            type="text"
+            name="street"
+            id="street"
+            required
+            class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
         </div>
 
         <div class="flex flex-col">
-            <label for="city" class="text-lg font-medium text-gray-700">City <strong style="color:red">*</strong></label>
-            <input type="text" name="city" id="city" required
-                class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <label for="city" class="text-lg font-medium text-gray-700"
+            >City <strong style="color: red">*</strong></label
+          >
+          <input
+            type="text"
+            name="city"
+            id="city"
+            required
+            class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
         </div>
 
         <div class="flex flex-col">
-            <label for="province" class="text-lg font-medium text-gray-700">
-                Province <strong style="color:red">*</strong>
-            </label>
-            <select name="province" id="province" required
-                class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="" disabled selected>Select your province</option>
-                <option value="Alberta (AB)">Alberta (AB)</option>
-                <option value="British Columbia (BC)">British Columbia (BC)</option>
-                <option value="Manitoba (MB)">Manitoba (MB)</option>
-                <option value="New Brunswick (NB)">New Brunswick (NB)</option>
-                <option value="Newfoundland and Labrador (NL)">Newfoundland and Labrador (NL)</option>
-                <option value="Nova Scotia (NS)">Nova Scotia (NS)</option>
-                <option value="Ontario (ON)">Ontario (ON)</option>
-                <option value="Prince Edward Island (PE)">Prince Edward Island (PE)</option>
-                <option value="Quebec (QC)">Quebec (QC)</option>
-                <option value="Saskatchewan (SK)">Saskatchewan (SK)</option>
-                <option value="Northwest Territories (NT)">Northwest Territories (NT)</option>
-                <option value="Nunavut (NU)">Nunavut (NU)</option>
-                <option value="Yukon (YT)">Yukon (YT)</option>
-            </select>
+          <label for="province" class="text-lg font-medium text-gray-700">
+            Province <strong style="color: red">*</strong>
+          </label>
+          <select
+            name="province"
+            id="province"
+            required
+            class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="" disabled selected>Select your province</option>
+            <option value="Alberta (AB)">Alberta (AB)</option>
+            <option value="British Columbia (BC)">British Columbia (BC)</option>
+            <option value="Manitoba (MB)">Manitoba (MB)</option>
+            <option value="New Brunswick (NB)">New Brunswick (NB)</option>
+            <option value="Newfoundland and Labrador (NL)">
+              Newfoundland and Labrador (NL)
+            </option>
+            <option value="Nova Scotia (NS)">Nova Scotia (NS)</option>
+            <option value="Ontario (ON)">Ontario (ON)</option>
+            <option value="Prince Edward Island (PE)">
+              Prince Edward Island (PE)
+            </option>
+            <option value="Quebec (QC)">Quebec (QC)</option>
+            <option value="Saskatchewan (SK)">Saskatchewan (SK)</option>
+            <option value="Northwest Territories (NT)">
+              Northwest Territories (NT)
+            </option>
+            <option value="Nunavut (NU)">Nunavut (NU)</option>
+            <option value="Yukon (YT)">Yukon (YT)</option>
+          </select>
         </div>
 
         <div class="flex flex-col">
-            <label for="postal_code" class="text-lg font-medium text-gray-700">Postal Code <strong style="color:red">*</strong></label>
-            <input type="text" name="postal_code" id="postal_code" required
-                class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <label for="postal_code" class="text-lg font-medium text-gray-700"
+            >Postal Code <strong style="color: red">*</strong></label
+          >
+          <input
+            type="text"
+            name="postal_code"
+            id="postal_code"
+            required
+            class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
         </div>
 
         <div class="flex flex-col md:col-span-2">
-            <label for="open_to_outside_city" class="text-lg font-medium text-gray-700">
-                Are you open to do your placement outside your city when there is a slot available for you?
-            </label>
-            <select name="open_to_outside_city" id="open_to_outside_city" onchange="toggleCityPreferences()"
-                class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-            </select>
+          <label
+            for="open_to_outside_city"
+            class="text-lg font-medium text-gray-700"
+          >
+            Are you open to do your placement outside your city when there is a
+            slot available for you?
+          </label>
+          <select
+            name="open_to_outside_city"
+            id="open_to_outside_city"
+            onchange="toggleCityPreferences()"
+            class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+          </select>
         </div>
 
         <!-- Hidden initially -->
         <div id="cityPreferences" class="hidden md:col-span-2">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                <div class="flex flex-col">
-                    <label for="city_preference_1" class="text-lg font-medium text-gray-700">
-                        City Preference 1 <strong style="color:red">*</strong>
-                    </label>
-                    <select name="city_preference_1" id="city_preference_1"
-                        class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Select a city</option>
-                    </select>
-                </div>
-        
-                <div class="flex flex-col">
-                    <label for="city_preference_2" class="text-lg font-medium text-gray-700">
-                        City Preference 2 <strong style="color:red">*</strong>
-                    </label>
-                    <select name="city_preference_2" id="city_preference_2"
-                        class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Select a city</option>
-                    </select>
-                </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+            <div class="flex flex-col">
+              <label
+                for="city_preference_1"
+                class="text-lg font-medium text-gray-700"
+              >
+                City Preference 2 <strong style="color: red">*</strong>
+              </label>
+              <select
+                name="city_preference_1"
+                id="city_preference_1"
+                class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select a city</option>
+              </select>
+              <p
+                id="cityPreferenceError"
+                class="text-red-600 text-sm mt-1 hidden"
+              >
+                Please select your first city preference.
+              </p>
             </div>
+
+            <div class="flex flex-col">
+              <label
+                for="city_preference_2"
+                class="text-lg font-medium text-gray-700"
+              >
+                City Preference 3
+              </label>
+              <select
+                name="city_preference_2"
+                id="city_preference_2"
+                class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select a city</option>
+              </select>
+            </div>
+          </div>
         </div>
-        
-    </div>
+      </div>
 
-    <div class="flex justify-center items-center mt-6">
-        <button type="button" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
-            hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300" 
-            onclick="nextStep(4)">
-            Next <i class="fas fa-arrow-right ml-2"></i>
-        </button>
-    </div>
-</div>
-
-<script>
-    function toggleCityPreferences() {
-        const openToOutside = document.getElementById('open_to_outside_city').value;
-        const cityPreferencesDiv = document.getElementById('cityPreferences');
-    
-        if (openToOutside === "Yes") {
-            cityPreferencesDiv.classList.remove('hidden');
-            loadCityDropdowns();
-        } else {
-            cityPreferencesDiv.classList.add('hidden');
-        }
-    }
-    
-    function loadCityDropdowns() {
-        fetch('/cities-and-provinces/')  // Replace with your actual endpoint
-            .then(response => response.json())
-            .then(data => {
-                const dropdown1 = document.getElementById('city_preference_1');
-                const dropdown2 = document.getElementById('city_preference_2');
-    
-                // Clear old options
-                dropdown1.innerHTML = '<option value="">Select a city</option>';
-                dropdown2.innerHTML = '<option value="">Select a city</option>';
-    
-                // Loop through each province and its cities
-                for (const province in data) {
-                    const cities = data[province];
-    
-                    // Create an <optgroup> for better UX
-                    const group1 = document.createElement('optgroup');
-                    group1.label = province;
-    
-                    const group2 = document.createElement('optgroup');
-                    group2.label = province;
-    
-                    cities.forEach(city => {
-                        const option1 = new Option(city, city);
-                        const option2 = new Option(city, city);
-                        group1.appendChild(option1);
-                        group2.appendChild(option2);
-                    });
-    
-                    dropdown1.appendChild(group1);
-                    dropdown2.appendChild(group2);
-                }
-            })
-            .catch(error => {
-                console.error('Error loading cities:', error);
-            });
-    }
-    </script>
-        
-        <!-- Experience Level Dropdown (Step 4) -->
-<div class="form-step hidden bg-white p-6 rounded-lg shadow-lg" id="step4">
-    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Experience Level</h2>
-
-    <div class="flex flex-col">
-        <label for="experience_level" class="text-lg font-medium text-gray-700 mb-2">Experience Level</label>
-        <select name="experience_level" id="experience_level" onchange="handleExperienceChange(); setUserExperience(); handleExperienceChangeSelect();"
-                class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="Select your experience">Select your experience</option>
-            <option value="No Experience">No Experience (300 Hrs)</option>
-            <option value="1 Year PSW Experience">One (1) Year PSW Experience in Canada : 200 Hrs</option>
-            <option value="International Nurse">Internationally Educated Nurse (IEN) : 200 Hrs</option>
-            <option value="Caregiver Experience">Caregiver Experience in Canada : 200 Hrs</option>
-        </select>
-    </div>
-
-    <div class="flex justify-center items-center mt-6">
-
-        <button type="button" class="next-button-experience-select px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
-                hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300" 
-                onclick="nextStep(5); handleExperienceChange()">
-            Next <i class="fas fa-arrow-right ml-2"></i>
-        </button>
-    </div>
-</div>
-
-<!-- Required Document Upload (Step 5) -->
-<div class="form-step hidden bg-white p-6 rounded-lg shadow-lg" id="step5">
-    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Upload Required Document/s</h2>
-
-    <div class="flex flex-col hidden" id="document_upload">
-        <label id="document_label" class="text-lg font-medium text-gray-700 mb-2"></label>
-        <input type="file" name="experience_document" id="experience_document"
-               class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-               onchange="validateFileUpload()">
-        <!-- Removed the original text and added the new green note -->
-        <p class="text-sm text-green-600 mt-1">
-            See Sample Letter with all the necessary information. 
-            <a href="https://drive.google.com/file/d/1LJR31UUuw6OCmRH9QzGAY3KJX9qocYU_/view?pli=1" class="text-teal-500 hover:underline">Click here</a>.
-        </p>
-        <p class="text-sm text-green-600 mt-1">
-            Note: If the letter lacks all necessary information, the document will be rejected.
-        </p>
-    </div>
-
-    <div class="flex justify-center items-center mt-6">
-        <button type="button" id="nextButton" class="next-button-experience px-6 py-3 bg-gray-400 text-white font-semibold rounded-full shadow-md 
-                cursor-not-allowed transition-all duration-300" disabled onclick="nextStep(6)">
-            Next <i class="fas fa-arrow-right ml-2"></i>
-        </button>
-    </div>
-</div>
-
-
-        <!-- Shift Requested Dropdown (Step 6) -->
-<div class="form-step hidden bg-white p-6 rounded-lg shadow-lg" id="step6">
-    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Target Shift Schedule</h2>
-
-    <div class="flex flex-col">
-        
-        <label for="shift_requested" class="text-lg font-medium text-gray-700 mb-2 after:content-['*'] after:text-red-500 after:ml-1">Target Shift Schedule</label>
-        <select name="shift_requested" id="shift_requested" required class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="Select your shift request">Select your shift request</option>
-            <option value="Morning">Morning - Mon to Fri - 7AM to 3PM</option>
-            <option value="Evening">Evening - Mon to Fri - 3PM to 11PM</option>
-            <!-- <option value="Night">Night - Mon to Fri - 11PM to 7AM</option> -->
-            <option value="Weekend Morning">Weekend Morning - Sat & Sun - 7AM to 3PM </option>
-            <option value="Weekend Evening">Weekend Evening - Sat & Sun - 3PM to 11PM</option>
-            <option value="Weekend Day">Weekend Sat & Sun - 7AM to 7PM</option>
-            <!-- <option value="Weekend Night">Weekend Night - Sat & Sun</option> -->
-        </select>
-    </div>
-    <!-- Preferred Facility Name -->
-    <div class="mt-6">
-        <label for="ltc_facility_question" class="text-lg font-medium text-gray-700 mb-2">
-            Are you currently working with a Long Term Care Facility and want to do the placement there?
-        </label>
-        <br>
-        <select
-            id="ltc_facility_question"
-            name="ltc_facility_question"
-            required
-            class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700"
+      <div class="flex justify-center items-center mt-6">
+        <button
+          type="button"
+          class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
+          onclick="if (validateCityPreferenceIfNeeded()) nextStep(4);"
         >
-            <option value="">Select an option</option>
-            <option value="Yes">Yes</option>
-            <option value="No">No</option>
-        </select>
+          Next <i class="fas fa-arrow-right ml-2"></i>
+        </button>
+      </div>
     </div>
-    
-    <!-- Facility Info (Shown conditionally) -->
-    <div id="facility_info_box" class="mt-6 mb-6 hidden border border-red-400 bg-red-50 p-4 rounded-md">
+
+    <script>
+      function toggleCityPreferences() {
+        const openToOutside = document.getElementById(
+          "open_to_outside_city"
+        ).value;
+        const cityPreferencesDiv = document.getElementById("cityPreferences");
+        const city1 = document.getElementById("city_preference_1");
+
+        if (openToOutside === "Yes") {
+          cityPreferencesDiv.classList.remove("hidden");
+          loadCityDropdowns();
+        } else {
+          cityPreferencesDiv.classList.add("hidden");
+          city1.value = ""; // Clear previous selection
+          city1.classList.remove("border-red-500"); // Remove error style if present
+        }
+      }
+
+      function validateCityPreferenceIfNeeded() {
+        const openToOutside = document.getElementById(
+          "open_to_outside_city"
+        ).value;
+        const city1 = document.getElementById("city_preference_1");
+        const errorMsg = document.getElementById("cityPreferenceError");
+
+        if (openToOutside === "Yes" && !city1.value) {
+          city1.classList.add("border-red-500");
+          errorMsg.classList.remove("hidden");
+          return false;
+        } else {
+          city1.classList.remove("border-red-500");
+          errorMsg.classList.add("hidden");
+          return true;
+        }
+      }
+
+      function loadCityDropdowns() {
+        fetch("/cities-and-provinces/") // Replace with your actual endpoint
+          .then((response) => response.json())
+          .then((data) => {
+            const dropdown1 = document.getElementById("city_preference_1");
+            const dropdown2 = document.getElementById("city_preference_2");
+
+            // Clear old options
+            dropdown1.innerHTML = '<option value="">Select a city</option>';
+            dropdown2.innerHTML = '<option value="">Select a city</option>';
+
+            // Loop through each province and its cities
+            for (const province in data) {
+              const cities = data[province];
+
+              // Create an <optgroup> for better UX
+              const group1 = document.createElement("optgroup");
+              group1.label = province;
+
+              const group2 = document.createElement("optgroup");
+              group2.label = province;
+
+              cities.forEach((city) => {
+                const option1 = new Option(city, city);
+                const option2 = new Option(city, city);
+                group1.appendChild(option1);
+                group2.appendChild(option2);
+              });
+
+              dropdown1.appendChild(group1);
+              dropdown2.appendChild(group2);
+            }
+          })
+          .catch((error) => {
+            console.error("Error loading cities:", error);
+          });
+      }
+    </script>
+
+    <!-- Experience Level Dropdown (Step 4) -->
+    <div class="form-step hidden bg-white p-6 rounded-lg shadow-lg" id="step4">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-4">
+        Experience Level
+      </h2>
+
+      <div class="flex flex-col">
+        <label
+          for="experience_level"
+          class="text-lg font-medium text-gray-700 mb-2"
+          >Experience Level</label
+        >
+        <select
+          name="experience_level"
+          id="experience_level"
+          onchange="handleExperienceChange(); setUserExperience(); handleExperienceChangeSelect();"
+          class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="Select your experience">Select your experience</option>
+          <option value="No Experience">No Experience (300 Hrs)</option>
+          <option value="1 Year PSW Experience">
+            One (1) Year PSW Experience in Canada : 200 Hrs
+          </option>
+          <option value="International Nurse">
+            Internationally Educated Nurse (IEN) : 200 Hrs
+          </option>
+          <option value="Caregiver Experience">
+            Caregiver Experience in Canada : 200 Hrs
+          </option>
+        </select>
+      </div>
+
+      <div class="flex justify-center items-center mt-6">
+        <button
+          type="button"
+          class="next-button-experience-select px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
+          onclick="nextStep(5); handleExperienceChange()"
+        >
+          Next <i class="fas fa-arrow-right ml-2"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Required Document Upload (Step 5) -->
+    <div class="form-step hidden bg-white p-6 rounded-lg shadow-lg" id="step5">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-4">
+        Upload Required Document/s
+      </h2>
+
+      <div class="flex flex-col hidden" id="document_upload">
+        <label
+          id="document_label"
+          class="text-lg font-medium text-gray-700 mb-2"
+        ></label>
+        <input
+          type="file"
+          name="experience_document"
+          id="experience_document"
+          class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onchange="validateFileUpload()"
+        />
+        <!-- Removed the original text and added the new green note -->
+        <p id="sampleNote" class="text-sm text-green-600 mt-1">
+          See Sample Letter with all the necessary information.
+          <a
+            href="https://drive.google.com/file/d/1QZuUOlSnvabe4pzWd2wCKuVLlfFTOpkt/view"
+            class="text-blue-500 hover:underline"
+            >Click here</a
+          >.
+        </p>
+        <p id="noteText" class="text-sm text-green-600 mt-1">
+          Note: If the submitted document/s lack all necessary information, the
+          document will be rejected.
+        </p>
+      </div>
+
+      <div class="flex justify-center items-center mt-6">
+        <button
+          type="button"
+          id="nextButton"
+          class="next-button-experience px-6 py-3 bg-gray-400 text-white font-semibold rounded-full shadow-md cursor-not-allowed transition-all duration-300"
+          disabled
+          onclick="nextStep(6)"
+        >
+          Next <i class="fas fa-arrow-right ml-2"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Shift Requested Dropdown (Step 6) -->
+    <div class="form-step hidden bg-white p-6 rounded-lg shadow-lg" id="step6">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-4">
+        Target Shift Schedule
+      </h2>
+
+      <div class="flex flex-col">
+        <label
+          for="shift_requested"
+          class="text-lg font-medium text-gray-700 mb-2 after:content-['*'] after:text-red-500 after:ml-1"
+          >Target Shift Schedule</label
+        >
+        <select
+          name="shift_requested"
+          id="shift_requested"
+          required
+          class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="Select your shift request">
+            Select your shift request
+          </option>
+          <option value="Morning">Morning - Mon to Fri - 7AM to 3PM</option>
+          <option value="Evening">Evening - Mon to Fri - 3PM to 11PM</option>
+          <!-- <option value="Night">Night - Mon to Fri - 11PM to 7AM</option> -->
+          <option value="Weekend Morning">
+            Weekend Morning - Sat & Sun - 7AM to 3PM
+          </option>
+          <option value="Weekend Evening">
+            Weekend Evening - Sat & Sun - 3PM to 11PM
+          </option>
+          <option value="Weekend Day">Weekend Sat & Sun - 7AM to 7PM</option>
+          <!-- <option value="Weekend Night">Weekend Night - Sat & Sun</option> -->
+        </select>
+      </div>
+      <!-- Preferred Facility Name -->
+      <div class="mt-6">
+        <label
+          for="ltc_facility_question"
+          class="text-lg font-medium text-gray-700 mb-2"
+        >
+          Are you currently working with a Long Term Care Facility and want to
+          do the placement there?
+        </label>
+        <br />
+        <select
+          id="ltc_facility_question"
+          name="ltc_facility_question"
+          required
+          class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700"
+        >
+          <option value="">Select an option</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+
+      <!-- Facility Info (Shown conditionally) -->
+      <div
+        id="facility_info_box"
+        class="mt-6 mb-6 hidden border border-red-400 bg-red-50 p-4 rounded-md"
+      >
         <div class="flex flex-col">
-            <label for="preferred_facility" class="text-lg font-medium text-gray-700 mb-2">Facility Name<span class="text-red-500 ml-1">*</span></label>
-            <input type="text" name="preferred_facility" id="preferred_facility"
-                   class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-                   placeholder="Enter facility name" required>
-    
-            <label for="preferred_facility_address" class="text-lg font-medium text-gray-700 mt-4 mb-2">Facility Address<span class="text-red-500 ml-1">*</span></label>
-            <textarea name="preferred_facility_address" id="preferred_facility_address" rows="3"
-                      class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Facility Address" required></textarea>
-    
-            <label for="preferred_facility_contact_person" class="text-lg font-medium text-gray-700 mt-4 mb-2">Contact Person<span class="text-red-500 ml-1">*</span></label>
-            <input type="text" name="preferred_facility_contact_person" id="preferred_facility_contact_person"
-                   class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                   placeholder="Contact Person" required>
-    
-            <label for="preferred_facility_email" class="text-lg font-medium text-gray-700 mt-4 mb-2">Contact Email<span class="text-red-500 ml-1">*</span></label>
-            <input type="email" name="preferred_facility_email" id="preferred_facility_email"
+          <label
+            for="preferred_facility_name"
+            class="text-lg font-medium text-gray-700 mb-2"
+            >Facility Name<span class="text-red-500 ml-1">*</span></label
+          >
+          <input
+            type="text"
+            name="preferred_facility_name"
+            id="preferred_facility_name"
+            class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+            placeholder="Enter facility name"
+            required
+          />
+
+          <label
+            for="preferred_facility_address"
+            class="text-lg font-medium text-gray-700 mt-4 mb-2"
+            >Facility Address<span class="text-red-500 ml-1">*</span></label
+          >
+          <textarea
+            name="preferred_facility_address"
+            id="preferred_facility_address"
+            rows="3"
+            class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Facility Address"
+            required
+          ></textarea>
+
+          <label
+            for="preferred_facility_contact_person"
+            class="text-lg font-medium text-gray-700 mt-4 mb-2"
+            >Contact Person<span class="text-red-500 ml-1">*</span></label
+          >
+          <input
+            type="text"
+            name="preferred_facility_contact_person"
+            id="preferred_facility_contact_person"
+            class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Contact Person"
+            required
+          />
+
+          <label
+            for="preferred_facility_email"
+            class="text-lg font-medium text-gray-700 mt-4 mb-2"
+            >Contact Email<span class="text-red-500 ml-1">*</span></label
+          >
+          <input
+            type="email"
+            name="preferred_facility_email"
+            id="preferred_facility_email"
             class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Contact Email"
             required
             pattern="^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-            title="Please enter a valid email address (e.g. example@domain.com)">
-
+            title="Please enter a valid email address (e.g. example@domain.com)"
+          />
         </div>
-    </div>
-  
-    <div class="flex justify-center items-center mt-6">
-        <button type="button" id="nextStepBtn7" class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md 
-                hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300" 
-                onclick="nextStep(7)">
-            Next <i class="fas fa-arrow-right ml-2"></i>
+      </div>
+
+      <div class="flex justify-center items-center mt-6">
+        <button
+          type="button"
+          id="nextStepBtn7"
+          class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
+          onclick="nextStep(7)"
+        >
+          Next <i class="fas fa-arrow-right ml-2"></i>
         </button>
+      </div>
     </div>
-    
-</div>
 
-
-        <!-- Preferred Facility (Step 9) -->
-        <!-- <div class="form-step hidden" id="step7">
+    <!-- Preferred Facility (Step 9) -->
+    <!-- <div class="form-step hidden" id="step7">
             <div class="flex flex-col">
                 <label for="preferred_facility_name" class="text-lg font-medium text-gray-700 mb-2">Preferred Facility Name (Optional)</label>
                 <input type="text" name="preferred_facility_name" id="preferred_facility_name" 
@@ -782,356 +1427,446 @@ I have read and understood my responsibilities listed for placement</p>
             </div>
         </div> -->
 
+    <!-- Upload Fields (All at Once) (Step 6) -->
+    <div class="form-step hidden" id="step7">
+      <h3 class="text-xl font-semibold text-teal-700 mb-6">
+        Upload Required Documents
+      </h3>
 
-        <!-- Upload Fields (All at Once) (Step 6) -->
-        <div class="form-step hidden" id="step7">
-            <h3 class="text-xl font-semibold text-teal-700 mb-6">Upload Required Documents</h3>
-        
-            <!-- Required Documents -->
-            <div class="flex flex-col mb-6">
-                <label for="medical_certificate" class="text-lg font-medium text-gray-700 mb-2 relative after:content-['*'] after:text-red-500 after:ml-1">
-                    Medical Certificate
-                </label>
-                <div class="file-input-container">
-                    <input type="file" name="medical_certificate" id="medical_certificate" class="required-file">
-                </div>
-            </div>
-        
-            <div class="flex flex-col mb-6">
-                <label for="covid_vaccination_certificate" class="text-lg font-medium text-gray-700 mb-2 relative after:content-['*'] after:text-red-500 after:ml-1">
-                    Covid Vaccination Certificate
-                </label>
-                <div class="file-input-container">
-                    <input type="file" name="covid_vaccination_certificate" id="covid_vaccination_certificate" class="required-file">
-                </div>
-            </div>
-        
-            <div class="flex flex-col mb-6">
-                <label for="vulnerable_sector_check" class="text-lg font-medium text-gray-700 mb-2 relative after:content-['*'] after:text-red-500 after:ml-1">
-                    Vulnerable Sector Check
-                </label>
-                <div class="file-input-container">
-                    <input type="file" name="vulnerable_sector_check" id="vulnerable_sector_check" class="required-file">
-                </div>
-            </div>
-        
-            <div class="flex flex-col mb-6">
-                <label for="cpr_or_first_aid" class="text-lg font-medium text-gray-700 mb-2 relative after:content-['*'] after:text-red-500 after:ml-1">
-                    CPR or First Aid
-                </label>
-                <div class="file-input-container">
-                    <input type="file" name="cpr_or_first_aid" id="cpr_or_first_aid" class="required-file">
-                </div>
-            </div>
-        
-            <div class="flex flex-col mb-6">
-                <label for="mask_fit_certificate" class="text-lg font-medium text-gray-700 mb-2 relative after:content-['*'] after:text-red-500 after:ml-1">
-                    Mask Fit Certificate
-                </label>
-                <div class="file-input-container">
-                    <input type="file" name="mask_fit_certificate" id="mask_fit_certificate" class="required-file">
-                </div>
-            </div>
-        
-            <!-- Optional Document -->
-            <div class="flex flex-col mb-6">
-                <label for="bls_certificate" class="text-lg font-medium text-gray-700 mb-2">
-                    Basic Life Support <span class="text-gray-500">(Optional)</span>
-                </label>
-                <div class="file-input-container">
-                    <input type="file" name="bls_certificate" id="bls_certificate">
-                </div>
-            </div>
-        
-            <!-- Loading Spinner & Background Blur -->
-            <div id="loading-overlay" class="hidden fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
-                <div class="text-center">
-                    <div class="spinner-border text-teal-600 animate-spin h-12 w-12 border-t-4 border-b-4 border-teal-600 rounded-full"></div>
-                    <p class="mt-4 text-teal-700">Submitting...</p>
-                </div>
-            </div>
-        
-            <div class="flex justify-center mt-6">
-                <button id="submitBtn" type="submit" class="px-6 py-3 bg-gradient-to-r from-teal-400 to-teal-500 text-white font-semibold rounded-full shadow-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-teal-300" >
-                    Submit
-                </button>
-            </div>
+      <!-- Required Documents -->
+      <div class="flex flex-col mb-6">
+        <label
+          for="medical_certificate"
+          class="text-lg font-medium text-gray-700 mb-2 relative after:content-['*'] after:text-red-500 after:ml-1"
+        >
+          Medical Certificate
+        </label>
+        <div class="file-input-container">
+          <input
+            type="file"
+            name="medical_certificate"
+            id="medical_certificate"
+            class="required-file"
+          />
         </div>
-        
-        <!-- Custom File Input Style -->
-        <style>
-            .file-input-container {
-                position: relative;
-                width: 100%;
-            }
-        
-            /* Style the default file input */
-            .file-input-container input[type="file"] {
-                display: block;
-                width: 100%;
-                padding: 12px 20px;
-                background-color: #F3F4F6;
-                color: #4B5563;
-                border-radius: 8px;
-                border: 1px solid #D1D5DB;
-                cursor: pointer;
-                transition: all 0.2s ease-in-out;
-            }
-        
-            .file-input-container input[type="file"]:hover {
-                background-color: #E1E8ED;
-                border-color: #38B2AC;
-            }
-        
-            .file-input-container input[type="file"]:focus {
-                outline: none;
-                border-color: #38B2AC;
-                background-color: #D1F1F1;
-            }
-        
-            .file-input-container input[type="file"]:active {
-                background-color: #38B2AC;
-                color: white;
-            }
-        
-            /* Optional styling for a nice visual effect */
-            .file-input-container input[type="file"]::-webkit-file-upload-button {
-                cursor: pointer;
-                background-color: #38B2AC;
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 5px;
-            }
-        
-            .file-input-container input[type="file"]::-webkit-file-upload-button:hover {
-                background-color: #319795;
-            }
-        
-            .file-input-container input[type="file"]::-webkit-file-upload-button:focus {
-                outline: none;
-            }
-        </style>
-        
-        <!-- JavaScript for handling form submission -->
-        <script>
-            function showLoadingOverlay() {
-                const submitButton = document.getElementById('submitBtn');
-                const loadingOverlay = document.getElementById('loading-overlay');
-            
-                // Disable the submit button to prevent multiple submissions
-                submitButton.disabled = true;
-                submitButton.classList.add('opacity-50', 'cursor-not-allowed');
-                
-                // Show the loading overlay
-                loadingOverlay.classList.remove('hidden');
-            }
-            
-        </script>
-        
+      </div>
+
+      <div class="flex flex-col mb-6">
+        <label
+          for="covid_vaccination_certificate"
+          class="text-lg font-medium text-gray-700 mb-2 relative after:content-['*'] after:text-red-500 after:ml-1"
+        >
+          Covid Vaccination Certificate
+        </label>
+        <div class="file-input-container">
+          <input
+            type="file"
+            name="covid_vaccination_certificate"
+            id="covid_vaccination_certificate"
+            class="required-file"
+          />
+        </div>
+      </div>
+
+      <div class="flex flex-col mb-6">
+        <label
+          for="vulnerable_sector_check"
+          class="text-lg font-medium text-gray-700 mb-2 relative after:content-['*'] after:text-red-500 after:ml-1"
+        >
+          Vulnerable Sector Check
+        </label>
+        <div class="file-input-container">
+          <input
+            type="file"
+            name="vulnerable_sector_check"
+            id="vulnerable_sector_check"
+            class="required-file"
+          />
+        </div>
+      </div>
+
+      <div class="flex flex-col mb-6">
+        <label
+          for="cpr_or_first_aid"
+          class="text-lg font-medium text-gray-700 mb-2 relative after:content-['*'] after:text-red-500 after:ml-1"
+        >
+          CPR or First Aid
+        </label>
+        <div class="file-input-container">
+          <input
+            type="file"
+            name="cpr_or_first_aid"
+            id="cpr_or_first_aid"
+            class="required-file"
+          />
+        </div>
+      </div>
+
+      <div class="flex flex-col mb-6">
+        <label
+          for="mask_fit_certificate"
+          class="text-lg font-medium text-gray-700 mb-2 relative after:content-['*'] after:text-red-500 after:ml-1"
+        >
+          Mask Fit Certificate
+        </label>
+        <div class="file-input-container">
+          <input
+            type="file"
+            name="mask_fit_certificate"
+            id="mask_fit_certificate"
+            class="required-file"
+          />
+        </div>
+      </div>
+
+      <!-- Optional Document -->
+      <div class="flex flex-col mb-6">
+        <label
+          for="bls_certificate"
+          class="text-lg font-medium text-gray-700 mb-2"
+        >
+          Basic Life Support <span class="text-gray-500">(Optional)</span>
+        </label>
+        <div class="file-input-container">
+          <input type="file" name="bls_certificate" id="bls_certificate" />
+        </div>
+      </div>
+
+      <!-- Loading Spinner & Background Blur -->
+      <div
+        id="loading-overlay"
+        class="hidden fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50"
+      >
+        <div class="text-center">
+          <div
+            class="spinner-border text-teal-600 animate-spin h-12 w-12 border-t-4 border-b-4 border-teal-600 rounded-full"
+          ></div>
+          <p class="mt-4 text-teal-700">Submitting...</p>
+        </div>
+      </div>
+
+      <div class="flex justify-center mt-6">
+        <button
+          id="submitBtn"
+          type="submit"
+          class="px-6 py-3 bg-gradient-to-r from-teal-400 to-teal-500 text-white font-semibold rounded-full shadow-lg hover:from-teal-500 hover:to-teal-600 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-teal-300"
+        >
+          Submit
+        </button>
+      </div>
+    </div>
+
+    <!-- Custom File Input Style -->
+    <style>
+      .file-input-container {
+        position: relative;
+        width: 100%;
+      }
+
+      /* Style the default file input */
+      .file-input-container input[type="file"] {
+        display: block;
+        width: 100%;
+        padding: 12px 20px;
+        background-color: #f3f4f6;
+        color: #4b5563;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+      }
+
+      .file-input-container input[type="file"]:hover {
+        background-color: #e1e8ed;
+        border-color: #38b2ac;
+      }
+
+      .file-input-container input[type="file"]:focus {
+        outline: none;
+        border-color: #38b2ac;
+        background-color: #d1f1f1;
+      }
+
+      .file-input-container input[type="file"]:active {
+        background-color: #38b2ac;
+        color: white;
+      }
+
+      /* Optional styling for a nice visual effect */
+      .file-input-container input[type="file"]::-webkit-file-upload-button {
+        cursor: pointer;
+        background-color: #38b2ac;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+      }
+
+      .file-input-container
+        input[type="file"]::-webkit-file-upload-button:hover {
+        background-color: #319795;
+      }
+
+      .file-input-container
+        input[type="file"]::-webkit-file-upload-button:focus {
+        outline: none;
+      }
+    </style>
+
+    <!-- JavaScript for handling form submission -->
     <script>
-        function setUserExperience(){
-    const experienceSelect = document.getElementById("experience_level");
-    const experience = experienceSelect.value;
-                if (experience === "No Experience") {
-        localStorage.setItem("user_experience", "No Experience");
-        // nextButtons.forEach((btn) => btn.click()); 
-    }
-            }
-            
-function handleExperienceChangeSelect() {
+      function showLoadingOverlay() {
+        const submitButton = document.getElementById("submitBtn");
+        const loadingOverlay = document.getElementById("loading-overlay");
+
+        // Disable the submit button to prevent multiple submissions
+        submitButton.disabled = true;
+        submitButton.classList.add("opacity-50", "cursor-not-allowed");
+
+        // Show the loading overlay
+        loadingOverlay.classList.remove("hidden");
+      }
+    </script>
+
+    <script>
+      function setUserExperience() {
         const experienceSelect = document.getElementById("experience_level");
-        const nextButtonExperience = document.querySelector(".next-button-experience-select");
+        const experience = experienceSelect.value;
+        if (experience === "No Experience") {
+          localStorage.setItem("user_experience", "No Experience");
+          // nextButtons.forEach((btn) => btn.click());
+        }
+      }
+
+      function handleExperienceChangeSelect() {
+        const experienceSelect = document.getElementById("experience_level");
+        const nextButtonExperience = document.querySelector(
+          ".next-button-experience-select"
+        );
 
         if (experienceSelect.value === "Select your experience") {
-            nextButtonExperience.setAttribute("disabled", "true");
-            nextButtonExperience.classList.add("opacity-50", "cursor-not-allowed");
+          nextButtonExperience.setAttribute("disabled", "true");
+          nextButtonExperience.classList.add(
+            "opacity-50",
+            "cursor-not-allowed"
+          );
         } else {
-            nextButtonExperience.removeAttribute("disabled");
-            nextButtonExperience.classList.remove("opacity-50", "cursor-not-allowed");
+          nextButtonExperience.removeAttribute("disabled");
+          nextButtonExperience.classList.remove(
+            "opacity-50",
+            "cursor-not-allowed"
+          );
         }
-    }
+      }
 
-    // Attach event listener to select dropdown
-    document.getElementById("experience_level").addEventListener("change", handleExperienceChangeSelect);
+      // Attach event listener to select dropdown
+      document
+        .getElementById("experience_level")
+        .addEventListener("change", handleExperienceChangeSelect);
 
-    // Ensure button starts as disabled
-    document.addEventListener("mousemove", handleExperienceChangeSelect);
-
+      // Ensure button starts as disabled
+      document.addEventListener("mousemove", handleExperienceChangeSelect);
     </script>
-        <script>
-            
+    <script>
+      function handleExperienceChange() {
+        const experienceSelect = document.getElementById("experience_level");
+        const experience = experienceSelect.value;
+        const uploadDiv = document.getElementById("document_upload");
+        const uploadLabel = document.getElementById("document_label");
+        const step4nextButton = document.querySelector("#step4 button");
+        const nextButtons = document.querySelectorAll(
+          ".next-button-experience"
+        ); // Select all buttons
+        const nextButtonExperience = document.querySelector(
+          ".next-button-experience"
+        );
 
-            function handleExperienceChange() {
-    const experienceSelect = document.getElementById("experience_level");
-    const experience = experienceSelect.value;
-    const uploadDiv = document.getElementById("document_upload");
-    const uploadLabel = document.getElementById("document_label");
-    const step4nextButton = document.querySelector("#step4 button");
-    const nextButtons = document.querySelectorAll(".next-button-experience"); // Select all buttons
-    const nextButtonExperience = document.querySelector(".next-button-experience")
+        console.log(experience);
+        console.log(experience === "No Experience");
 
-    console.log(experience);
-    console.log(experience === "No Experience");
-    
+        // Save "No Experience" in local storage and auto-click next button
 
-    // Save "No Experience" in local storage and auto-click next button
-    
-
-    // Enable/Disable the Next button in step 4
-    if (experience !== "No Experience") {
-        step4nextButton.disabled = false;
-        step4nextButton.classList.remove("opacity-50", "cursor-not-allowed");
-    } else {
-       console.log("No Experience");
-    }
-
-    // Show/Hide document upload section
-    if (experience === "No Experience") {
-        uploadDiv.classList.add("hidden");
-
-        nextButtons.forEach((btn) => {
-            btn.classList.remove("cursor-not-allowed", "bg-gray-400");
-            btn.classList.add("bg-teal-500", "hover:bg-teal-600", "hover:shadow-lg");
-            // btn.disabled = false;
-        });
-    } else {
-        uploadDiv.classList.remove("hidden");
-        
-        nextButtonExperience.classList.add("opacity-50", "cursor-not-allowed");
-    }
-
-    // Update document label based on experience selection
-    const documentLabels = {
-        "1 Year PSW Experience": "Letter of Employment",
-        "International Nurse": "Diploma and/or Transcript",
-        "Caregiver Experience": "Letter from Employer"
-    };
-
-    if (documentLabels[experience]) {
-        uploadLabel.textContent = documentLabels[experience];
-    }
-
-    
-    
-
-}
-</script>
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                const checkbox = document.getElementById("responsibilitiesCheckbox");
-                const errorText = document.getElementById("checkboxError");
-                const nextButton = document.getElementById("nextButton");
-        
-                // Initially disable the Next button
-                nextButton.disabled = true;
-                nextButton.classList.add("opacity-50", "cursor-not-allowed");
-        
-                // Enable or disable the button based on checkbox state
-                checkbox.addEventListener("change", function () {
-                    if (checkbox.checked) {
-                        nextButton.disabled = false;
-                        nextButton.classList.remove("opacity-50", "cursor-not-allowed");
-                        errorText.classList.add("hidden");
-                    } else {
-                        nextButton.disabled = true;
-                        nextButton.classList.add("opacity-50", "cursor-not-allowed");
-                    }
-                });
-        
-                // Prevent proceeding if the checkbox isn't checked
-                nextButton.addEventListener("click", function (event) {
-                    if (!checkbox.checked) {
-                        errorText.classList.remove("hidden");
-                        event.preventDefault();
-                    }
-                });
-            });
-        
-            function nextStep(step) {
-                if (document.getElementById("responsibilitiesCheckbox").checked) {
-                    document.getElementById("step1").classList.add("hidden");
-                    document.getElementById(`step${step}`).classList.remove("hidden");
-                }
-            }
-        </script>
-        <script>
-
-            
-            function validateFileUpload() {
-    const fileInput = document.getElementById("experience_document");
-    const nextButtons = document.querySelectorAll(".next-button-experience"); // Select all buttons
-
-    nextButtons.forEach((nextButton) => {
-        if (fileInput.files.length > 0) {
-            nextButton.classList.remove("cursor-not-allowed", "opacity-50");
-            nextButton.classList.add("bg-teal-500", "hover:bg-teal-600", "hover:shadow-lg");
-            
-            nextButton.disabled = false;
+        // Enable/Disable the Next button in step 4
+        if (experience !== "No Experience") {
+          step4nextButton.disabled = false;
+          step4nextButton.classList.remove("opacity-50", "cursor-not-allowed");
         } else {
-            nextButton.classList.add("cursor-not-allowed", "bg-gray-400");
-            nextButton.classList.remove("bg-teal-500", "hover:bg-teal-600", "hover:shadow-lg");
-            nextButton.disabled = true;
+          console.log("No Experience");
         }
-    });
-}
 
-            
-        </script>
-        
-    </form>
-   
+        // Show/Hide document upload section
+        if (experience === "No Experience") {
+          uploadDiv.classList.add("hidden");
+
+          nextButtons.forEach((btn) => {
+            btn.classList.remove("cursor-not-allowed", "bg-gray-400");
+            btn.classList.add(
+              "bg-teal-500",
+              "hover:bg-teal-600",
+              "hover:shadow-lg"
+            );
+            // btn.disabled = false;
+          });
+        } else {
+          uploadDiv.classList.remove("hidden");
+
+          nextButtonExperience.classList.add(
+            "opacity-50",
+            "cursor-not-allowed"
+          );
+        }
+
+        const sampleNote = document.getElementById("sampleNote");
+        const noteText = document.getElementById("noteText");
+
+        // Show or hide sample note based on selection
+        if (experience === "International Nurse") {
+          sampleNote.classList.add("hidden");
+          noteText.textContent =
+            "Note: If the submitted document/s lack all necessary information, the document will be rejected.";
+        } else {
+          sampleNote.classList.remove("hidden");
+          noteText.textContent =
+            "Note: If the submitted document/s lack all necessary information, the document will be rejected.";
+        }
+
+        // Update document label based on experience selection
+        const documentLabels = {
+          "1 Year PSW Experience": "Letter of Employment",
+          "International Nurse": "Diploma and/or Transcript",
+          "Caregiver Experience": "Letter from Employer",
+        };
+
+        if (documentLabels[experience]) {
+          uploadLabel.textContent = documentLabels[experience];
+        }
+      }
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const checkbox = document.getElementById("responsibilitiesCheckbox");
+        const errorText = document.getElementById("checkboxError");
+        const nextButton = document.getElementById("nextButton");
+
+        // Initially disable the Next button
+        nextButton.disabled = true;
+        nextButton.classList.add("opacity-50", "cursor-not-allowed");
+
+        // Enable or disable the button based on checkbox state
+        checkbox.addEventListener("change", function () {
+          if (checkbox.checked) {
+            nextButton.disabled = false;
+            nextButton.classList.remove("opacity-50", "cursor-not-allowed");
+            errorText.classList.add("hidden");
+          } else {
+            nextButton.disabled = true;
+            nextButton.classList.add("opacity-50", "cursor-not-allowed");
+          }
+        });
+
+        // Prevent proceeding if the checkbox isn't checked
+        nextButton.addEventListener("click", function (event) {
+          if (!checkbox.checked) {
+            errorText.classList.remove("hidden");
+            event.preventDefault();
+          }
+        });
+      });
+
+      function nextStep(step) {
+        if (document.getElementById("responsibilitiesCheckbox").checked) {
+          document.getElementById("step1").classList.add("hidden");
+          document.getElementById(`step${step}`).classList.remove("hidden");
+        }
+      }
+    </script>
+    <script>
+      function validateFileUpload() {
+        const fileInput = document.getElementById("experience_document");
+        const nextButtons = document.querySelectorAll(
+          ".next-button-experience"
+        ); // Select all buttons
+
+        nextButtons.forEach((nextButton) => {
+          if (fileInput.files.length > 0) {
+            nextButton.classList.remove("cursor-not-allowed", "opacity-50");
+            nextButton.classList.add(
+              "bg-teal-500",
+              "hover:bg-teal-600",
+              "hover:shadow-lg"
+            );
+
+            nextButton.disabled = false;
+          } else {
+            nextButton.classList.add("cursor-not-allowed", "bg-gray-400");
+            nextButton.classList.remove(
+              "bg-teal-500",
+              "hover:bg-teal-600",
+              "hover:shadow-lg"
+            );
+            nextButton.disabled = true;
+          }
+        });
+      }
+    </script>
+  </form>
 </div>
 
-{% comment %} <script>
-    document.getElementById('validate-password-btn').addEventListener('click', async () => {
-    const password = document.getElementById('password').value;
-    const messageContainer = document.getElementById('message-container');
+{% comment %}
+<script>
+  document
+    .getElementById("validate-password-btn")
+    .addEventListener("click", async () => {
+      const password = document.getElementById("password").value;
+      const messageContainer = document.getElementById("message-container");
 
-    try {
-        const response = await fetch('/validate-password/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ password })
+      try {
+        const response = await fetch("/validate-password/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password }),
         });
 
         if (response.ok) {
-            const result = await response.json();
-            if (result.valid) {
-                // Show success message
-                messageContainer.textContent = 'Password is valid!';
-                messageContainer.style.color = 'green';
-                messageContainer.style.display = 'block';
+          const result = await response.json();
+          if (result.valid) {
+            // Show success message
+            messageContainer.textContent = "Password is valid!";
+            messageContainer.style.color = "green";
+            messageContainer.style.display = "block";
 
-                // Show "Next" button and hide "Validate Password" button
-                document.getElementById('next-btn').style.display = 'block';
-                document.getElementById('validate-password-btn').style.display = 'none';
-            } else {
-                // Show error message
-                messageContainer.textContent = 'Invalid password. Please try again.';
-                messageContainer.style.color = 'red';
-                messageContainer.style.display = 'block';
-            }
+            // Show "Next" button and hide "Validate Password" button
+            document.getElementById("next-btn").style.display = "block";
+            document.getElementById("validate-password-btn").style.display =
+              "none";
+          } else {
+            // Show error message
+            messageContainer.textContent =
+              "Invalid password. Please try again.";
+            messageContainer.style.color = "red";
+            messageContainer.style.display = "block";
+          }
         } else {
-            messageContainer.textContent = 'An error occurred while validating the password.';
-            messageContainer.style.color = 'red';
-            messageContainer.style.display = 'block';
+          messageContainer.textContent =
+            "An error occurred while validating the password.";
+          messageContainer.style.color = "red";
+          messageContainer.style.display = "block";
         }
-    } catch (error) {
-        console.error('Error validating password:', error);
-        messageContainer.textContent = 'Could not validate password. Please check your connection.';
-        messageContainer.style.color = 'red';
-        messageContainer.style.display = 'block';
-    }
-});
-
-</script> {% endcomment %}
-
+      } catch (error) {
+        console.error("Error validating password:", error);
+        messageContainer.textContent =
+          "Could not validate password. Please check your connection.";
+        messageContainer.style.color = "red";
+        messageContainer.style.display = "block";
+      }
+    });
+</script>
+{% endcomment %}
 
 <script>
-    let currentStep = 1;
+  let currentStep = 1;
 
-function nextStep() {
+  function nextStep() {
     clearErrors();
 
     const currentStepElement = document.querySelector(`#step${currentStep}`);
@@ -1142,150 +1877,167 @@ function nextStep() {
     // Check if userExperience is "No Experience" and current step is 5, then skip to 6
     let userExperience = localStorage.getItem("user_experience");
     if (userExperience === "No Experience" && currentStep === 5) {
-        console.log("Skipping step 5 due to No Experience");
-        currentStep = 6;
+      console.log("Skipping step 5 due to No Experience");
+      currentStep = 6;
     }
 
     updateStep();
-}
+  }
 
-
-function prevStep() {
+  function prevStep() {
     if (currentStep > 1) {
-        // Check if "user_experience" exists and equals "No Experience"
-        let userExperience = localStorage.getItem("user_experience");
+      // Check if "user_experience" exists and equals "No Experience"
+      let userExperience = localStorage.getItem("user_experience");
 
-        if (userExperience === "No Experience" && currentStep === 6) {
-            currentStep = 4;  // Skip step 5 and go directly to step 4
-            localStorage.removeItem("user_experience"); // Clear the stored experience
-        } else {
-            currentStep--;  // Normal behavior
-        }
+      if (userExperience === "No Experience" && currentStep === 6) {
+        currentStep = 4; // Skip step 5 and go directly to step 4
+        localStorage.removeItem("user_experience"); // Clear the stored experience
+      } else {
+        currentStep--; // Normal behavior
+      }
 
-        updateStep();  // Update the step display
+      updateStep(); // Update the step display
     }
-}
+  }
 
+  function updateStep() {
+    const steps = document.querySelectorAll(".form-step");
+    steps.forEach((step) => step.classList.add("hidden"));
 
+    document.getElementById(`step${currentStep}`).classList.remove("hidden");
 
-function updateStep() {
-    const steps = document.querySelectorAll('.form-step');
-    steps.forEach(step => step.classList.add('hidden'));
+    document
+      .getElementById("backButton")
+      .classList.toggle("hidden", currentStep === 1);
+  }
 
-    document.getElementById(`step${currentStep}`).classList.remove('hidden');
-
-    document.getElementById('backButton').classList.toggle('hidden', currentStep === 1);
-}
-
-function validateStep(step) {
+  function validateStep(step) {
     let isValid = true;
     const inputs = step.querySelectorAll("input[required], select[required]");
 
-    inputs.forEach(input => {
-        if (!input.value.trim()) {
-            showError(input, "This field is required.");
-            isValid = false;
-        }
+    inputs.forEach((input) => {
+      if (!input.value.trim()) {
+        showError(input, "This field is required.");
+        isValid = false;
+      }
     });
 
     if (step.id === "step1") {
-        const emailInput = step.querySelector("#college_email");
-        if (emailInput && !emailInput.value.endsWith("@peakcollege.ca")) {
-            showError(emailInput, "Email must end with @peakcollege.ca");
-            isValid = false;
-        }
+      const emailInput = step.querySelector("#college_email");
+      if (emailInput && !emailInput.value.endsWith("@peakcollege.ca")) {
+        showError(emailInput, "Email must end with @peakcollege.ca");
+        isValid = false;
+      }
     }
 
     if (step.id === "step7") {
-        const experienceLevel = document.querySelector("#experience_level");
-        const employerLetter = step.querySelector("#employer_letter_input");
+      const experienceLevel = document.querySelector("#experience_level");
+      const employerLetter = step.querySelector("#employer_letter_input");
 
-        if (experienceLevel && employerLetter && 
-            (experienceLevel.value === "1 Year PSW Experience" || experienceLevel.value === "International Nurse")) {
-            if (!employerLetter.files.length) {
-                showError(employerLetter, "Note: If you don't have the letter, you'll not be able to move forward with the application till you select 'No Experience: 300 hrs'.");
-                isValid = false;
-            }
+      if (
+        experienceLevel &&
+        employerLetter &&
+        (experienceLevel.value === "1 Year PSW Experience" ||
+          experienceLevel.value === "International Nurse")
+      ) {
+        if (!employerLetter.files.length) {
+          showError(
+            employerLetter,
+            "Note: If you don't have the letter, you'll not be able to move forward with the application till you select 'No Experience: 300 hrs'."
+          );
+          isValid = false;
         }
+      }
     }
 
-
     return isValid;
-}
+  }
 
-function showError(input, message) {
+  function showError(input, message) {
     const errorElement = document.createElement("p");
     errorElement.classList.add("text-sm", "text-red-500", "mt-2");
     errorElement.textContent = message;
     input.parentNode.appendChild(errorElement);
-}
+  }
 
-function clearErrors() {
-    document.querySelectorAll(".text-red-500").forEach(el => el.remove());
-}
+  function clearErrors() {
+    document.querySelectorAll(".text-red-500").forEach((el) => el.remove());
+  }
 
-document.addEventListener("DOMContentLoaded", () => updateStep());
+  document.addEventListener("DOMContentLoaded", () => updateStep());
 
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("wizardForm");
+    const collegeEmail = document.getElementById("college_email");
+    const addressUpdated = document.getElementById("address_updated");
+    const experienceLevel = document.getElementById("experience_level");
+    const employerLetter = document.getElementById("employer_letter_input");
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const form = document.getElementById("wizardForm");
-        const collegeEmail = document.getElementById("college_email");
-        const addressUpdated = document.getElementById("address_updated");
-        const experienceLevel = document.getElementById("experience_level");
-        const employerLetter = document.getElementById("employer_letter_input");
-        
-        function showError(input, message) {
-            const errorElement = document.createElement("p");
-            errorElement.classList.add("text-sm", "text-red-500", "mt-2");
-            errorElement.textContent = message;
-            input.parentNode.appendChild(errorElement);
-        }
-    
-        function clearErrors() {
-            document.querySelectorAll(".text-red-500").forEach(el => el.remove());
-        }
-        
-        function validateEmail() {
-            if (!collegeEmail.value.endsWith("@peakcollege.ca")) {
-                showError(collegeEmail, "Email must end with @peakcollege.ca");
-                return false;
-            }
-            return true;
-        }
-    
-        function validateEmployerLetter() {
-    if (experienceLevel.value === "1 Year PSW Experience" && !employerLetter.files.length) {
-        showError(employerLetter, "Letter from Employer is mandatory for this experience level.");
-        return false;
+    function showError(input, message) {
+      const errorElement = document.createElement("p");
+      errorElement.classList.add("text-sm", "text-red-500", "mt-2");
+      errorElement.textContent = message;
+      input.parentNode.appendChild(errorElement);
     }
-    if (experienceLevel.value === "International Nurse" && !employerLetter.files.length) {
-        showError(employerLetter, "Diploma and/or transcript is mandatory for this experience level.");
-        return false;
-    }
-    return true;
-}
 
-    
-        function handleAddressChange() {
-            if (addressUpdated.value === "Yes") {
-                window.open("https://docs.google.com/forms/d/1AjR2hpVOLnUY9qT8a-mzdV4LVpMnwRPZydsavp7aDBY/edit", "_blank");
-            }
-        }
-    
-        addressUpdated.addEventListener("change", handleAddressChange);
-        experienceLevel.addEventListener("change", validateEmployerLetter);
-    
-        form.addEventListener("submit", function (event) {
-            clearErrors();
-            let valid = true;
-            
-            if (!validateEmail()) valid = false;
-            if (!validateEmployerLetter()) valid = false;
-            
-            if (!valid) event.preventDefault();
-        });
+    function clearErrors() {
+      document.querySelectorAll(".text-red-500").forEach((el) => el.remove());
+    }
+
+    function validateEmail() {
+      if (!collegeEmail.value.endsWith("@peakcollege.ca")) {
+        showError(collegeEmail, "Email must end with @peakcollege.ca");
+        return false;
+      }
+      return true;
+    }
+
+    function validateEmployerLetter() {
+      if (
+        experienceLevel.value === "1 Year PSW Experience" &&
+        !employerLetter.files.length
+      ) {
+        showError(
+          employerLetter,
+          "Letter from Employer is mandatory for this experience level."
+        );
+        return false;
+      }
+      if (
+        experienceLevel.value === "International Nurse" &&
+        !employerLetter.files.length
+      ) {
+        showError(
+          employerLetter,
+          "Diploma and/or transcript is mandatory for this experience level."
+        );
+        return false;
+      }
+      return true;
+    }
+
+    function handleAddressChange() {
+      if (addressUpdated.value === "Yes") {
+        window.open(
+          "https://docs.google.com/forms/d/1AjR2hpVOLnUY9qT8a-mzdV4LVpMnwRPZydsavp7aDBY/edit",
+          "_blank"
+        );
+      }
+    }
+
+    addressUpdated.addEventListener("change", handleAddressChange);
+    experienceLevel.addEventListener("change", validateEmployerLetter);
+
+    form.addEventListener("submit", function (event) {
+      clearErrors();
+      let valid = true;
+
+      if (!validateEmail()) valid = false;
+      if (!validateEmployerLetter()) valid = false;
+
+      if (!valid) event.preventDefault();
     });
-    
+  });
 </script>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
@@ -1295,16 +2047,13 @@ document.addEventListener("DOMContentLoaded", () => updateStep());
     const facilityInfoBox = document.getElementById("facility_info_box");
     const emailField = document.getElementById("preferred_facility_email");
 
-    const requiredFields = [
-      "shift_requested",
-      "ltc_facility_question"
-    ];
+    const requiredFields = ["shift_requested", "ltc_facility_question"];
 
     const conditionalFields = [
-      "preferred_facility",
+      "preferred_facility_name",
       "preferred_facility_address",
       "preferred_facility_contact_person",
-      "preferred_facility_email"
+      "preferred_facility_email",
     ];
 
     function updateNextButtonState() {
@@ -1313,7 +2062,11 @@ document.addEventListener("DOMContentLoaded", () => updateStep());
       // Validate required fields
       for (const id of requiredFields) {
         const el = document.getElementById(id);
-        if (!el || el.value.trim() === "" || el.value === "Select your shift request") {
+        if (
+          !el ||
+          el.value.trim() === "" ||
+          el.value === "Select your shift request"
+        ) {
           isValid = false;
           break;
         }
@@ -1361,7 +2114,7 @@ document.addEventListener("DOMContentLoaded", () => updateStep());
     }
 
     // Attach listeners to all relevant fields
-    [...requiredFields, ...conditionalFields].forEach(id => {
+    [...requiredFields, ...conditionalFields].forEach((id) => {
       const el = document.getElementById(id);
       if (el) {
         el.addEventListener("input", updateNextButtonState);
@@ -1377,100 +2130,102 @@ document.addEventListener("DOMContentLoaded", () => updateStep());
   });
 </script>
 
-  
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", function () {
     setTimeout(() => {
-        // Clear local storage
-        localStorage.removeItem("user_experience");
-        handleExperienceChangeSelect();
+      // Clear local storage
+      localStorage.removeItem("user_experience");
+      handleExperienceChangeSelect();
 
-        // Reset the select dropdown to its default option
-        let experienceSelect = document.getElementById("experience_level");
-        if (experienceSelect) {
-            experienceSelect.selectedIndex = 0; // Reset to the first option
-        }
+      // Reset the select dropdown to its default option
+      let experienceSelect = document.getElementById("experience_level");
+      if (experienceSelect) {
+        experienceSelect.selectedIndex = 0; // Reset to the first option
+      }
 
-        // Call experience change handler after resetting the dropdown
-        handleExperienceChange();
+      // Call experience change handler after resetting the dropdown
+      handleExperienceChange();
     }, 0);
-});
+  });
+</script>
+<script>
+  function goToSubStep(step) {
+    const currentStep = step - 1;
+    const checkbox = document.getElementById(`subStep${currentStep}Checkbox`);
+    const error = document.getElementById(`subStep${currentStep}Error`);
 
-    </script>
-    <script>
-        function goToSubStep(step) {
-          const currentStep = step - 1;
-          const checkbox = document.getElementById(`subStep${currentStep}Checkbox`);
-          const error = document.getElementById(`subStep${currentStep}Error`);
-        
-          if (!checkbox.checked) {
-            error.classList.remove('hidden');
-            return;
-          }
-        
-          error.classList.add('hidden');
-        
-          document.querySelectorAll('.sub-step').forEach(el => el.classList.add('hidden'));
-          document.getElementById(`subStep${step}`).classList.remove('hidden');
-        }
-        
-        function finishSubSteps() {
-          const checkbox = document.getElementById(`subStep7Checkbox`);
-          const error = document.getElementById(`subStep7Error`);
-        
-          if (!checkbox.checked) {
-            error.classList.remove('hidden');
-            return;
-          }
-        
-          error.classList.add('hidden');
-          alert("All sub-steps acknowledged! You may proceed.");
-        }
-        </script>
-        <style>
-            .sub-step { margin-top: 1.5rem; }
-            .card {
-              background: #e6fffa;
-              border-left: 4px solid #38b2ac;
-              padding: 1.5rem;
-              border-radius: 0.5rem;
-              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            }
-            .card h3 {
-              color: #2c7a7b;
-              font-size: 1.25rem;
-              font-weight: 600;
-              margin-bottom: 1rem;
-            }
-            .card ul {
-              list-style-type: disc;
-              padding-left: 1.5rem;
-              color: #2d3748;
-              margin-bottom: 1rem;
-            }
-            .acknowledge {
-              margin-top: 1rem;
-            }
-            .error {
-              color: #e53e3e;
-              font-size: 1rem;
-              margin-top: 0.5rem;
-            }
-            .hidden {
-              display: none;
-            }
-            button {
-              margin-top: 1rem;
-              background-color: #38b2ac;
-              color: white;
-              padding: 0.5rem 1.5rem;
-              border-radius: 9999px;
-              font-weight: 600;
-              transition: background-color 0.3s;
-            }
-            button:hover {
-              background-color: #319795;
-            }
-            </style>
-            
+    if (!checkbox.checked) {
+      error.classList.remove("hidden");
+      return;
+    }
+
+    error.classList.add("hidden");
+
+    document
+      .querySelectorAll(".sub-step")
+      .forEach((el) => el.classList.add("hidden"));
+    document.getElementById(`subStep${step}`).classList.remove("hidden");
+  }
+
+  function finishSubSteps() {
+    const checkbox = document.getElementById(`subStep7Checkbox`);
+    const error = document.getElementById(`subStep7Error`);
+
+    if (!checkbox.checked) {
+      error.classList.remove("hidden");
+      return;
+    }
+
+    error.classList.add("hidden");
+    alert("All sub-steps acknowledged! You may proceed.");
+  }
+</script>
+<style>
+  .sub-step {
+    margin-top: 1.5rem;
+  }
+  .card {
+    background: #e6fffa;
+    border-left: 4px solid #38b2ac;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  .card h3 {
+    color: #2c7a7b;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+  .card ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    color: #2d3748;
+    margin-bottom: 1rem;
+  }
+  .acknowledge {
+    margin-top: 1rem;
+  }
+  .error {
+    color: #e53e3e;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+  }
+  .hidden {
+    display: none;
+  }
+  button {
+    margin-top: 1rem;
+    background-color: #38b2ac;
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+  }
+  button:hover {
+    background-color: #319795;
+  }
+</style>
+
 {% endblock %}
