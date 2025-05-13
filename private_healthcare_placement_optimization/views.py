@@ -2416,8 +2416,35 @@ def edit_facility(request, facility_id):
     }
     return JsonResponse(data)
 
+from django.db.models import Count, Q
+
+
 def get_profiles_facilities_orientations():
-    profiles = PlacementProfile.objects.select_related('user', 'assigned_facility', 'orientation_date').all()
+    required_docs = [
+        "Medical Certificate",
+        "Covid Vaccination Certificate",
+        "Vulnerable Sector Check",
+        "Mask Fit Certificate",
+        "CPR or First Aid",
+        "Experience Document",  # Always required and must be approved
+    ]
+
+    # Fetch profiles where all required documents are approved
+    profiles = PlacementProfile.objects.select_related(
+        'user', 'assigned_facility', 'orientation_date'
+    ).annotate(
+        num_approved_docs=Count(
+            'documents',
+            filter=Q(
+                documents__document_type__in=required_docs,
+                documents__status=DocumentStatus.APPROVED.value,
+            )
+        )
+    ).filter(
+        num_approved_docs=len(required_docs)
+    )
+
+    # Fetch facilities and orientation dates
     facilities = Facility.objects.filter(status='Active').order_by('name')
     orientation_dates = OrientationDate.objects.order_by('-orientation_date')
 
@@ -2426,7 +2453,7 @@ def get_profiles_facilities_orientations():
         "facilities": facilities,
         "orientation_dates": orientation_dates,
     }
-    
+
 def assign_facility_and_orientation_date_to_users(request):
     context = get_profiles_facilities_orientations()
     return render(request, "assign_facility.html", context)

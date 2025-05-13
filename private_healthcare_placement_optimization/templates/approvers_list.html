@@ -1,104 +1,180 @@
-{% extends 'base.html' %}
-
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 <div class="container mx-auto mt-8">
-    <h1 class="text-2xl font-semibold text-gray-800">Approvers List</h1>
-    <div class="overflow-x-auto mt-4 bg-white rounded-lg shadow-md">
-        <div id="messagePopup" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
-            <span id="messageText"></span>
-        </div>
-        <table class="min-w-full table-auto border-collapse border border-gray-300">
-            <thead class="bg-gradient-to-r from-teal-400 to-teal-700">
-                <tr class="border border-gray-300">
-                    <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300">Sr No.</th>
-                    <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300">Name</th>
-                    <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300">Date Joined</th>
-                    <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300">Role</th>
-                    <th class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for approver in approvers %}
-                <tr class="border border-gray-300 hover:bg-teal-50 transition-colors duration-200">
-                    <td class="px-6 py-4 border border-gray-300">{{ forloop.counter }}</td>
-                    <td class="px-6 py-4 border border-gray-300">{{ approver.user.username }} </td>
-                    <td class="px-6 py-4 border border-gray-300">{{ approver.user.date_joined|date:"Y-m-d" }}</td>
-                    <td class="px-6 py-4 border border-gray-300">
-                        <span class="text-sm font-semibold {% if approver.role == 'Approver' %}text-green-600{% else %}text-gray-600{% endif %}">
-                            {{ approver.role }}
-                        </span>
-                        {% if approver.role == 'Approver' %}
-                            <div class="text-xs text-gray-500">
-                                <p>{{ approver.full_name }}</p>
-                                <p>{{ approver.position }}</p>
-                            </div>
-                        {% endif %}
-                    </td>
-                    <td class="px-6 py-4 border border-gray-300">
-                        <button onclick="handleRoleChange('{{ approver.user.id }}', 'promote')" class="bg-teal-500 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-teal-600 transition-colors duration-200">
-                            Promote to Approver
-                        </button>
-                        <button onclick="handleRoleChange('{{ approver.user.id }}', 'remove')" class="bg-red-500 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-red-600 transition-colors duration-200 ml-2">
-                            Remove from Approver
-                        </button>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="px-6 py-4 text-center text-gray-600">No approvers found</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+  <h1 class="text-2xl font-semibold text-gray-800">Approvers List</h1>
+
+  <!-- Search Bar -->
+  <div class="mt-4 flex items-center space-x-2 mb-6">
+    <div class="relative w-full">
+      <input
+        type="text"
+        id="search-input"
+        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-teal-500 focus:border-teal-500"
+        placeholder="Search by Name..."
+        onkeyup="searchApprovers()"
+      />
+      <i
+        class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+      ></i>
     </div>
+  </div>
+
+  <div class="overflow-x-auto mt-4 bg-white rounded-lg shadow-md">
+    <div
+      id="messagePopup"
+      class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50"
+    >
+      <span id="messageText"></span>
+    </div>
+    <table
+      class="min-w-full table-auto border-collapse border border-gray-300"
+      id="approvers-table"
+    >
+      <thead class="bg-gradient-to-r from-teal-400 to-teal-700">
+        <tr class="border border-gray-300">
+          <th
+            class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300"
+          >
+            Sr No.
+          </th>
+          <th
+            class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300"
+          >
+            Name
+          </th>
+          <th
+            class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300"
+          >
+            Date Joined
+          </th>
+          <th
+            class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300"
+          >
+            Role
+          </th>
+          <th
+            class="px-6 py-4 text-left text-lg font-semibold text-gray-700 whitespace-nowrap border border-gray-300"
+          >
+            Actions
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for approver in approvers %}
+        <tr
+          class="border border-gray-300 hover:bg-teal-50 transition-colors duration-200"
+          data-name="{{ approver.user.username|lower }}"
+        >
+          <td class="px-6 py-4 border border-gray-300">
+            {{ forloop.counter }}
+          </td>
+          <td class="px-6 py-4 border border-gray-300">
+            {{ approver.user.username }}
+          </td>
+          <td class="px-6 py-4 border border-gray-300">
+            {{ approver.user.date_joined|date:"Y-m-d" }}
+          </td>
+          <td class="px-6 py-4 border border-gray-300">
+            <span
+              class="text-sm font-semibold {% if approver.role == 'Approver' %}text-green-600{% else %}text-gray-600{% endif %}"
+            >
+              {{ approver.role }}
+            </span>
+            {% if approver.role == 'Approver' %}
+            <div class="text-xs text-gray-500">
+              <p>{{ approver.full_name }}</p>
+              <p>{{ approver.position }}</p>
+            </div>
+            {% endif %}
+          </td>
+          <td class="px-6 py-4 border border-gray-300">
+            <button
+              onclick="handleRoleChange('{{ approver.user.id }}', 'promote')"
+              class="bg-teal-500 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-teal-600 transition-colors duration-200"
+            >
+              Promote to Approver
+            </button>
+            <button
+              onclick="handleRoleChange('{{ approver.user.id }}', 'remove')"
+              class="bg-red-500 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-red-600 transition-colors duration-200 ml-2"
+            >
+              Remove from Approver
+            </button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="px-6 py-4 text-center text-gray-600">
+            No approvers found
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <script>
-    function showMessage(message, type) {
-        const messagePopup = document.getElementById('messagePopup');
-        const messageText = document.getElementById('messageText');
-        
-        messagePopup.classList.remove('hidden');
-        messageText.innerText = message;
-        
-        if (type === 'success') {
-            messagePopup.classList.remove('bg-red-500');
-            messagePopup.classList.add('bg-green-500');
+  function showMessage(message, type) {
+    const messagePopup = document.getElementById("messagePopup");
+    const messageText = document.getElementById("messageText");
+
+    messagePopup.classList.remove("hidden");
+    messageText.innerText = message;
+
+    if (type === "success") {
+      messagePopup.classList.remove("bg-red-500");
+      messagePopup.classList.add("bg-green-500");
+    } else {
+      messagePopup.classList.remove("bg-green-500");
+      messagePopup.classList.add("bg-red-500");
+    }
+
+    setTimeout(() => {
+      messagePopup.classList.add("hidden");
+    }, 4000);
+  }
+
+  function handleRoleChange(userId, action) {
+    let url = "";
+
+    if (action === "promote") {
+      url = `/promote-to-approver/${userId}/`;
+    } else if (action === "remove") {
+      url = `/remove-from-approver/${userId}/`;
+    }
+
+    fetch(url, {
+      method: "GET",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === "success") {
+          showMessage(data.message, "success");
+          location.reload();
         } else {
-            messagePopup.classList.remove('bg-green-500');
-            messagePopup.classList.add('bg-red-500');
+          showMessage(data.message, "error");
         }
-    
-        setTimeout(() => {
-            messagePopup.classList.add('hidden');
-        }, 4000); 
-    }
+      })
+      .catch((error) => {
+        showMessage("An error occurred while updating the user role.", "error");
+      });
+  }
 
-    function handleRoleChange(userId, action) {
-        let url = '';
-        
-        if (action === 'promote') {
-            url = `/promote-to-approver/${userId}/`;
-        } else if (action === 'remove') {
-            url = `/remove-from-approver/${userId}/`;
-        }
+  function searchApprovers() {
+    const searchValue = document
+      .getElementById("search-input")
+      .value.toLowerCase();
+    const rows = document.querySelectorAll("#approvers-table tbody tr");
 
-        fetch(url, {
-            method: 'GET',
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                showMessage(data.message, 'success');
-                location.reload();
-            } else {
-                showMessage(data.message, 'error');
-            }
-        })
-        .catch(error => {
-            showMessage("An error occurred while updating the user role.", 'error');
-        });
-    }
+    rows.forEach((row) => {
+      const name = row.getAttribute("data-name");
+      if (name.includes(searchValue)) {
+        row.style.display = "";
+      } else {
+        row.style.display = "none";
+      }
+    });
+  }
 </script>
 
 {% endblock %}
