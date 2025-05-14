@@ -1091,7 +1091,10 @@
                     <div class="bg-gray-100 p-2 rounded-lg flex items-center justify-between">
                         <div>
                             <p class="text-lg font-medium">{{ document.document_type }}</p>
+                            
+                            {% if document.file %}
                             <p class="text-sm text-gray-600">{{ document.uploaded_at }}</p>
+                            {% endif %}
                             <div class="flex flex-row-reverse justify-end items-center">
                                 
                                 {% if is_approver %}

@@ -167,12 +167,15 @@ class StudentID(models.Model):
     
 class Facility(models.Model):
     STATUS_CHOICES = [
-        ('Active', 'Active'),
-        ('Inactive', 'Inactive'),
-    ]
+    ('AGREEMENT IN REVIEW', 'AGREEMENT IN REVIEW'),
+    ('IN PROGRESS', 'IN PROGRESS'),
+    ('ACTIVE', 'ACTIVE'),
+    ('INACTIVE', 'INACTIVE'),
+    ('NOT ACCEPTING', 'NOT ACCEPTING'),
+]
 
     name = models.CharField(max_length=255)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Active')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ACTIVE')
     province = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
     address = models.TextField()

@@ -87,18 +87,21 @@
             {% endif %}
           </td>
           <td class="px-6 py-4 border border-gray-300">
+            {% if approver.role == 'Student' %}
             <button
               onclick="handleRoleChange('{{ approver.user.id }}', 'promote')"
               class="bg-teal-500 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-teal-600 transition-colors duration-200"
             >
               Promote to Approver
             </button>
+            {% elif approver.role == 'Approver' %}
             <button
               onclick="handleRoleChange('{{ approver.user.id }}', 'remove')"
-              class="bg-red-500 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-red-600 transition-colors duration-200 ml-2"
+              class="bg-red-500 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-red-600 transition-colors duration-200"
             >
               Remove from Approver
             </button>
+            {% endif %}
           </td>
         </tr>
         {% empty %}

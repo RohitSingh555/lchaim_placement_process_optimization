@@ -644,9 +644,10 @@ class StudentProfileLogsView(View):
         "Vulnerable Sector Check",
         "CPR or First Aid",
         "Mask Fit Certificate",
-        "Experience Document"
+        "Experience Document",
+        "Basic Life Support"
     }
-    OPTIONAL_DOCUMENTS = {"Basic Life Support"}
+    OPTIONAL_DOCUMENTS = {""}
 
     def get(self, request):
         if not request.user.is_authenticated:
@@ -716,13 +717,13 @@ class StudentProfileLogsView(View):
             complete = True
             for doc_type in self.REQUIRED_DOCUMENTS:
                 doc = documents.get(doc_type)
-                if not doc:
+                if doc and doc.file and doc.file_name:
                     complete = False
                     break
-                latest_approval = ApprovalLog.objects.filter(document=doc).order_by('-timestamp').first()
-                if not latest_approval or latest_approval.action != "Approved":
-                    complete = False
-                    break
+                # latest_approval = ApprovalLog.objects.filter(document=doc).order_by('-timestamp').first()
+                # if not latest_approval or latest_approval.action != "Approved":
+                #     complete = False
+                #     break
 
             if completed_filter == "true" and not complete:
                 continue
@@ -861,9 +862,10 @@ class StudentIncompleteProfileLogsView(View):
         "Vulnerable Sector Check",
         "CPR or First Aid",
         "Mask Fit Certificate",
-        "Experience Document"
+        "Experience Document",
+        "Basic Life Support"
     }
-    OPTIONAL_DOCUMENTS = {"Basic Life Support"}
+    OPTIONAL_DOCUMENTS = {""}
 
     def get(self, request):
         if not request.user.is_authenticated:
@@ -955,11 +957,7 @@ class StudentIncompleteProfileLogsView(View):
             complete = True
             for doc_type in self.REQUIRED_DOCUMENTS:
                 doc = documents.get(doc_type)
-                if not doc:
-                    complete = False
-                    break
-                latest_approval = ApprovalLog.objects.filter(document=doc).order_by('-timestamp').first()
-                if not latest_approval or latest_approval.action != "Approved":
+                if not doc or not doc.file or not doc.file_name:
                     complete = False
                     break
 
@@ -2063,26 +2061,28 @@ def superuser_required(user):
 
 @user_passes_test(superuser_required, login_url='/404/')
 def approvers_view(request):
-    approvers = User.objects.all()
+    # Exclude superusers only
+    users = User.objects.exclude(is_superuser=True)
+
     approvers_data = []
 
-    for user in approvers:
+    for user in users:
         try:
-            # Check if the user has an associated approver
+            # If the user has an approver profile, show as Approver
             approver = user.approver_profile
             approvers_data.append({
                 'user': user,
-                'role': 'Approver',  # Display 'Approver' if the approver exists
+                'role': 'Approver',
                 'full_name': approver.full_name,
                 'position': approver.position,
             })
         except Approver.DoesNotExist:
-            # If no approver exists, display 'Student'
+            # Otherwise, show as Student
             approvers_data.append({
                 'user': user,
-                'role': 'Student',  # Display 'Student' if no approver
-                'full_name': user.username,  # Display username as full name
-                'position': '',  # No position for student
+                'role': 'Student',
+                'full_name': user.get_full_name() or user.username,
+                'position': '',
             })
 
     return render(request, 'approvers_list.html', {'approvers': approvers_data})
