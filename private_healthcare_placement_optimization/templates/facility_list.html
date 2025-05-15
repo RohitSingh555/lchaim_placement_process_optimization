@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto p-6">
+<div class="max-w-10xl mx-auto p-6">
   <div class="flex justify-between items-center mb-6">
     <h2 class="text-2xl font-semibold text-gray-800">Facilities</h2>
     <button onclick="openModal('addFacilityModal')" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg shadow-sm transition">
@@ -40,37 +40,70 @@
   </div>
 
   <div class="overflow-x-auto bg-white shadow rounded-lg border border-gray-200">
-    <table class="min-w-full text-sm text-left text-gray-700">
-      <thead class="bg-teal-50 text-teal-700 uppercase text-xs font-semibold">
-        <tr>
-          <th class="px-6 py-3">Name</th>
-          <th class="px-6 py-3">Status</th>
-          <th class="px-6 py-3">Province</th>
-          <th class="px-6 py-3">City</th>
-          <th class="px-6 py-3 text-right">Actions</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-gray-200">
-        {% for facility in facilities %}
-        <tr>
-          <td class="px-6 py-4 font-medium">{{ facility.name }}</td>
-          <td class="px-6 py-4">{{ facility.status }}</td>
-          <td class="px-6 py-4">{{ facility.province }}</td>
-          <td class="px-6 py-4">{{ facility.city }}</td>
-          <td class="px-6 py-4 text-right space-x-2 flex flex-row">
-            <!-- Edit/Delete buttons go here -->
-            <button onclick="openEditModal('{{ facility.id }}')" class="text-blue-600 hover:text-blue-700 flex flex-row items-center space-x-1">
-                <i class="fas fa-edit"></i> Edit
-              </button>
-            <button onclick="confirmDelete('{{ facility.id }}')" class="text-red-600 hover:text-red-700 flex flex-row items-center space-x-1">
-              <i class="fas fa-trash-alt"></i> Delete
-            </button>
-            
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+   <table class="min-w-full text-sm text-left text-gray-700">
+  <thead class="bg-teal-50 text-teal-700 uppercase text-xs font-semibold text-center">
+    <tr>
+      <th class="px-6 py-3 text-left max-w-[200px] truncate">Name</th>
+      <th class="px-6 py-3 whitespace-nowrap">Status</th>
+      <th class="px-6 py-3">Province</th>
+      <th class="px-6 py-3">City</th>
+      <th class="px-6 py-3">Accepted Student No.</th>
+      <th class="px-6 py-3">In Placement</th>
+      <th class="px-6 py-3">Available Spot</th>
+      <th class="px-6 py-3">Waitlist</th>
+      <th class="px-6 py-3 text-right">Actions</th>
+    </tr>
+  </thead>
+  <tbody class="divide-y text-center divide-gray-200">
+    {% for facility in facilities %}
+    <tr>
+      <td class="pl-2 py-4 font-medium text-left max-w-[200px] truncate">{{ facility.name }}</td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        {% if facility.status == "ACTIVE" %}
+          <span class="inline-flex items-center px-2 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">
+            <i class="fas fa-check-circle mr-1"></i> Active
+          </span>
+        {% elif facility.status == "IN PROGRESS" %}
+          <span class="inline-flex items-center px-2 py-1 text-xs font-semibold text-yellow-700 bg-yellow-100 rounded-full">
+            <i class="fas fa-spinner mr-1 animate-spin-slow"></i> In Progress
+          </span>
+        {% elif facility.status == "AGREEMENT IN REVIEW" %}
+          <span class="inline-flex items-center px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded-full">
+            <i class="fas fa-file-signature mr-1"></i> Review
+          </span>
+        {% elif facility.status == "INACTIVE" %}
+          <span class="inline-flex items-center px-2 py-1 text-xs font-semibold text-gray-700 bg-gray-100 rounded-full">
+            <i class="fas fa-ban mr-1"></i> Inactive
+          </span>
+        {% elif facility.status == "NOT ACCEPTING" %}
+          <span class="inline-flex items-center px-2 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">
+            <i class="fas fa-times-circle mr-1"></i> Not Accepting
+          </span>
+        {% else %}
+          <span class="inline-flex items-center px-2 py-1 text-xs font-semibold text-gray-600 bg-gray-100 rounded-full">
+            <i class="fas fa-question-circle mr-1"></i> Unknown
+          </span>
+        {% endif %}
+      </td>
+      <td class="px-6 py-4">{{ facility.province }}</td>
+      <td class="px-2 py-4">{{ facility.city }}</td>
+      <td class="px-2 py-4">{{ facility.accepted_student_number }}</td>
+      <td class="px-2 py-4">{{ facility.in_placement }}</td>
+      <td class="px-2 py-4">{{ facility.available_spot }}</td>
+      <td class="px-2 py-4">{{ facility.waitlist }}</td>
+      <td class="px-6 py-4 text-right space-x-2 flex flex-row">
+        <button onclick="openEditModal('{{ facility.id }}')" class="text-blue-600 hover:text-blue-700 flex flex-row items-center space-x-1">
+          <i class="fas fa-edit"></i> Edit
+        </button>
+        <button onclick="confirmDelete('{{ facility.id }}')" class="text-red-600 hover:text-red-700 flex flex-row items-center space-x-1">
+          <i class="fas fa-trash-alt"></i> Delete
+        </button>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
   </div>
 </div>
 
@@ -80,7 +113,7 @@
   <div class="bg-white max-w-3xl w-full rounded-lg p-6 shadow-xl relative overflow-y-auto max-h-[90vh]">
     <!-- Close Button -->
     <button onclick="closeModal('addFacilityModal')" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
-      ✕
+  <i class="fas fa-times text-xl"></i>
     </button>
 
     <h3 class="text-xl font-semibold text-gray-800 mb-4">Add Facility</h3>
@@ -192,6 +225,23 @@
           <label class="block text-sm font-medium text-gray-700">Additional Requirements</label>
           <textarea name="additional_requirements" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3"></textarea>
         </div>
+        <!-- Accepted Student Number -->
+<div>
+  <label class="block text-sm font-medium text-gray-700">Accepted Student Number</label>
+  <input type="number" name="accepted_student_number" min="0" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3" />
+</div>
+
+<!-- In Placement -->
+<div>
+  <label class="block text-sm font-medium text-gray-700">In Placement</label>
+  <input type="number" name="in_placement" min="0" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3" />
+</div>
+<!-- Waitlist -->
+<div>
+  <label class="block text-sm font-medium text-gray-700">Waitlist</label>
+  <input type="number" name="waitlist" min="0" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3" />
+</div>
+
     
         <!-- Shifts Available Field -->
         <div>
@@ -221,7 +271,7 @@
   <div class="bg-white max-w-md w-full rounded-lg p-6 shadow-xl relative overflow-y-auto max-h-[90vh]">
     <!-- Close Button -->
     <button onclick="closeModal('deleteConfirmationModal')" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
-      ✕
+       <i class="fas fa-times text-xl"></i>
     </button>
 
     <h3 class="text-xl font-semibold text-gray-800 mb-4">Confirm Deletion</h3>
@@ -239,99 +289,156 @@
     <div class="bg-white max-w-3xl w-full rounded-lg p-6 shadow-xl relative overflow-y-auto max-h-[90vh]">
       <!-- Close Button -->
       <button onclick="closeModal('editFacilityModal')" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
-        ✕
+         <i class="fas fa-times text-xl"></i>
       </button>
   
       <h3 class="text-xl font-semibold text-gray-800 mb-4">Edit Facility</h3>
   
-      <form method="post" id="facilityEditForm" class="space-y-4">
-        {% csrf_token %}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Name</label>
-            <input name="name" id="editName" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
-          </div>
+      <form method="post" id="facilityEditForm" class="space-y-6">
+  {% csrf_token %}
   
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Status</label>
-        <select name="status" id="editStatus" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-          <option value="AGREEMENT IN REVIEW">AGREEMENT IN REVIEW</option>
-          <option value="IN PROGRESS">IN PROGRESS</option>
-          <option value="ACTIVE">ACTIVE</option>
-          <option value="INACTIVE">INACTIVE</option>
-          <option value="NOT ACCEPTING">NOT ACCEPTING</option>
-        </select>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  
+    <!-- Name -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Name</label>
+      <div class="flex items-center border border-gray-300 rounded-md shadow-sm">
+        <i class="fas fa-user p-3 text-gray-500"></i>
+        <input name="name" id="editName" required class="mt-1 block w-full p-3 border-0 focus:ring-0 rounded-r-md" />
+      </div>
+    </div>
 
-          </div>
-  
-          <div>
-            <label class="block text-sm font-medium text-gray-700">City</label>
-            <select name="city" id="editCity" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" onchange="fetchProvinceByCity('edit')">
-              <option value="">Select a City</option>
-            </select>
-          </div>
+    <!-- Status -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Status</label>
+      <select name="status" id="editStatus" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3">
+        <option value="AGREEMENT IN REVIEW">AGREEMENT IN REVIEW</option>
+        <option value="IN PROGRESS">IN PROGRESS</option>
+        <option value="ACTIVE">ACTIVE</option>
+        <option value="INACTIVE">INACTIVE</option>
+        <option value="NOT ACCEPTING">NOT ACCEPTING</option>
+      </select>
+    </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Province</label>
-            <input name="province" id="editProvince" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3" />  
-                  </div>
-  
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-700">Address</label>
-            <textarea name="address" id="editAddress" required rows="2" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></textarea>
-          </div>
-  
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Facility Phone</label>
-            <input name="facility_phone" id="editFacilityPhone" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
-          </div>
-  
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Website</label>
-            <input type="url" name="website" id="editWebsite" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
-          </div>
-  
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Person in Charge</label>
-            <input name="person_in_charge" id="editPersonInCharge" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
-          </div>
-  
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Email</label>
-            <input type="email" name="email" id="editEmail" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
-          </div>
-  
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Phone Number</label>
-            <input name="phone_number" id="editPhoneNumber" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
-          </div>
-  
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Designation</label>
-            <input name="designation" id="editDesignation" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
-          </div>
-  
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-700">Additional Requirements</label>
-            <textarea name="additional_requirements" id="editAdditionalRequirements" rows="2" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></textarea>
-          </div>
-  
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Shifts Available</label>
-            <input name="shifts_available" id="editShiftsAvailable" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
-          </div>
-  
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Notes</label>
-            <textarea name="notes" id="editNotes" rows="2" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></textarea>
-          </div>
-        </div>
-  
-        <div class="flex justify-end space-x-3 pt-4">
-          <button type="submit" class="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700">Submit</button>
-          <button type="button" onclick="closeModal('editFacilityModal')" class="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300">Cancel</button>
-        </div>
-      </form>
+    <!-- City -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">City</label>
+      <select name="city" id="editCity" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3" onchange="fetchProvinceByCity('edit')">
+        <option value="">Select a City</option>
+      </select>
+    </div>
+
+    <!-- Province -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Province</label>
+      <div class="flex items-center border border-gray-300 rounded-md shadow-sm">
+        <i class="fas fa-map-marker-alt p-3 text-gray-500"></i>
+        <input name="province" id="editProvince" required class="mt-1 block w-full p-3 border-0 focus:ring-0 rounded-r-md" />
+      </div>
+    </div>
+
+    <!-- Address -->
+    <div class="md:col-span-2">
+      <label class="block text-sm font-medium text-gray-700">Address</label>
+      <textarea name="address" id="editAddress" required rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3"></textarea>
+    </div>
+
+    <!-- Facility Phone -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Facility Phone</label>
+      <div class="flex items-center border border-gray-300 rounded-md shadow-sm">
+        <i class="fas fa-phone p-3 text-gray-500"></i>
+        <input name="facility_phone" id="editFacilityPhone" class="mt-1 block w-full p-3 border-0 focus:ring-0 rounded-r-md" />
+      </div>
+    </div>
+
+    <!-- Website -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Website</label>
+      <div class="flex items-center border border-gray-300 rounded-md shadow-sm">
+        <i class="fas fa-link p-3 text-gray-500"></i>
+        <input type="url" name="website" id="editWebsite" class="mt-1 block w-full p-3 border-0 focus:ring-0 rounded-r-md" />
+      </div>
+    </div>
+
+    <!-- Person in Charge -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Person in Charge</label>
+      <div class="flex items-center border border-gray-300 rounded-md shadow-sm">
+        <i class="fas fa-user-tie p-3 text-gray-500"></i>
+        <input name="person_in_charge" id="editPersonInCharge" required class="mt-1 block w-full p-3 border-0 focus:ring-0 rounded-r-md" />
+      </div>
+    </div>
+
+    <!-- Email -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Email</label>
+      <div class="flex items-center border border-gray-300 rounded-md shadow-sm">
+        <i class="fas fa-envelope p-3 text-gray-500"></i>
+        <input type="email" name="email" id="editEmail" required class="mt-1 block w-full p-3 border-0 focus:ring-0 rounded-r-md" />
+      </div>
+    </div>
+
+    <!-- Phone Number -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Phone Number</label>
+      <div class="flex items-center border border-gray-300 rounded-md shadow-sm">
+        <i class="fas fa-phone-alt p-3 text-gray-500"></i>
+        <input name="phone_number" id="editPhoneNumber" required class="mt-1 block w-full p-3 border-0 focus:ring-0 rounded-r-md" />
+      </div>
+    </div>
+
+    <!-- Designation -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Designation</label>
+      <div class="flex items-center border border-gray-300 rounded-md shadow-sm">
+        <i class="fas fa-briefcase p-3 text-gray-500"></i>
+        <input name="designation" id="editDesignation" required class="mt-1 block w-full p-3 border-0 focus:ring-0 rounded-r-md" />
+      </div>
+    </div>
+
+    <!-- Additional Requirements -->
+    <div class="md:col-span-2">
+      <label class="block text-sm font-medium text-gray-700">Additional Requirements</label>
+      <textarea name="additional_requirements" id="editAdditionalRequirements" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3"></textarea>
+    </div>
+
+    <!-- Shifts Available -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Shifts Available</label>
+      <input name="shifts_available" id="editShiftsAvailable" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3" />
+    </div>
+
+    <!-- Notes -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Notes</label>
+      <textarea name="notes" id="editNotes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3"></textarea>
+    </div>
+
+    <!-- Additional 4 integer-only fields -->
+    <div>
+  <label class="block text-sm font-medium text-gray-700">Accepted Student No.</label>
+  <input type="number" name="accepted_student_number" id="editAcceptedStudentNumber" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3" />
+</div>
+
+<div>
+  <label class="block text-sm font-medium text-gray-700">In Placement</label>
+  <input type="number" name="in_placement" id="editInPlacement" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3" />
+</div>
+
+<div>
+  <label class="block text-sm font-medium text-gray-700">Waitlist</label>
+  <input type="number" name="waitlist" id="editWaitlist" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3" />
+</div>
+
+  </div>
+
+  <div class="flex justify-end space-x-4 pt-6">
+    <button type="submit" class="bg-teal-600 text-white px-6 py-3 rounded-md hover:bg-teal-700 transition duration-200">Submit</button>
+    <button type="button" onclick="closeModal('editFacilityModal')" class="bg-gray-200 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-300 transition duration-200">Cancel</button>
+  </div>
+</form>
+
     </div>
 </div>
 
@@ -370,6 +477,9 @@
             document.getElementById('editAdditionalRequirements').value = data.additional_requirements || '';
             document.getElementById('editShiftsAvailable').value = data.shifts_available || '';
             document.getElementById('editNotes').value = data.notes || '';
+            document.getElementById('editAcceptedStudentNumber').value = data.accepted_student_number || 0;
+            document.getElementById('editInPlacement').value = data.in_placement || 0;
+            document.getElementById('editWaitlist').value = data.waitlist || 0;
           })
           .catch(error => {
             console.error('Error fetching facility details:', error);

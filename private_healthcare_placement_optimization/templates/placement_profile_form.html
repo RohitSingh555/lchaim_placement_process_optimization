@@ -45,7 +45,7 @@
               <li>
                 <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Submit
                 clear and readable placement documents for approval by the
-                Placement Coordinator.
+                Placement Team.
               </li>
               <li>
                 <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Resubmit
@@ -53,12 +53,12 @@
               </li>
               <li>
                 <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Ensure the
-                college has my present home address.
+                college has my updated home address.
               </li>
               <li>
                 <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Regularly
                 check my email for document approval notifications and
-                coordinate with the Placement Coordinator.
+                coordinate with the Placement Team.
               </li>
               <li>
                 <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Wait for
@@ -256,6 +256,7 @@
           </button>
         </div>
       </div>
+      {% comment %}
       <div class="sub-step hidden" id="subStep4">
         <div
           class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4"
@@ -311,7 +312,8 @@
           </button>
         </div>
       </div>
-      <div class="sub-step hidden" id="subStep5">
+      {% endcomment %}
+      <div class="sub-step hidden" id="subStep4">
         <div
           class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4"
         >
@@ -403,6 +405,7 @@
                 </li>
               </ul>
 
+              {% comment %}
               <li>
                 <i class="fas fa-arrow-right text-teal-600 mr-2"></i
                 ><strong>Facility Responsibilities:</strong>
@@ -421,26 +424,27 @@
                   preceptor evaluations by placement end.
                 </li>
               </ul>
+              {% endcomment %}
             </ul>
             <div class="mt-5 flex items-center">
               <input
                 type="checkbox"
-                id="subStep5Checkbox"
+                id="subStep4Checkbox"
                 class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
               />
-              <label for="subStep5Checkbox" class="ml-3 text-gray-800 text-lg">
+              <label for="subStep4Checkbox" class="ml-3 text-gray-800 text-lg">
                 I have read and understood my responsibilities listed for
                 placement
               </label>
             </div>
-            <p id="subStep5Error" class="text-red-600 text-lg mt-2 hidden">
+            <p id="subStep4Error" class="text-red-600 text-lg mt-2 hidden">
               Please acknowledge the responsibilities by checking the box above.
             </p>
           </div>
         </div>
         <div class="flex justify-center mt-4">
           <button
-            onclick="goToSubStep(6)"
+            onclick="goToSubStep(5)"
             class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
           >
             Next <i class="fas fa-arrow-right ml-2"></i>
@@ -448,7 +452,7 @@
         </div>
       </div>
 
-      <div class="sub-step hidden" id="subStep6">
+      <div class="sub-step hidden" id="subStep5">
         <div
           class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4"
         >
@@ -501,22 +505,22 @@
             <div class="mt-5 flex items-center">
               <input
                 type="checkbox"
-                id="subStep6Checkbox"
+                id="subStep5Checkbox"
                 class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
               />
-              <label for="subStep6Checkbox" class="ml-3 text-gray-800 text-lg">
+              <label for="subStep5Checkbox" class="ml-3 text-gray-800 text-lg">
                 I have read and understood my responsibilities listed for
                 placement
               </label>
             </div>
-            <p id="subStep6Error" class="text-red-600 text-lg mt-2 hidden">
+            <p id="subStep5Error" class="text-red-600 text-lg mt-2 hidden">
               Please acknowledge the responsibilities by checking the box above.
             </p>
           </div>
         </div>
         <div class="flex justify-center mt-4">
           <button
-            onclick="goToSubStep(7)"
+            onclick="goToSubStep(6)"
             class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
           >
             Next <i class="fas fa-arrow-right ml-2"></i>
@@ -524,7 +528,7 @@
         </div>
       </div>
 
-      <div class="sub-step hidden" id="subStep7">
+      <div class="sub-step hidden" id="subStep6">
         <div
           class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4"
         >
@@ -583,21 +587,21 @@
             <div class="mt-5 flex items-center">
               <input
                 type="checkbox"
-                id="subStep7Checkbox"
+                id="subStep6Checkbox"
                 class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
               />
-              <label for="subStep7Checkbox" class="ml-3 text-gray-800 text-lg">
+              <label for="subStep6Checkbox" class="ml-3 text-gray-800 text-lg">
                 I have read and understood the Conduct and Respect Policy
               </label>
             </div>
-            <p id="subStep7Error" class="text-red-600 text-lg mt-2 hidden">
+            <p id="subStep6Error" class="text-red-600 text-lg mt-2 hidden">
               Please acknowledge the policy by checking the box above.
             </p>
           </div>
         </div>
         <div class="flex justify-center mt-4">
           <button
-            onclick="goToSubStep(8)"
+            onclick="goToSubStep(7)"
             class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
           >
             Next <i class="fas fa-arrow-right ml-2"></i>
@@ -605,7 +609,7 @@
         </div>
       </div>
 
-      <div class="sub-step hidden" id="subStep8">
+      <div class="sub-step hidden" id="subStep7">
         <div
           class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4"
         >
@@ -706,15 +710,15 @@
             <div class="mt-6 flex items-center">
               <input
                 type="checkbox"
-                id="subStep8Checkbox"
+                id="subStep7Checkbox"
                 class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
               />
-              <label for="subStep8Checkbox" class="ml-3 text-gray-800 text-lg">
+              <label for="subStep7Checkbox" class="ml-3 text-gray-800 text-lg">
                 I have read and understood my responsibilities listed for
                 placement
               </label>
             </div>
-            <p id="subStep8Error" class="text-red-600 text-lg mt-2 hidden">
+            <p id="subStep7Error" class="text-red-600 text-lg mt-2 hidden">
               Please acknowledge this section before finishing.
             </p>
           </div>
@@ -723,7 +727,7 @@
         <!-- Next Button -->
         <div class="flex justify-center mt-4">
           <button
-            onclick="goToSubStep(9)"
+            onclick="goToSubStep(8)"
             class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
           >
             Next <i class="fas fa-arrow-right ml-2"></i>
@@ -731,7 +735,7 @@
         </div>
       </div>
 
-      <div class="sub-step hidden" id="subStep9">
+      <div class="sub-step hidden" id="subStep8">
         <div
           class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4"
         >
@@ -1306,8 +1310,9 @@
           for="ltc_facility_question"
           class="text-lg font-medium text-gray-700 mb-2"
         >
-          Are you currently working with a Long Term Care Facility and want to
-          do the placement there?
+          Are you currently working with Elderly Care (ex. Private Care, Long
+          Term Care, Nursing Homes, Home Care Agencies) and want to do the
+          placement there?
         </label>
         <br />
         <select
@@ -1490,7 +1495,7 @@
           for="cpr_or_first_aid"
           class="text-lg font-medium text-gray-700 mb-2 relative after:content-['*'] after:text-red-500 after:ml-1"
         >
-          CPR or First Aid
+          CPR & First Aid
         </label>
         <div class="file-input-container">
           <input
@@ -1525,10 +1530,15 @@
           for="bls_certificate"
           class="text-lg font-medium text-gray-700 mb-2"
         >
-          Basic Life Support <span class="text-gray-500">(Optional)</span>
+          Basic Life Support
         </label>
         <div class="file-input-container">
-          <input type="file" name="bls_certificate" id="bls_certificate" />
+          <input
+            type="file"
+            name="bls_certificate"
+            id="bls_certificate"
+            class="required-file"
+          />
         </div>
       </div>
 

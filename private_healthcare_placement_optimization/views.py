@@ -270,7 +270,15 @@ class PlacementProfileView(View):
             'bls_certificate': 'Basic Life Support',
             'experience_document': 'Experience Document',
             'resume': 'Resume',
-            'skills_passbook': 'Skills Passbook'
+            'skills_passbook': 'Skills Passbook',
+            'x_ray_result': 'X-Ray Result',
+            'mmr_lab_vax_record': 'MMR Lab/Vax Record',
+            'varicella_lav_vax_record': 'Varicella Lab/Vax Record',
+            'tdap_vax_record': 'TDAP Vax Record',
+            'hepatitits_b_lab_vax_record': 'Hepatitis B Lab/Vax Record',
+            'flu_shot': 'Flu Shot',
+            'extra_dose_of_covid': 'Extra Dose of Covid',
+            'other_documents': 'Other Documents',
         }
 
         missing_documents = []
@@ -328,7 +336,7 @@ class PlacementProfileView(View):
                 request,
                 "Thank you for creating your profile.<br><br>"
                 "To submit the remaining requirements, please log in to your profile again and complete the submission process.<br><br>"
-                "The placement coordinators will begin reviewing your documents only once all requirements are submitted and your balance is cleared."
+                "The Placement Team will begin reviewing your documents only once all requirements are submitted and your balance is cleared."
             )
                 send_documents_incomplete_email(profile, missing_required_docs)
                 print(f"Documents incomplete email sent to {profile.college_email}")
@@ -393,7 +401,7 @@ def send_documents_incomplete_email(profile, missing_documents):
             <p>Greetings!</p>
             <p>Thank you for creating your profile.</p>
             <p>To submit the remaining requirements, please log in to your profile again and complete the submission process.</p>
-            <p>The placement coordinators will begin reviewing your documents only once all requirements are submitted and your balance is cleared.</p>
+            <p>The Placement Team will begin reviewing your documents only once all requirements are submitted and your balance is cleared.</p>
             <p><b>Remaining documents to submit:</b></p>
             <ul>
                 {remaining_documents_html}
@@ -716,10 +724,15 @@ class StudentProfileLogsView(View):
             documents = {doc.document_type: doc for doc in profile.documents.all()}
             complete = True
             for doc_type in self.REQUIRED_DOCUMENTS:
+                # Skip "Experience Document" if experience_level is "No Experience"
+                if doc_type == "Experience Document" and profile.experience_level == "No Experience":
+                    continue
+
                 doc = documents.get(doc_type)
-                if doc and doc.file and doc.file_name:
+                if not doc or not doc.file_name:
                     complete = False
                     break
+
                 # latest_approval = ApprovalLog.objects.filter(document=doc).order_by('-timestamp').first()
                 # if not latest_approval or latest_approval.action != "Approved":
                 #     complete = False
@@ -779,8 +792,41 @@ class StudentProfileLogsView(View):
                 pass
             document_upload_status = {}
             for doc_type in self.REQUIRED_DOCUMENTS:
+                if doc_type == "Experience Document" and profile.experience_level == "No Experience":
+                    continue
+
                 doc = documents.get(doc_type)
                 document_upload_status[doc_type] = bool(doc and doc.file)
+
+                
+            missing_documents = []
+            for doc_type in self.REQUIRED_DOCUMENTS:
+                if doc_type == "Experience Document" and profile.experience_level == "No Experience":
+                    continue
+
+                doc = documents.get(doc_type)
+                if not doc or not doc.file_name:
+                    missing_documents.append(doc_type)
+
+            # Evaluate Skills Passbook Result
+            skills_passbook_result = "Not Uploaded"
+            skills_doc = documents.get("Skills Passbook")
+            if skills_doc and skills_doc.file_name:
+                latest_approval = ApprovalLog.objects.filter(document=skills_doc).order_by('-timestamp').first()
+                if latest_approval and latest_approval.action == "Approved":
+                    skills_passbook_result = "Approved"
+                else:
+                    skills_passbook_result = "Uploaded"
+            # Evaluate Experience Document Result
+            experience_document_result = "Not Uploaded"
+            experience_doc = documents.get("Experience Document")
+            if experience_doc and experience_doc.file_name:
+                latest_approval = ApprovalLog.objects.filter(document=experience_doc).order_by('-timestamp').first()
+                if latest_approval and latest_approval.action == "Approved":
+                    experience_document_result = "Approved"
+                else:
+                    experience_document_result = "Uploaded"
+                
             filtered_profile_details.append({
                 'profile_id': profile.id,
                 'first_name': profile.first_name,
@@ -826,6 +872,9 @@ class StudentProfileLogsView(View):
                 'is_completed': complete,
                 'processed_by': processed_by,
                 'approved_documents_count': approved_count,
+                'missing_documents': missing_documents,
+                'skills_passbook_result': skills_passbook_result,
+                'experience_document_result': experience_document_result,
             })
         # Pagination (10 items per page)
         paginator = Paginator(filtered_profile_details, 10)
@@ -956,6 +1005,10 @@ class StudentIncompleteProfileLogsView(View):
             documents = {doc.document_type: doc for doc in profile.documents.all()}
             complete = True
             for doc_type in self.REQUIRED_DOCUMENTS:
+                # Skip "Experience Document" check if experience_level is "No Experience"
+                if doc_type == "Experience Document" and profile.experience_level == "No Experience":
+                    continue
+
                 doc = documents.get(doc_type)
                 if not doc or not doc.file or not doc.file_name:
                     complete = False
@@ -1226,7 +1279,6 @@ def send_email_remind_fee(profile):
                 <li>E-Transfer to: <span class="highlight">payment@peakcollege.ca</span></li>
                 <li>Cash, Credit, or Debit Payment on Campus</li>
             </ul>
-            <h4>School Office Hours:</h4>
             <p><span class="bold">School Office Hours:</span></p>
             <p><span class="bold">Monday to Thursday:</span> 9:00 AM to 5:00PM</p>
             <p><span class="bold">Saturday:</span> 9:30 AM to 4:00 PM</p>
@@ -1725,7 +1777,7 @@ def send_email_done(profile, documents):
 <p>All your documents are now <span class="highlight">APPROVED</span>.</p>
 <p>The Placement Coordinator: We will reach out to you through email or phone call. Once you finalize with her which facility you’re going to do your placement, she will inform you of your Placement Orientation Date.</p>
 <p>Then you can pick up your Skills Passbook and NACC Reviewer from the school on any operating day.</p>
-<h4>School Office Hours:</h4>
+<p><span class="bold">School Office Hours:</span></p>
 <p><span class="bold">Monday to Thursday:</span> 9:00 AM to 5:00PM</p>
 <p><span class="bold">Saturday:</span> 9:30 AM to 4:00 PM</p>
 <div class="footer">
@@ -2413,6 +2465,9 @@ def edit_facility(request, facility_id):
         'additional_requirements': facility.additional_requirements,
         'shifts_available': facility.shifts_available,
         'notes': facility.notes,
+        'accepted_student_number': facility.accepted_student_number,
+'in_placement': facility.in_placement,
+'waitlist': facility.waitlist,
     }
     return JsonResponse(data)
 

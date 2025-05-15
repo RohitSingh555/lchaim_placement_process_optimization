@@ -409,9 +409,11 @@
                                         {% endif %}
                                       </td>
                                       
-                                      <td class="sticky left-[880px] bg-white px-4 py-4 whitespace-nowrap border border-gray-300 min-w-[160px] w-[160px] max-w-[160px]">
-                                        {{ profile.assigned_facility }}
-                                      </td>
+                                     <td class="sticky left-[880px] bg-white px-4 py-4 border border-gray-300 min-w-[160px] w-[160px] max-w-[160px] overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer" title="{{ profile.assigned_facility }}">
+  {{ profile.assigned_facility }}
+</td>
+
+
                                         <td class="px-6 py-4">{{ profile.college_email }}</td>
                                         <td class="px-6 py-4">{{ profile.orientation_date }}</td>
                                         <td class="px-6 py-4">{{ profile.official_start_date }}</td>

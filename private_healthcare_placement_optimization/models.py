@@ -108,6 +108,12 @@ class PlacementProfile(models.Model):
         if self.orientation_date:
             return self.orientation_date.orientation_date.strftime("%B %d, %Y")
         return None
+    
+    def save(self, *args, **kwargs):
+        if self.assigned_facility and self.orientation_date:
+            if self.stage == "ONGOING_PROCESS":
+                self.stage = "IN_PLACEMENT"
+        super().save(*args, **kwargs)
 
 
 class Document(models.Model):
@@ -186,12 +192,24 @@ class Facility(models.Model):
     email = models.EmailField()
     phone_number = models.CharField(max_length=20)
     designation = models.CharField(max_length=100)
+    
+    accepted_student_number = models.PositiveIntegerField(default=0, null=True, blank=True)
+    in_placement = models.PositiveIntegerField(default=0, null=True, blank=True)
+    available_spot = models.PositiveIntegerField(default=0, null=True, blank=True)
+    waitlist = models.PositiveIntegerField(default=0, null=True, blank=True)
 
     additional_requirements = models.TextField(blank=True, null=True)
     shifts_available = models.CharField(max_length=255, blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    def save(self, *args, **kwargs):
+        if self.accepted_student_number is not None and self.in_placement is not None:
+            self.available_spot = max(self.accepted_student_number - self.in_placement, 0)
+        else:
+            self.available_spot = 0
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
