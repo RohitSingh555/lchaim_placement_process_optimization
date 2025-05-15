@@ -988,25 +988,28 @@
                 {% endif %}
               </td>
               <td class="px-4 py-2">
-                <span class="inline-block text-xs px-3 py-1 rounded-full font-semibold tracking-wide
-                  {% if document.status == 'Approved' %}
-                    bg-green-600 text-white
-                  {% elif document.status == 'Rejected' %}
-                    bg-red-600 text-white
-                  {% elif document.status == 'In Review' %}
-                    bg-yellow-400 text-gray-900
-                  {% elif document.status == 'Pending' %}
-                    bg-blue-500 text-white
-                  {% else %}
-                    bg-gray-300 text-gray-800
-                  {% endif %}">
-                  {% if document.file %}
-                    {{ document.status }}
-                  {% else %}
-                    File Not Uploaded
-                  {% endif %}
-                </span>
-              </td>
+  {% if document.file %}
+    <span class="inline-block text-xs px-3 py-1 rounded-full font-semibold tracking-wide
+      {% if document.status == 'Approved' %}
+        bg-green-600 text-white
+      {% elif document.status == 'Rejected' %}
+        bg-red-600 text-white
+      {% elif document.status == 'In Review' %}
+        bg-yellow-400 text-gray-900
+      {% elif document.status == 'Pending' %}
+        bg-blue-500 text-white
+      {% else %}
+        bg-gray-300 text-gray-800
+      {% endif %}">
+      {{ document.status }}
+    </span>
+  {% else %}
+    <span class="inline-block text-xs px-3 py-1 rounded-full font-semibold tracking-wide bg-gray-500 text-white">
+      File Not Uploaded
+    </span>
+  {% endif %}
+</td>
+
               <td class="px-4 py-2">
                 {% if document.rejection_reason %}
                   <p class="text-sm text-red-600">{{ document.rejection_reason }}</p>
@@ -1068,7 +1071,11 @@
               {% if document.document_type|is_allowed_doc %}
                 <tr class="border-b border-gray-200">
                   <td class="px-4 py-2 text-gray-800">{{ document.document_type }}</td>
-                  <td class="px-4 py-2 text-gray-600">{{ document.uploaded_at|default:'N/A' }}</td>
+                  <td class="px-4 py-2 text-gray-600">{% if document.file %}
+                  {{ document.uploaded_at }}
+                {% else %}
+                  N/A
+                {% endif %}</td>
                   <td class="px-4 py-2">
   <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold
     {% if document.file %}
@@ -1079,7 +1086,7 @@
       {% else %} bg-gray-300 text-gray-800
       {% endif %}
     {% else %}
-      bg-orange-400 text-white
+      bg-gray-500 text-white
     {% endif %}">
     {% if document.file %}
       {{ document.status }}
@@ -1088,6 +1095,7 @@
     {% endif %}
   </span>
 </td>
+
 
                   <td class="px-4 py-2 text-gray-600">{{ document.rejection_reason|default:"N/A" }}</td>
                   <td class="px-4 py-2 text-gray-600">
@@ -1140,26 +1148,31 @@
           {% if document.document_type == "Skills Passbook" %}
             <tr class="border-b border-gray-200">
               <td class="px-4 py-2 text-gray-800">{{ document.document_type }}</td>
-              <td class="px-4 py-2 text-gray-600">{{ document.uploaded_at|default:"N/A" }}</td>
+              <td class="px-4 py-2 text-gray-600">{% if document.file %}
+                  {{ document.uploaded_at }}
+                {% else %}
+                  N/A
+                {% endif %}</td>
               <td class="px-4 py-2">
-                <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold
-                  {% if document.file %}
-                    {% if document.status == 'Approved' %} bg-green-600 text-white
-                    {% elif document.status == 'Rejected' %} bg-red-600 text-white
-                    {% elif document.status == 'In Review' %} bg-yellow-400 text-gray-900
-                    {% elif document.status == 'Pending' %} bg-blue-500 text-white
-                    {% else %} bg-gray-300 text-gray-800
-                    {% endif %}
-                  {% else %}
-                    bg-yellow-400 text-gray-900
-                  {% endif %}">
-                  {% if document.file %}
-                    {{ document.status }}
-                  {% else %}
-                    File Not Uploaded
-                  {% endif %}
-                </span>
-              </td>
+  <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold
+    {% if document.file %}
+      {% if document.status == 'Approved' %} bg-green-600 text-white
+      {% elif document.status == 'Rejected' %} bg-red-600 text-white
+      {% elif document.status == 'In Review' %} bg-yellow-400 text-gray-900
+      {% elif document.status == 'Pending' %} bg-blue-500 text-white
+      {% else %} bg-gray-300 text-gray-800
+      {% endif %}
+    {% else %}
+      bg-gray-500 text-white
+    {% endif %}">
+    {% if document.file %}
+      {{ document.status }}
+    {% else %}
+      File Not Uploaded
+    {% endif %}
+  </span>
+</td>
+
               <td class="px-4 py-2 text-gray-600">{{ document.rejection_reason|default:"N/A" }}</td>
               <td class="px-4 py-2 text-gray-600">
                 {% if document.approval_logs %}
