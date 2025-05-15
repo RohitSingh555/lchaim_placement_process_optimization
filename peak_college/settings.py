@@ -139,6 +139,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'documents')
 # Static files
 STATIC_URL = '/static/'
 
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'private_healthcare_placement_optimization' / 'static',
+]
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
