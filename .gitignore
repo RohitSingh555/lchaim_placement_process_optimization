@@ -6,3 +6,5 @@ documents/
 private_healthcare_placement_optimization/templatetags/__pycache__
 private_healthcare_placement_optimization/templates/student_profile_logs.html
 db.sqlite3
+private_healthcare_placement_optimization (1).zip
+.gitignore
