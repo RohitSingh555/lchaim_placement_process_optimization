@@ -29,39 +29,79 @@ def is_document_status_section_allowed_doc(doc_type_display_name):
         'Varicella Lab/Vax Record',
         'TDAP Vax Record',
         'Hepatitis B Lab/Vax Record',
+        'Hepatitis A Lab/Vax Record',
         'Covid Vaccination Certificate',
         'Vulnerable Sector Check',
-        'CPR or First Aid',
+        'CPR & First Aid',
         'Mask Fit Certificate',
         'Basic Life Support',
         'Flu Shot',
+        'Resume',
         'Extra Dose of Covid',
         'Other Documents',
+        'Skills Passbook',
     ]
     return doc_type_display_name in allowed_docs
 
 @register.filter
 def document_group(doc_type_display_name):
-    if doc_type_display_name == 'Experience Document':
+    if doc_type_display_name in [
+        'Experience Document',
+    ]:
         return 'Experience'
-    elif doc_type_display_name in [
+    if doc_type_display_name in [
+        'Medical Certificate',
         'X-Ray Result',
         'MMR Lab/Vax Record',
         'Varicella Lab/Vax Record',
         'TDAP Vax Record',
+        'Hepatitis A Lab/Vax Record',  # ✅ new addition
         'Hepatitis B Lab/Vax Record',
     ]:
-        return 'NACC Medical Report Form'
+        return 'Medical Requirements'
+
     elif doc_type_display_name in [
         'Covid Vaccination Certificate',
         'Vulnerable Sector Check',
-        'CPR or First Aid',
+        'CPR & First Aid',
         'Mask Fit Certificate',
         'Basic Life Support',
         'Flu Shot',
+    ]:
+        return 'NACC Requirements'
+
+    elif doc_type_display_name in [
+        'Resume',
         'Extra Dose of Covid',
         'Other Documents',
     ]:
-        return 'Required Documents'
-    else:
-        return ''
+        return 'Additional Facility Requirements'
+
+    elif doc_type_display_name == 'Skills Passbook':
+        return 'Documents Required After Placement Completion'
+
+    return ''
+
+
+@register.filter
+def get_item(dictionary, key):
+    try:
+        return dictionary.get(key)
+    except Exception:
+        return None
+
+# Add last_item filter for safe access to the last element of a list
+@register.filter
+def last_item(value):
+    try:
+        return value[-1]
+    except (IndexError, TypeError):
+        return None
+
+
+
+@register.filter(name='get_item')
+def get_item(dictionary, key):
+    if isinstance(dictionary, dict):
+        return dictionary.get(key)
+    return None  # fallback to avoid errors

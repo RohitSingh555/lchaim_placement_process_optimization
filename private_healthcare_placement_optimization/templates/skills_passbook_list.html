@@ -1,0 +1,397 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- Notification Banner (Top Right Corner) -->
+<div id="notification" class="hidden fixed top-6 right-6 z-50 mb-4 px-4 py-3 rounded flex items-center gap-2 shadow-lg"></div>
+<div class="max-w-screen-2xl mx-auto p-6">
+  <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+    <i class="fas fa-passport text-teal-500"></i> Skills Passbook Submissions
+  </h2>
+
+  <!-- Filters -->
+  <form method="get" class="flex flex-col md:flex-row md:items-end gap-4 mb-6">
+    <div>
+      <label class="block text-xs font-medium text-gray-600 mb-1">Status</label>
+      <select name="status" class="w-full md:w-48 rounded border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
+        <option value="">All Statuses</option>
+        {% for status in status_choices %}
+          <option value="{{ status }}" {% if selected_status == status %}selected{% endif %}>{{ status }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="flex-1">
+      <label class="block text-xs font-medium text-gray-600 mb-1">Search</label>
+      <input type="text" name="search" value="{{ search_query }}" placeholder="Name, Email, Student ID" class="w-full rounded border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500" />
+    </div>
+    <div>
+      <button type="submit" class="mt-6 md:mt-0 bg-teal-600 hover:bg-teal-700 text-white font-semibold px-6 py-2 rounded shadow-sm transition flex items-center gap-2"><i class="fas fa-filter"></i> Apply</button>
+    </div>
+  </form>
+
+  <!-- Responsive Table -->
+  <div class="overflow-x-auto rounded-2xl shadow-xl border border-gray-100 bg-gradient-to-br from-white via-gray-50 to-gray-100">
+    <table class="min-w-full text-sm text-left text-gray-800">
+      <thead class="bg-gradient-to-r from-teal-100 to-cyan-100 text-teal-800 uppercase text-xs font-bold">
+        <tr>
+          <th class="px-6 py-4 whitespace-nowrap">Student ID</th>
+          <th class="px-6 py-4 whitespace-nowrap">Name</th>
+          <th class="px-6 py-4 whitespace-nowrap">Email</th>
+          <th class="px-6 py-4 whitespace-nowrap">Date Uploaded</th>
+          <th class="px-6 py-4 whitespace-nowrap">Status</th>
+          <th class="px-6 py-4 whitespace-nowrap">Rejection Reason</th>
+          <th class="px-6 py-4 whitespace-nowrap">Comment</th>
+          <th class="px-6 py-4 whitespace-nowrap">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200">
+        {% for entry in skills_data %}
+        <tr class="hover:bg-gradient-to-r hover:from-teal-50 hover:to-cyan-50 transition-all">
+          <td class="px-6 py-3 align-middle">{{ entry.student_id }}</td>
+          <td class="px-6 py-3 align-middle">{{ entry.first_name }} {{ entry.last_name }}</td>
+          <td class="px-6 py-3 align-middle break-all">{{ entry.email }}</td>
+          <td class="px-6 py-3 align-middle">{{ entry.uploaded_at|date:'Y-m-d H:i' }}</td>
+          <td class="px-6 py-3 align-middle">
+            <span id="status-{{ entry.doc_id }}" class="inline-block px-3 py-1 rounded-full font-semibold tracking-wide text-xs
+              {% if entry.status == 'Approved' %}bg-green-100 text-green-700
+              {% elif entry.status == 'Rejected' %}bg-red-100 text-red-700
+              {% elif entry.status == 'In Review' %}bg-yellow-100 text-yellow-700
+              {% else %}bg-gray-100 text-gray-700{% endif %}">
+              <i class="fas fa-circle mr-1 text-xs align-middle"></i> {{ entry.status }}
+            </span>
+          </td>
+          <td class="px-6 py-3 align-middle rejection-reason">
+            {% if entry.rejection_reason %}
+              <span class="text-red-600">{{ entry.rejection_reason }}</span>
+            {% else %}
+              <span class="text-gray-400">N/A</span>
+            {% endif %}
+          </td>
+          <td class="px-6 py-3 align-middle">
+            {% if entry.latest_comment %}
+              <span class="text-gray-700"><i class="fas fa-comment mr-1"></i>{{ entry.latest_comment }}</span>
+            {% else %}
+              <span class="text-gray-400">N/A</span>
+            {% endif %}
+          </td>
+          <td class="px-6 py-3 align-middle">
+            <div class="flex flex-row flex-wrap gap-2 items-center justify-center">
+              <button type="button" class="action-btn-icon" onclick="handleApprove({{ entry.doc_id }})" aria-label="Approve" data-tooltip="Approve Passbook">
+                <i class="fas fa-check"></i>
+              </button>
+              <button type="button" class="action-btn-icon" onclick="openRejectModal({{ entry.doc_id }})" aria-label="Reject" data-tooltip="Reject Passbook">
+                <i class="fas fa-times"></i>
+              </button>
+              <button type="button" class="action-btn-icon" onclick="openCommentModal({{ entry.doc_id }})" aria-label="Comment" data-tooltip="Add/View Comment">
+                <i class="fas fa-comment"></i>
+              </button>
+              <button type="button" class="action-btn-icon" onclick="handleReadyForExam({{ entry.profile_id }})" aria-label="Ready For Exam" data-tooltip="Mark as Ready For Exam">
+                <i class="fas fa-flag-checkered"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" class="px-6 py-8 text-center text-gray-400">No Skills Passbook submissions found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Reject Modal -->
+  <div id="rejectModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+      <button onclick="closeRejectModal()" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+      <h3 class="text-lg font-semibold mb-4 flex items-center gap-2"><i class="fas fa-times-circle text-red-500"></i> Reject Skills Passbook</h3>
+      <form id="rejectForm">
+        <input type="hidden" name="doc_id" id="rejectDocId" />
+        <label class="block text-sm font-medium mb-2">Select a reason:</label>
+        <select name="reason" id="rejectReason" class="w-full mb-3 border rounded px-3 py-2">
+          <option value="Incomplete Signature of Perceptor">Incomplete Signature of Perceptor</option>
+          <option value="No Signature of Perceptor">No Signature of Perceptor</option>
+          <option value="Missing Information in the Time Table">Missing Information in the Time Table</option>
+          <option value="No counter-signature is present in Corrections.">No counter-signature is present in Corrections.</option>
+          <option value="Other">Other</option>
+        </select>
+        <textarea name="other_reason" id="otherReason" class="w-full border rounded px-3 py-2 mb-3 hidden" placeholder="Other reason..."></textarea>
+        <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 flex items-center gap-2"><i class="fas fa-times"></i> Submit Rejection</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Comment Modal -->
+  <div id="commentModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+      <button onclick="closeCommentModal()" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+      <h3 class="text-lg font-semibold mb-4 flex items-center gap-2"><i class="fas fa-comment text-gray-500"></i> Add Comment</h3>
+      <form id="commentForm">
+        <input type="hidden" name="doc_id" id="commentDocId" />
+        <textarea name="comment" id="commentText" class="w-full border rounded px-3 py-2 mb-3" placeholder="Add your comment..."></textarea>
+        <button type="submit" class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800 flex items-center gap-2"><i class="fas fa-paper-plane"></i> Submit Comment</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="custom-tooltip" style="position:fixed;z-index:9999;pointer-events:none;opacity:0;transition:opacity 0.15s;min-width:120px;max-width:220px;padding:8px 14px;background:rgba(30,41,59,0.97);color:#fff;border-radius:8px;font-size:0.95em;box-shadow:0 4px 24px 0 rgba(0,0,0,0.18);text-align:center;white-space:normal;line-height:1.4;font-weight:500;letter-spacing:0.01em;" ></div>
+
+  <style>
+    .action-btn-icon {
+      @apply flex items-center justify-center rounded-full bg-white border border-gray-300 shadow-md text-lg text-gray-700 transition-all duration-200 w-11 h-11 md:w-11 md:h-11 cursor-pointer;
+      min-width: 44px;
+      min-height: 44px;
+      outline: none;
+      box-shadow: 0 2px 8px 0 rgba(0,0,0,0.08);
+      border-radius: 50%;
+      position: relative;
+      padding: 0;
+      /* Remove text, only icon */
+      font-size: 1.25em;
+    }
+    .action-btn-icon:hover, .action-btn-icon:focus {
+      background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+      color: #0d9488;
+      border-color: #0d9488;
+      box-shadow: 0 4px 16px 0 rgba(13,148,136,0.12);
+      transform: scale(1.08);
+    }
+    .action-btn-icon:active {
+      background: #ccfbf1;
+      color: #134e4a;
+      border-color: #134e4a;
+      box-shadow: 0 2px 8px 0 rgba(13,148,136,0.10);
+      transform: scale(0.97);
+    }
+    .tooltip { display: none !important; }
+    @media (max-width: 900px) {
+      .action-btn-icon { font-size: 1em; min-width: 36px; min-height: 36px; }
+    }
+    @media (max-width: 600px) {
+      .action-btn-icon { font-size: 0.9em; min-width: 32px; min-height: 32px; }
+      .tooltip { min-width: 80px; font-size: 0.7em; }
+      table th, table td { padding-left: 0.5em !important; padding-right: 0.5em !important; }
+    }
+    table { border-collapse: separate; border-spacing: 0; border-radius: 1.5rem; overflow: hidden; }
+    thead tr { border-radius: 1.5rem; }
+    tbody tr { border-radius: 1.5rem; }
+    tbody tr:hover { background: linear-gradient(90deg, #e0f7fa 0%, #f1f8e9 100%); }
+    #notification {
+      min-width: 220px;
+      max-width: 350px;
+      pointer-events: none;
+      font-size: 1em;
+      font-weight: 500;
+      box-shadow: 0 6px 32px 0 rgba(0,0,0,0.18);
+      border-radius: 0.75rem;
+      transition: opacity 0.2s, transform 0.2s;
+      opacity: 0.98;
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    #notification.hidden {
+      display: none;
+    }
+  </style>
+</div>
+
+<script>
+function showNotification(message, type) {
+  const notif = document.getElementById('notification');
+  notif.innerHTML = `<i class='fas fa-info-circle'></i> ${message}`;
+  notif.className = 'mb-4 px-4 py-3 rounded flex items-center gap-2';
+  notif.classList.remove('bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700');
+  if (type === 'success') {
+    notif.classList.add('bg-green-100', 'text-green-700');
+  } else {
+    notif.classList.add('bg-red-100', 'text-red-700');
+  }
+  notif.classList.remove('hidden');
+  setTimeout(() => notif.classList.add('hidden'), 3500);
+}
+
+function setButtonLoading(btn, isLoading, iconClass) {
+  if (isLoading) {
+    btn.disabled = true;
+    btn.dataset.originalIcon = btn.innerHTML;
+    btn.innerHTML = `<i class='fas fa-spinner fa-spin'></i>`;
+  } else {
+    btn.disabled = false;
+    if (btn.dataset.originalIcon) {
+      btn.innerHTML = btn.dataset.originalIcon;
+      delete btn.dataset.originalIcon;
+    } else if (iconClass) {
+      btn.innerHTML = `<i class='${iconClass}'></i>`;
+    }
+  }
+}
+
+function handleApprove(docId) {
+  const btn = event.currentTarget;
+  setButtonLoading(btn, true);
+  fetch(`/approve-document/${docId}/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': '{{ csrf_token }}' },
+    body: new URLSearchParams({ action: 'Approved' })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.document) {
+      document.getElementById(`status-${docId}`).innerHTML = `<i class='fas fa-circle mr-1 text-xs align-middle'></i> Approved`;
+      document.getElementById(`status-${docId}`).className = 'inline-block px-3 py-1 rounded-full font-semibold tracking-wide text-xs bg-green-100 text-green-700';
+      showNotification('Approved successfully!', 'success');
+    } else {
+      showNotification(data.error || 'Error approving.', 'error');
+    }
+  })
+  .catch(() => showNotification('Error approving.', 'error'))
+  .finally(() => setButtonLoading(btn, false, 'fas fa-check'));
+}
+
+function openRejectModal(docId) {
+  document.getElementById('rejectDocId').value = docId;
+  document.getElementById('rejectModal').classList.remove('hidden');
+}
+function closeRejectModal() {
+  document.getElementById('rejectModal').classList.add('hidden');
+}
+document.getElementById('rejectReason').addEventListener('change', function() {
+  if (this.value === 'Other') {
+    document.getElementById('otherReason').classList.remove('hidden');
+  } else {
+    document.getElementById('otherReason').classList.add('hidden');
+  }
+});
+document.getElementById('rejectForm').onsubmit = function(e) {
+  e.preventDefault();
+  const btn = this.querySelector('button[type="submit"]');
+  setButtonLoading(btn, true);
+  const docId = document.getElementById('rejectDocId').value;
+  let reason = document.getElementById('rejectReason').value;
+  if (reason === 'Other') {
+    reason = document.getElementById('otherReason').value;
+  }
+  fetch(`/approve-document/${docId}/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': '{{ csrf_token }}' },
+    body: new URLSearchParams({ action: 'Rejected', reason })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.document) {
+      document.getElementById(`status-${docId}`).innerHTML = `<i class='fas fa-circle mr-1 text-xs align-middle'></i> Rejected`;
+      document.getElementById(`status-${docId}`).className = 'inline-block px-3 py-1 rounded-full font-semibold tracking-wide text-xs bg-red-100 text-red-700';
+      const row = document.getElementById(`status-${docId}`).closest('tr');
+      row.querySelector('.rejection-reason').innerHTML = `<span class='text-red-600'>${reason}</span>`;
+      showNotification('Rejected successfully!', 'success');
+      closeRejectModal();
+    } else {
+      showNotification(data.error || 'Error rejecting.', 'error');
+    }
+  })
+  .catch(() => showNotification('Error rejecting.', 'error'))
+  .finally(() => setButtonLoading(btn, false, 'fas fa-times'));
+};
+
+function openCommentModal(docId) {
+  document.getElementById('commentDocId').value = docId;
+  document.getElementById('commentModal').classList.remove('hidden');
+}
+function closeCommentModal() {
+  document.getElementById('commentModal').classList.add('hidden');
+}
+document.getElementById('commentForm').onsubmit = function(e) {
+  e.preventDefault();
+  const btn = this.querySelector('button[type="submit"]');
+  setButtonLoading(btn, true);
+  const docId = document.getElementById('commentDocId').value;
+  const comment = document.getElementById('commentText').value;
+  fetch(`/add-document-comment/${docId}/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': '{{ csrf_token }}' },
+    body: new URLSearchParams({ comment })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.message) {
+      showNotification('Comment added!', 'success');
+      closeCommentModal();
+      document.getElementById('commentText').value = '';
+    } else {
+      showNotification(data.error || 'Error adding comment.', 'error');
+    }
+  })
+  .catch(() => showNotification('Error adding comment.', 'error'))
+  .finally(() => setButtonLoading(btn, false, 'fas fa-paper-plane'));
+};
+
+function handleReadyForExam(profileId) {
+  const btn = event.currentTarget;
+  setButtonLoading(btn, true);
+  fetch(`/ready-for-exam/${profileId}/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': '{{ csrf_token }}' }
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.message) {
+      showNotification('Marked as Ready For Exam!', 'success');
+    } else {
+      showNotification(data.error || 'Error.', 'error');
+    }
+  })
+  .catch(() => showNotification('Error.', 'error'))
+  .finally(() => setButtonLoading(btn, false, 'fas fa-flag-checkered'));
+}
+
+// Custom JS tooltip logic
+const tooltip = document.getElementById('custom-tooltip');
+function showTooltip(e) {
+  const text = e.currentTarget.getAttribute('data-tooltip');
+  if (!text) return;
+  tooltip.innerText = text;
+  tooltip.style.opacity = '1';
+  // Position tooltip below or above the button
+  const rect = e.currentTarget.getBoundingClientRect();
+  const scrollY = window.scrollY || window.pageYOffset;
+  const scrollX = window.scrollX || window.pageXOffset;
+  let top = rect.bottom + 8 + scrollY;
+  let left = rect.left + rect.width / 2 + scrollX;
+  tooltip.style.left = left + 'px';
+  tooltip.style.top = top + 'px';
+  tooltip.style.transform = 'translateX(-50%)';
+  // If tooltip would go off bottom, show above
+  if (top + tooltip.offsetHeight > window.innerHeight + scrollY) {
+    tooltip.style.top = (rect.top - tooltip.offsetHeight - 8 + scrollY) + 'px';
+  }
+  // Prevent tooltip from overflowing left/right
+  const tooltipRect = tooltip.getBoundingClientRect();
+  let newLeft = left;
+  if (tooltipRect.left < 8) {
+    newLeft = scrollX + 8 + tooltipRect.width / 2;
+    tooltip.style.left = newLeft + 'px';
+  } else if (tooltipRect.right > window.innerWidth - 8) {
+    newLeft = window.innerWidth - 8 - tooltipRect.width / 2;
+    tooltip.style.left = newLeft + 'px';
+  }
+  // Prevent tooltip from going above viewport
+  if (parseFloat(tooltip.style.top) < scrollY + 8) {
+    tooltip.style.top = (rect.bottom + 8 + scrollY) + 'px';
+  }
+}
+function hideTooltip() {
+  tooltip.style.opacity = '0';
+}
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.action-btn-icon').forEach(btn => {
+    btn.addEventListener('mouseenter', showTooltip);
+    btn.addEventListener('mouseleave', hideTooltip);
+    btn.addEventListener('focus', showTooltip);
+    btn.addEventListener('blur', hideTooltip);
+  });
+});
+</script>
+{% endblock %} 

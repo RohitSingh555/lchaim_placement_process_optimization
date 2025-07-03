@@ -63,6 +63,12 @@
             >
               <i class="fas fa-building"></i><span>Assign Facility</span>
             </a>
+            <a
+              href="{% url 'skills_passbook_list' %}"
+              class="hover:text-teal-300 flex items-center space-x-2"
+            >
+              <i class="fas fa-passport"></i><span>Skills Passbook</span>
+            </a>
             {% endif %}
           </div>
         </div>
@@ -106,6 +112,12 @@
                 class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
               >
                 <i class="fas fa-calendar-alt mr-2"></i> Orientation Dates
+              </a>
+              <a
+                href="{% url 'skills_passbook_list' %}"
+                class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
+              >
+                <i class="fas fa-passport mr-2"></i> Skills Passbook
               </a>
               {% endif %}
               <a
@@ -179,6 +191,12 @@
           >
             <i class="fas fa-users"></i><span>Approvers</span>
           </a>
+          <a
+            href="{% url 'skills_passbook_list' %}"
+            class="hover:text-teal-300 flex items-center space-x-2"
+          >
+            <i class="fas fa-passport"></i><span>Skills Passbook</span>
+          </a>
           {% endif %}
           <a href="{% url 'profile' %}" class="flex items-center space-x-2">
             <i class="fas fa-user-circle"></i><span>Profile</span>
@@ -193,7 +211,7 @@
 
     <!-- Main Content -->
     <main class="min-h-[100vh]">
-      <div class="max-w-screen-xxl mx-auto py-6 px-12">
+      <div class="max-w-screen-xxl mx-auto py-6 px-4 sm:px-2">
         {% block content %}{% endblock %}
       </div>
     </main>

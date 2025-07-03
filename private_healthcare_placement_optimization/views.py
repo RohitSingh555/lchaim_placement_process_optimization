@@ -9,6 +9,8 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.core.mail import EmailMessage
 from django.views import View
+
+from private_healthcare_placement_optimization.templatetags.forms_extras import document_group
 from .models import PlacementProfile, Document
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -32,6 +34,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
@@ -265,21 +268,23 @@ class PlacementProfileView(View):
             'medical_certificate': 'Medical Certificate',
             'covid_vaccination_certificate': 'Covid Vaccination Certificate',
             'vulnerable_sector_check': 'Vulnerable Sector Check',
-            'cpr_or_first_aid': 'CPR or First Aid',
+            'cpr_or_first_aid': 'CPR & First Aid',
             'mask_fit_certificate': 'Mask Fit Certificate',
             'bls_certificate': 'Basic Life Support',
             'experience_document': 'Experience Document',
-            'resume': 'Resume',
+            'resume': 'Resume',  # ✅ Already present
             'skills_passbook': 'Skills Passbook',
             'x_ray_result': 'X-Ray Result',
             'mmr_lab_vax_record': 'MMR Lab/Vax Record',
             'varicella_lav_vax_record': 'Varicella Lab/Vax Record',
             'tdap_vax_record': 'TDAP Vax Record',
-            'hepatitits_b_lab_vax_record': 'Hepatitis B Lab/Vax Record',
+            'hepatitis_b_lab_vax_record': 'Hepatitis B Lab/Vax Record',
+            'hepatitis_a_lab_vax_record': 'Hepatitis A Lab/Vax Record',  # ✅ Newly added
             'flu_shot': 'Flu Shot',
             'extra_dose_of_covid': 'Extra Dose of Covid',
             'other_documents': 'Other Documents',
         }
+
 
         missing_documents = []
         submitted_documents = []
@@ -324,7 +329,7 @@ class PlacementProfileView(View):
             try:                
                 messages.error(
                     request, 
-                    "Your documents are now <strong>UNDER REVIEW</strong> by our team.<br><br>Next step, wait for the approval of your submitted documents.<br><br>You’ll receive another email once all are approved."
+                    "Your documents are now <strong>UNDER REVIEW</strong> by our team.<br><br>Next step, wait for the approval of your submitted documents.<br><br>You'll receive another email once all are approved."
                 )
                 send_welcome_email(profile, submitted_documents)
                 print(f"Welcome email sent to {profile.college_email}")
@@ -496,7 +501,7 @@ def send_welcome_email(profile, submitted_documents):
         <div class="container">
             <p>Greetings!</p>
             <p>Your documents are now <span class="bold">UNDER REVIEW</span> by our team.</p>
-            <p>Next step, wait for the approval of your submitted documents. You’ll receive another email once all are approved.</p>
+            <p>Next step, wait for the approval of your submitted documents. You'll receive another email once all are approved.</p>
             <div class="footer">
                 <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
                 <span>Warm regards, </span>
@@ -644,13 +649,24 @@ class SendDocumentsEmailView(View):
         except Exception as e:
             return JsonResponse({"error": f"Failed to send email: {str(e)}"}, status=500)
 
-    
+
+
+
+from collections import OrderedDict
 class StudentProfileLogsView(View):
+    DOCUMENT_GROUP_ORDER = [
+    "Experience",
+    "Medical Requirements",
+    "NACC Requirements",
+    "Additional Facility Requirements",
+    "Documents Required After Placement Completion"
+]
+
     REQUIRED_DOCUMENTS = {
         "Medical Certificate",
         "Covid Vaccination Certificate",
         "Vulnerable Sector Check",
-        "CPR or First Aid",
+        "CPR & First Aid",
         "Mask Fit Certificate",
         "Experience Document",
         "Basic Life Support"
@@ -753,6 +769,8 @@ class StudentProfileLogsView(View):
             
             latest_approved_log = None
             approved_count = 0
+            grouped_documents = OrderedDict((group, []) for group in self.DOCUMENT_GROUP_ORDER)
+            
             for doc in profile.documents.all():
                 latest_approval = ApprovalLog.objects.filter(document=doc, action="Approved").order_by('-timestamp').first()
                 if latest_approval:
@@ -780,6 +798,37 @@ class StudentProfileLogsView(View):
                     'uploaded_at': doc.uploaded_at.strftime("%Y-%m-%d %H:%M:%S"),
                     'approval_logs': approver_actions
                 })
+
+
+            for doc in profile.documents.all():
+                group = document_group(doc.document_type)
+                if not group:
+                    continue  # Skip documents not in any known group
+                
+                latest_approval = ApprovalLog.objects.filter(document=doc, action="Approved").order_by('-timestamp').first()
+                approval_logs = ApprovalLog.objects.filter(document=doc)
+
+                approver_actions = [
+                    {
+                        "approver": log.approver.full_name if log.approver else "Unknown",
+                        "action": log.action,
+                        "reason": log.reason,
+                        "timestamp": log.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                    for log in approval_logs
+                ]
+
+                doc_info = {
+                    'id': doc.id,
+                    'status': doc.status,
+                    'document_type': doc.document_type,
+                    'file': doc.file.url if doc.file else None,
+                    'rejection_reason': doc.rejection_reason,
+                    'uploaded_at': doc.uploaded_at.strftime("%Y-%m-%d %H:%M:%S") if doc.uploaded_at else "N/A",
+                    'approval_logs': approver_actions
+                }
+
+                grouped_documents[group].append(doc_info)
             
             processed_by = latest_approved_log.approver.full_name if latest_approved_log and latest_approved_log.approver else "N/A"
             # Append profile info
@@ -827,6 +876,7 @@ class StudentProfileLogsView(View):
                 else:
                     experience_document_result = "Uploaded"
                 
+            print(grouped_documents)
             filtered_profile_details.append({
                 'profile_id': profile.id,
                 'first_name': profile.first_name,
@@ -868,6 +918,7 @@ class StudentProfileLogsView(View):
                 'pregnancy_waiver_check': profile.pregnancy_waiver_check,
                 'gender': profile.gender,
                 'facility_email_address': profile.facility_email_address,
+                'documents_by_group': grouped_documents,
                 'documents': document_details,
                 'is_completed': complete,
                 'processed_by': processed_by,
@@ -909,7 +960,7 @@ class StudentIncompleteProfileLogsView(View):
         "Medical Certificate",
         "Covid Vaccination Certificate",
         "Vulnerable Sector Check",
-        "CPR or First Aid",
+        "CPR & First Aid",
         "Mask Fit Certificate",
         "Experience Document",
         "Basic Life Support"
@@ -1164,8 +1215,36 @@ def delete_profile(request, profile_id):
 
     return JsonResponse({'message': 'Profile, associated documents (with files) and user deleted successfully!'})
 
+def send_skills_passbook_approved_email(profile):
+    subject = "Book NACC Exam. Your Skills Passbook has been APPROVED!"
+    message = f"""
+    <html>
+    <body>
+    <p>Greetings!</p>
+    <p>Your Skills Passbook is now <span style='color:green; font-weight:bold;'>APPROVED</span>.</p>
+    <p>To schedule your NACC Exam, please contact <a href='mailto:ara@peakcollege.ca'>ara@peakcollege.ca</a>.</p>
+    <p>Remember to bring your Skills Passbook on the day of your exam.</p>
+    <b>School Office Hours:</b>
+    <ul>
+      <li><b>Monday to Thursday:</b> 9:00 AM – 5:00 PM</li>
+      <li><b>Saturday:</b> 9:30 AM – 4:00 PM</li>
+    </ul>
+    <p>Wishing you the best of luck on your NACC Exam Day, and thank you for completing your placement at Peak College!</p>
+    <br>
+    <p>Warm regards,<br>The Peak Healthcare Team</p>
+    <p>Website: <a href='https://www.peakcollege.ca'>www.peakcollege.ca</a></p>
+    <img src='http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg' width='240' height='90'/><br>
+    1140 Sheppard Ave West<br>Unit #12, North York, ON<br>M3K 2A2
+    </body>
+    </html>
+    """
+    recipients = [profile.college_email, 'ara@peakcollege.ca']
+    email = EmailMessage(subject, message, to=recipients)
+    email.content_subtype = "html"
+    email.send()
+
 @csrf_exempt
-@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def approve_document(request, document_id):
     if request.method == "POST":
         document = get_object_or_404(Document, id=document_id)
@@ -1193,6 +1272,13 @@ def approve_document(request, document_id):
         if action == DocumentStatus.APPROVED.value and document.document_type == "Experience Document":
             document.profile.required_hours = 200
             document.profile.save()
+
+        # If approved and document type is Skills Passbook, update stage and send email
+        if action == DocumentStatus.APPROVED.value and document.document_type == "Skills Passbook":
+            if document.profile.stage == "IN_PLACEMENT":
+                document.profile.stage = "FOR_EXAM"
+                document.profile.save()
+            send_skills_passbook_approved_email(document.profile)
 
         # Send placement notification
         message = f"Your document '{document.document_type}' has been {action.lower()}."
@@ -1575,7 +1661,7 @@ def send_email_notify_placement(profile, facility, orientation_date, requested_h
             Phone No.: {facility.facility_phone}</p>
 
             <p><span class="highlight">Orientation Date:</span> {orientation_date}</p>
-            <p><span class="highlight">Requested Hours:</span> {requested_hours} Hours</p>
+            <p><span class="highlight">Required Hours:</span> {requested_hours} Hours</p>
 
             <p><span class="highlight">Kindly observe the following during your placement:</span></p>
             <ul>
@@ -1584,7 +1670,7 @@ def send_email_notify_placement(profile, facility, orientation_date, requested_h
                 <li>Display your Student ID or name tag.</li>
                 <li>Facilities are scent-free; only use unscented products.</li>
                 <li>Cell phones are not permitted during work hours.</li>
-                <li>If you are feeling unwell, kindly follow the facility’s policy.</li>
+                <li>If you are feeling unwell, kindly follow the facility's policy.</li>
                 <li>Bring your skills passbook to log your hours and have it evaluated at the end.</li>
             </ul>
 
@@ -1594,7 +1680,7 @@ def send_email_notify_placement(profile, facility, orientation_date, requested_h
             <ol>
                 <li>Placement Key Points: <a href="#">Click here</a>.</li>
                 <li>After your placement, scan and upload your timesheet and passbook here: <a href="#">Click here</a>.</li>
-                <li>Reply to this email to confirm you’ve read and understood the contents.</li>
+                <li>Reply to this email to confirm you've read and understood the contents.</li>
             </ol>
 
             <p>For questions, email <a href="mailto:placement@peakcollege.ca">placement@peakcollege.ca</a> or call (416) 756-4846 ext:
@@ -1684,13 +1770,13 @@ def send_email_notify_result(profile, rejected_documents, zip_url):
     <body>
         <div class="container">
             <p>Greetings!</p>
-            <p>The documents below were rejected due to the following reasons:</p>
+            <p>The documents below were Corrected due to the following reasons:</p>
             <ul>
                 {document_list_html}
             </ul>
             <p>Next step: address the reasons and resubmit the documents by clicking the link below.</p>
             <p><a href="https://www.peakcollege.ca" class="highlight">Resubmission Link: Click here!</a></p>
-            <p>You’ll receive another email once all are approved.</p>
+            <p>You'll receive another email once all are approved.</p>
             <div class="footer">
                 <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
                 <span>Warm regards, </span>
@@ -1775,7 +1861,7 @@ def send_email_done(profile, documents):
 <div class="container">
 <p>Greetings!</p>
 <p>All your documents are now <span class="highlight">APPROVED</span>.</p>
-<p>The Placement Coordinator: We will reach out to you through email or phone call. Once you finalize with her which facility you’re going to do your placement, she will inform you of your Placement Orientation Date.</p>
+<p>The Placement Coordinator: We will reach out to you through email or phone call. Once you finalize with her which facility you're going to do your placement, she will inform you of your Placement Orientation Date.</p>
 <p>Then you can pick up your Skills Passbook and NACC Reviewer from the school on any operating day.</p>
 <p><span class="bold">School Office Hours:</span></p>
 <p><span class="bold">Monday to Thursday:</span> 9:00 AM to 5:00PM</p>
@@ -2277,7 +2363,7 @@ def incomplete_profiles_view(request):
             "Medical Certificate",
             "Covid Vaccination Certificate",
             "Vulnerable Sector Check",
-            "CPR or First Aid",
+            "CPR & First Aid",
             "Mask Fit Certificate"
         ]
         documents = {doc.document_type: doc for doc in profile.documents.all()}
@@ -2309,7 +2395,7 @@ def complete_profiles_view(request):
             "Medical Certificate",
             "Covid Vaccination Certificate",
             "Vulnerable Sector Check",
-            "CPR or First Aid",
+            "CPR & First Aid",
             "Mask Fit Certificate"
         ]
         documents = {doc.document_type: doc for doc in profile.documents.all()}
@@ -2480,7 +2566,7 @@ def get_profiles_facilities_orientations():
         "Covid Vaccination Certificate",
         "Vulnerable Sector Check",
         "Mask Fit Certificate",
-        "CPR or First Aid",
+        "CPR & First Aid",
         "Experience Document",  # Always required and must be approved
     ]
 
@@ -2546,6 +2632,11 @@ def assign_facility_view(request):
 
         if update_fields:
             profiles.update(**update_fields)
+            # Set stage to IN_PLACEMENT if both facility and orientation are assigned and stage is ONGOING_PROCESS
+            for profile in profiles:
+                if profile.stage == 'ONGOING_PROCESS' and profile.assigned_facility and profile.orientation_date:
+                    profile.stage = 'IN_PLACEMENT'
+                    profile.save(update_fields=['stage'])
 
         context["success"] = "Assignment updated successfully."
         return render(request, 'assign_facility.html', context)
@@ -2601,6 +2692,13 @@ def pregnancy_policy_view(request):
     return render(request, "pregnancy_policy.html")
 
 def get_student_profile_by_id(request, profile_id):
+    DOCUMENT_GROUP_ORDER = [
+    "Experience",
+    "Medical Requirements",
+    "NACC Requirements",
+    "Additional Facility Requirements",
+    "Documents Required After Placement Completion"
+]
     profile = get_object_or_404(
         PlacementProfile.objects.select_related('assigned_facility', 'orientation_date')
         .prefetch_related('documents'),
@@ -2611,7 +2709,7 @@ def get_student_profile_by_id(request, profile_id):
         "Medical Certificate",
         "Covid Vaccination Certificate",
         "Vulnerable Sector Check",
-        "CPR or First Aid",
+        "CPR & First Aid",
         "Mask Fit Certificate",
         "Experience Document"
     }
@@ -2650,7 +2748,37 @@ def get_student_profile_by_id(request, profile_id):
             'uploaded_at': doc.uploaded_at.strftime("%Y-%m-%d %H:%M:%S"),
             'approval_logs': approver_actions
         })
+    
+        grouped_documents = OrderedDict((group, []) for group in DOCUMENT_GROUP_ORDER)
+        for doc in profile.documents.all():
+            group = document_group(doc.document_type)
+            if not group:
+                continue  # Skip documents not in any known group
+            
+            latest_approval = ApprovalLog.objects.filter(document=doc, action="Approved").order_by('-timestamp').first()
+            approval_logs = ApprovalLog.objects.filter(document=doc)
 
+            approver_actions = [
+                {
+                    "approver": log.approver.full_name if log.approver else "Unknown",
+                    "action": log.action,
+                    "reason": log.reason,
+                    "timestamp": log.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+                }
+                for log in approval_logs
+            ]
+
+            doc_info = {
+                'id': doc.id,
+                'status': doc.status,
+                'document_type': doc.document_type,
+                'file': doc.file.url if doc.file else None,
+                'rejection_reason': doc.rejection_reason,
+                'uploaded_at': doc.uploaded_at.strftime("%Y-%m-%d %H:%M:%S") if doc.uploaded_at else "N/A",
+                'approval_logs': approver_actions
+            }
+
+            grouped_documents[group].append(doc_info)
     try:
         student_id = profile.user.student_id_record.student_id
     except StudentID.DoesNotExist:
@@ -2660,7 +2788,8 @@ def get_student_profile_by_id(request, profile_id):
         'profile': profile,
         'student_id': student_id,
         'documents': document_details,
-        'is_completed': complete
+        'is_completed': complete,
+        'documents_by_group': grouped_documents,
     }
 
     return render(request, 'student_profile.html', context)
@@ -2694,3 +2823,94 @@ def base_view(request):
         'has_profile': has_profile,
     }
     return render(request, 'base.html', context)
+
+@method_decorator(user_passes_test(lambda u: u.is_superuser), name='dispatch')
+class SkillsPassbookListView(View):
+    def get(self, request):
+        from .models import Document, PlacementProfile, ApprovalLog
+        from django.db.models import Q
+
+        # Filters
+        status_filter = request.GET.get('status', '')
+        search_query = request.GET.get('search', '').strip().lower()
+
+        # Get all Skills Passbook documents that have been uploaded
+        skills_docs = Document.objects.filter(document_type='Skills Passbook').select_related('profile__user')
+        if status_filter:
+            skills_docs = skills_docs.filter(status=status_filter)
+        # Only show documents that have a file uploaded
+        skills_docs = skills_docs.exclude(file_name__isnull=True).exclude(file_name='')
+
+        # Search by student name, email, or student ID
+        if search_query:
+            skills_docs = skills_docs.filter(
+                Q(profile__first_name__icontains=search_query) |
+                Q(profile__last_name__icontains=search_query) |
+                Q(profile__college_email__icontains=search_query) |
+                Q(profile__user__student_id_record__student_id__icontains=search_query)
+            )
+
+        # Prepare data for template
+        skills_data = []
+        for doc in skills_docs:
+            profile = doc.profile
+            try:
+                student_id = profile.user.student_id_record.student_id
+            except Exception:
+                student_id = ''
+            latest_approval = ApprovalLog.objects.filter(document=doc).order_by('-timestamp').first()
+            latest_comment = ApprovalLog.objects.filter(document=doc, action='Comment').order_by('-timestamp').first()
+            skills_data.append({
+                'doc_id': doc.id,
+                'profile_id': profile.id,
+                'student_id': student_id,
+                'first_name': profile.first_name,
+                'last_name': profile.last_name,
+                'email': profile.college_email,
+                'status': doc.status,
+                'file_url': doc.file.url if doc.file else '',
+                'uploaded_at': doc.uploaded_at,
+                'rejection_reason': doc.rejection_reason,
+                'latest_approval': latest_approval,
+                'latest_comment': latest_comment.reason if latest_comment else '',
+            })
+
+        # For filter dropdown
+        status_choices = ['In Review', 'Approved', 'Rejected']
+
+        return render(request, 'skills_passbook_list.html', {
+            'skills_data': skills_data,
+            'status_choices': status_choices,
+            'selected_status': status_filter,
+            'search_query': search_query,
+        })
+
+@csrf_exempt
+@user_passes_test(lambda u: u.is_superuser)
+def ready_for_exam(request, profile_id):
+    if request.method == 'POST':
+        from .models import PlacementProfile
+        profile = get_object_or_404(PlacementProfile, id=profile_id)
+        profile.stage = 'READY'
+        profile.save()
+        return JsonResponse({'message': 'Marked as Ready For Exam!'}, status=200)
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+@csrf_exempt
+@user_passes_test(lambda u: u.is_superuser)
+def add_document_comment(request, document_id):
+    if request.method == 'POST':
+        from .models import Document, ApprovalLog, Approver
+        document = get_object_or_404(Document, id=document_id)
+        approver = get_object_or_404(Approver, user=request.user)
+        comment = request.POST.get('comment', '').strip()
+        if not comment:
+            return JsonResponse({'error': 'Comment cannot be empty.'}, status=400)
+        ApprovalLog.objects.create(
+            approver=approver,
+            document=document,
+            action='Comment',
+            reason=comment,
+        )
+        return JsonResponse({'message': 'Comment added!'}, status=200)
+    return JsonResponse({'error': 'Invalid request'}, status=400)

@@ -124,7 +124,7 @@ class Document(models.Model):
             ("Medical Certificate", "Medical Certificate"),
             ("Covid Vaccination Certificate", "Covid Vaccination Certificate"),
             ("Vulnerable Sector Check", "Vulnerable Sector Check"),
-            ("CPR or First Aid", "CPR or First Aid"),
+            ("CPR & First Aid", "CPR & First Aid"),
             ("Mask Fit Certificate", "Mask Fit Certificate"),
             ("Basic Life Support", "Basic Life Support"),
         ]

@@ -1,15 +1,12 @@
-{% extends 'base.html' %}
 {% load forms_extras %}
-
-{% block content %}
-<h2 class="text-4xl mt-4 font-extrabold text-center mb-12
-    bg-gradient-to-r from-teal-600 via-teal-400 to-cyan-400
-    text-transparent bg-clip-text drop-shadow-md tracking-wide translate-y-4 animate-fadeInUp">
-    {{ profile.first_name }}'s Placement Profile
-  </h2>
+<h2 
+                class="text-4xl font-extrabold text-center mb-12 bg-gradient-to-r from-teal-600 via-teal-400 to-cyan-400 text-transparent bg-clip-text drop-shadow-md tracking-wide opacity-0 translate-y-4 animate-fadeInUp"
+              >
+                Your Placement Profile
+              </h2>
+                {% for profile in profile_details %}
                 <div class="flex items-center justify-center p-6">
                     <div class="w-full max-w-6xl bg-white rounded-2xl p-6 md:p-8 border border-gray-200 shadow-lg">
-                      
                         <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
                           <div class="
                               w-16 h-16 text-white flex items-center justify-center rounded-full text-2xl font-bold
@@ -219,7 +216,7 @@
     {% endif %}
   </span>
 </p>
-                            <input type="hidden" id="profileId" value="{{ profile.id }}">
+                            <input type="hidden" id="profileIdStage" value="{{ profile.id }}">
                           </div>
                         </div>
                         
@@ -274,7 +271,14 @@
       });
     }
   </script>  
-
+  
+  
+                        <div class="mt-6 flex justify-center">
+                            <button onclick="openModal('{{ forloop.counter }}')" class="text-white bg-teal-600 hover:bg-teal-700 font-semibold py-3 px-6 rounded-lg text-lg flex items-center space-x-2 transition">
+                                <i class="fas fa-file-alt"></i>
+                                <span>View and Upload Documents</span>
+                            </button>
+                        </div>
             
                     </div>
                 </div>     
@@ -295,7 +299,6 @@
                 </div>
               </div>
               </div>
-
 
               {% comment %} edit section {% endcomment %}
                 <div class="flex justify-center mt-6">
@@ -334,7 +337,7 @@
                         </button>
                         <h3 class="text-lg font-semibold text-gray-800 mb-4">Edit Placement Information</h3>
                         <form id="startDateForm" onsubmit="saveStartDate(event)">
-                          <input type="hidden" id="profileId" value="{{ profile.id }}">
+                          <input type="hidden" id="profileId" value="{{ profile.profile_id }}">
                 
                           <!-- Start Date (Optional) -->
                           <div class="mb-4">
@@ -369,7 +372,7 @@
                 </div>                
                 
 
-              <div class="flex justify-center mt-6 px-4">
+                <div class="flex justify-center mt-6 px-4">
                     <div class="bg-white border border-gray-200 rounded-lg shadow-md p-6 w-full max-w-6xl mx-auto">
                       <h3 class="text-xl font-semibold text-gray-800 mb-4">Document Status Table</h3>
                       
@@ -386,7 +389,7 @@
     </tr>
   </thead>
   <tbody>
-    {% for group_name, documents in documents_by_group.items %}
+    {% for group_name, documents in profile.documents_by_group.items %}
   {% if documents %}
     <tr class="bg-gray-200 font-bold">
       <td class="px-4 py-2" colspan="6">
@@ -475,7 +478,13 @@
                     
                   </div>
 
+
                 
+  </div>
+</div>
+
+
+
                   <!-- Address Information Card -->
 
                   <div class="flex flex-col justify-center mt-6 px-4 gap-6">
@@ -543,6 +552,6 @@
   </div>
   </div>
 
-    
-
-  {% endblock %}
+               
+                {% endfor %}         
+                

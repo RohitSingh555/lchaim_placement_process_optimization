@@ -1,24 +1,24 @@
 {% extends 'base.html' %} {% block content %}
-<div class="max-w-3xl mx-auto py-12">
-  <div class="relative flex items-center justify-center w-full mb-6">
+<div class="max-w-3xl w-full mx-auto py-4 px-1 sm:px-4 md:py-10">
+  <div class="relative flex flex-col sm:flex-row items-center justify-center w-full mb-4 sm:mb-6">
     <!-- Stylish Back Button -->
     <button
       id="backButton"
-      class="absolute left-0 flex items-center gap-2 px-4 py-2 bg-gray-300 text-gray-700 font-medium rounded-full shadow-md hover:bg-gray-400 hover:shadow-lg transition-all duration-300 hidden"
+      class="absolute left-0 flex items-center gap-2 px-3 py-2 bg-gray-300 text-gray-700 font-medium rounded-full shadow-md hover:bg-gray-400 hover:shadow-lg transition-all duration-300 hidden text-xs sm:text-base"
       onclick="prevStep()"
     >
       <i class="fas fa-arrow-left"></i> Back
     </button>
 
     <!-- Title (Centered) -->
-    <h2 class="text-2xl font-bold text-center">Create Placement Profile</h2>
+    <h2 class="text-lg sm:text-2xl font-bold text-center w-full">Create Placement Profile</h2>
   </div>
 
   <form
     method="POST"
     enctype="multipart/form-data"
     id="wizardForm"
-    class="space-y-6"
+    class="space-y-4 sm:space-y-6"
     onsubmit="showLoadingOverlay()"
   >
     {% csrf_token %}
@@ -28,821 +28,615 @@
       <!-- Sub-Step Container -->
       <div class="sub-step" id="subStep1">
         <div
-          class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4"
+          class="w-full max-w-2xl mx-auto bg-teal-100 mt-4 sm:mt-6 border-l-4 border-teal-500 p-4 sm:p-6 rounded-lg shadow-md flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4"
         >
           <i
-            class="fas fa-info-circle text-teal-600 text-3xl flex-shrink-0"
+            class="fas fa-info-circle text-teal-600 text-2xl sm:text-3xl"
           ></i>
           <div class="flex-1">
-            <h3 class="text-xl font-semibold text-teal-700">
+            <h3 class="text-base sm:text-xl font-semibold text-teal-700">
               Peak College Student Responsibilities
             </h3>
-            <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
+            <ul class="list-none text-gray-800 mt-3 space-y-3 text-sm sm:text-base">
               <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Ensure my
-                tuition fee is settled to avoid delays.
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
+                Ensure my tuition fee is settled to avoid delays.
               </li>
               <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Submit
-                clear and readable placement documents for approval by the
-                Placement Team.
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
+                Submit clear and readable placement documents for approval by the Placement Team.
               </li>
               <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Resubmit
-                documents that were rejected due to unclear submission.
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
+                Resubmit documents that were rejected due to unclear submission.
               </li>
               <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Ensure the
-                college has my updated home address.
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
+                Ensure the college has my updated home address.
               </li>
               <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Regularly
-                check my email for document approval notifications and
-                coordinate with the Placement Team.
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
+                Regularly check my email for document approval notifications and coordinate with the Placement Team.
               </li>
               <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Wait for
-                an email confirmation once all required documents are approved
-                and tuition fee is fully paid.
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
+                Wait for an email confirmation once all required documents are approved and tuition fee is fully paid.
               </li>
             </ul>
-            <div class="mt-5 flex items-center">
+            <div class="mt-4 flex items-start gap-3">
               <input
                 type="checkbox"
                 id="subStep1Checkbox"
-                class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+                class="w-5 h-5 sm:w-6 sm:h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500 mt-1"
               />
-              <label for="subStep1Checkbox" class="ml-3 text-gray-800 text-lg">
-                I have read and understood my responsibilities listed for
-                placement.
+              <label for="subStep1Checkbox" class="text-gray-800 text-sm sm:text-base">
+                I have read and understood my responsibilities listed for placement.
               </label>
             </div>
-            <p id="subStep1Error" class="text-red-600 text-lg mt-2 hidden">
+            <p id="subStep1Error" class="text-red-600 text-sm mt-2 hidden">
               You must acknowledge this section before proceeding.
             </p>
           </div>
         </div>
+      
         <div class="flex justify-center mt-4">
           <button
             type="button"
-            class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
+            class="w-full sm:w-auto px-4 py-2 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300 text-sm sm:text-base"
             onclick="goToSubStep(2)"
           >
             Next <i class="fas fa-arrow-right ml-2"></i>
           </button>
         </div>
       </div>
-
+      
       <!-- Substeps 2–7 (see below for full content) -->
       <div class="sub-step hidden" id="subStep2">
         <div
-          class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4"
+          class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-4 sm:p-6 rounded-lg shadow-md flex flex-col sm:flex-row sm:items-start gap-4"
         >
-          <i
-            class="fas fa-clipboard-list text-teal-600 text-3xl flex-shrink-0 mt-1"
-          ></i>
-          <div class="flex-1 h-[500px] overflow-y-auto pr-4">
-            <h3 class="text-xl font-semibold text-teal-700">
+          <i class="fas fa-clipboard-list text-teal-600 text-2xl sm:text-3xl mt-1 sm:mt-0"></i>
+          <div class="flex-1 max-h-[500px] overflow-y-auto pr-2 sm:pr-4">
+            <h3 class="text-base sm:text-xl font-semibold text-teal-700">
               Before Placement Responsibilities
             </h3>
-            <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
+            <ul class="list-none text-gray-800 mt-3 space-y-3 text-sm sm:text-lg">
               <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Submit
-                required documents:
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Submit required documents:
               </li>
-              <ul class="ml-8 list-none space-y-2">
+              <ul class="ml-6 list-none space-y-2">
                 <li>
                   <i class="fas fa-chevron-right text-teal-500 mr-2"></i>
-                  Medical Report with supporting lab results or proof of
-                  immunization for:
+                  Medical Report with supporting lab results or proof of immunization for:
                 </li>
-                <ul class="ml-8 list-none space-y-2">
+                <ul class="ml-6 list-none space-y-2">
                   <li>
                     <i class="fas fa-circle text-teal-400 text-xs mr-2"></i>
-                    2-Step TB Test (or Chest X-ray if skin test is positive).
-                    Must be within 6 months for LTC placements.
+                    2-Step TB Test (or Chest X-ray if skin test is positive). Must be within 6 months for LTC placements.
                   </li>
                   <li>
-                    <i class="fas fa-circle text-teal-400 text-xs mr-2"></i> MMR
-                    (Measles, Mumps, Rubella), Varicella, Tdap (Tetanus,
-                    Diphtheria, Pertussis), and Hepatitis B.
+                    <i class="fas fa-circle text-teal-400 text-xs mr-2"></i>
+                    MMR (Measles, Mumps, Rubella), Varicella, Tdap (Tetanus, Diphtheria, Pertussis), and Hepatitis B.
                   </li>
                 </ul>
                 <li>
-                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i> Police
-                  Vulnerable Sector Check (VSC) – Criminal and Judicial Checks
-                  are NOT accepted. Must be within 6 months for LTC placements.
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>
+                  Police Vulnerable Sector Check (VSC) – Criminal and Judicial Checks are NOT accepted. Must be within 6 months for LTC placements.
                 </li>
                 <li>
                   <i class="fas fa-chevron-right text-teal-500 mr-2"></i>
-                  COVID-19 Vaccination Certificate – Proof of two doses required
-                  (see Placement Guide for details).
+                  COVID-19 Vaccination Certificate – Proof of two doses required (see Placement Guide for details).
                 </li>
                 <li>
-                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i> First
-                  Aid & CPR (Level C).
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>
+                  First Aid & CPR (Level C).
                 </li>
                 <li>
-                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i> Mask
-                  Fit Test Certificate.
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>
+                  Mask Fit Test Certificate.
                 </li>
                 <li>
-                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i> Flu
-                  Shot Record (for fall/winter intakes).
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>
+                  Flu Shot Record (for fall/winter intakes).
                 </li>
               </ul>
               <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Pregnancy
-                Policy:
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Pregnancy Policy:
               </li>
-              <ul class="ml-8 list-none space-y-2">
+              <ul class="ml-6 list-none space-y-2">
                 <li>
-                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i> 1st &
-                  3rd trimester: not allowed.
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>
+                  1st & 3rd trimester: not allowed.
                 </li>
                 <li>
-                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i> 2nd
-                  trimester: allowed with doctor’s note and facility approval.
+                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>
+                  2nd trimester: allowed with doctor's note and facility approval.
                 </li>
               </ul>
               <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Do not
-                contact facilities directly. All communication is handled by the
-                college.
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
+                Do not contact facilities directly. All communication is handled by the college.
               </li>
               <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Placements
-                are offered based on document completion and availability.
-                Suggesting facilities is allowed, but communication goes through
-                the college.
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
+                Placements are offered based on document completion and availability. Suggesting facilities is allowed, but communication goes through the college.
               </li>
             </ul>
-            <div class="mt-5 flex items-center">
+      
+            <div class="mt-4 flex items-start gap-3">
               <input
                 type="checkbox"
                 id="subStep2Checkbox"
-                class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+                class="w-5 h-5 sm:w-6 sm:h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500 mt-1"
               />
-              <label for="subStep2Checkbox" class="ml-3 text-gray-800 text-lg">
-                I have read and understood my responsibilities listed for
-                placement
+              <label for="subStep2Checkbox" class="text-gray-800 text-sm sm:text-lg">
+                I have read and understood my responsibilities listed for placement
               </label>
             </div>
-            <p id="subStep2Error" class="text-red-600 text-lg mt-2 hidden">
+            <p id="subStep2Error" class="text-red-600 text-sm sm:text-lg mt-2 hidden">
               Please confirm you have read and understood the responsibilities.
             </p>
           </div>
         </div>
+      
         <div class="flex justify-center mt-4">
           <button
             onclick="goToSubStep(3)"
-            class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
+            class="w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300 text-sm sm:text-base"
           >
             Next <i class="fas fa-arrow-right ml-2"></i>
           </button>
         </div>
       </div>
+      
 
       <div class="sub-step hidden" id="subStep3">
         <div
-          class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4"
+          class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-4 sm:p-6 rounded-lg shadow-md flex flex-col sm:flex-row sm:items-start gap-4"
         >
-          <i class="fas fa-university text-teal-600 text-3xl flex-shrink-0"></i>
+          <i class="fas fa-university text-teal-600 text-2xl sm:text-3xl flex-shrink-0 mt-1 sm:mt-0"></i>
           <div class="flex-1">
-            <h3 class="text-xl font-semibold text-teal-700">
+            <h3 class="text-base sm:text-xl font-semibold text-teal-700">
               College Responsibilities
             </h3>
-            <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
+            <ul class="list-none text-gray-800 mt-3 space-y-3 text-sm sm:text-lg">
               <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Review
-                documents and confirm eligibility.
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
+                Review documents and confirm eligibility.
               </li>
               <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Ensure
-                student has zero tuition balance.
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
+                Ensure student has zero tuition balance.
               </li>
               <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Coordinate
-                placement logistics (proposal, agreement, status).
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
+                Coordinate placement logistics (proposal, agreement, status).
               </li>
               <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Provide
-                orientation and relevant policies.
+                <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
+                Provide orientation and relevant policies.
               </li>
             </ul>
-            <div class="mt-5 flex items-center">
+            <div class="mt-4 flex items-start gap-3">
               <input
                 type="checkbox"
                 id="subStep3Checkbox"
-                class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+                class="w-5 h-5 sm:w-6 sm:h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500 mt-1"
               />
-              <label for="subStep3Checkbox" class="ml-3 text-gray-800 text-lg">
-                I have read and understood my responsibilities listed for
-                placement</label
-              >
+              <label for="subStep3Checkbox" class="text-gray-800 text-sm sm:text-lg">
+                I have read and understood my responsibilities listed for placement.
+              </label>
             </div>
-            <p id="subStep3Error" class="text-red-600 text-lg mt-2 hidden">
-              I have read and understood my responsibilities listed for
-              placement
+            <p id="subStep3Error" class="text-red-600 text-sm sm:text-lg mt-2 hidden">
+              I have read and understood my responsibilities listed for placement.
             </p>
           </div>
         </div>
+      
         <div class="flex justify-center mt-4">
           <button
             onclick="goToSubStep(4)"
-            class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
+            class="w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300 text-sm sm:text-base"
           >
             Next <i class="fas fa-arrow-right ml-2"></i>
           </button>
         </div>
       </div>
-      {% comment %}
-      <div class="sub-step hidden" id="subStep4">
-        <div
-          class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4"
-        >
-          <i
-            class="fas fa-hospital-symbol text-teal-600 text-3xl flex-shrink-0"
-          ></i>
-          <div class="flex-1">
-            <h3 class="text-xl font-semibold text-teal-700">
-              Facility Responsibilities
-            </h3>
-            <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
-              <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Confirm
-                capacity and schedule.
-              </li>
-              <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Share
-                intake and orientation dates.
-              </li>
-              <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Share
-                number of available spots.
-              </li>
-              <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Share
-                shift schedule and shift requirements.
-              </li>
-            </ul>
-            <div class="mt-5 flex items-center">
-              <input
-                type="checkbox"
-                id="subStep4Checkbox"
-                class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
-              />
-              <label for="subStep4Checkbox" class="ml-3 text-gray-800 text-lg">
-                I have read and understood my responsibilities listed for
-                placement</label
-              >
-            </div>
-            <p id="subStep4Error" class="text-red-600 text-lg mt-2 hidden">
-              I have read and understood my responsibilities listed for
-              placement
-            </p>
-          </div>
-        </div>
-        <div class="flex justify-center mt-4">
-          <button
-            onclick="goToSubStep(5)"
-            class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
-          >
-            Next <i class="fas fa-arrow-right ml-2"></i>
-          </button>
-        </div>
+      
+      
+      <!-- SubStep 4 -->
+<div class="sub-step hidden" id="subStep4">
+  <div
+    class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-4 sm:p-6 rounded-lg shadow-md flex flex-col sm:flex-row gap-4"
+  >
+    <i class="fas fa-user-clock text-teal-600 text-2xl sm:text-3xl flex-shrink-0 mt-1 sm:mt-0"></i>
+    <div class="flex-1 max-h-[500px] overflow-y-auto pr-2 sm:pr-4">
+      <h3 class="text-base sm:text-xl font-semibold text-teal-700">
+        During Placement
+      </h3>
+      <ul class="list-none text-gray-800 mt-3 space-y-3 text-sm sm:text-lg">
+        <li>
+          <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
+          <strong>Student Expectations:</strong>
+        </li>
+        <ul class="ml-6 space-y-2 list-none">
+          <li>
+            <i class="fas fa-chevron-right text-teal-500 mr-2"></i>
+            <strong>Attendance & Punctuality:</strong>
+          </li>
+          <ul class="ml-6 space-y-1 list-none">
+            <li><i class="fas fa-circle text-teal-400 text-xs mr-2"></i>Report absences to both college and facility via email.</li>
+            <li><i class="fas fa-circle text-teal-400 text-xs mr-2"></i>More than 2 absences require explanation.</li>
+            <li><i class="fas fa-circle text-teal-400 text-xs mr-2"></i>No unauthorized schedule changes.</li>
+          </ul>
+
+          <li>
+            <i class="fas fa-chevron-right text-teal-500 mr-2"></i>
+            <strong>Illness:</strong>
+          </li>
+          <ul class="ml-6 space-y-1 list-none">
+            <li><i class="fas fa-circle text-teal-400 text-xs mr-2"></i>Immediately notify both the facility and college.</li>
+          </ul>
+
+          <li>
+            <i class="fas fa-chevron-right text-teal-500 mr-2"></i>
+            <strong>Commitment:</strong>
+          </li>
+          <ul class="ml-6 space-y-1 list-none">
+            <li><i class="fas fa-circle text-teal-400 text-xs mr-2"></i>Placement site cannot be changed once assigned.</li>
+          </ul>
+
+          <li>
+            <i class="fas fa-chevron-right text-teal-500 mr-2"></i>
+            <strong>Professional Conduct:</strong>
+          </li>
+          <ul class="ml-6 space-y-1 list-none">
+            <li><i class="fas fa-circle text-teal-400 text-xs mr-2"></i>Respect workplace policies and people.</li>
+            <li><i class="fas fa-circle text-teal-400 text-xs mr-2"></i>Disrespectful or abusive behavior may lead to disciplinary action.</li>
+          </ul>
+        </ul>
+
+        <li>
+          <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
+          <strong>College Support:</strong>
+        </li>
+        <ul class="ml-6 space-y-1 list-none">
+          <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i>Monitor student performance.</li>
+          <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i>Conduct mid-placement check-ins.</li>
+          <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i>Maintain accurate placement records.</li>
+        </ul>
+      </ul>
+
+      <div class="mt-4 flex items-start gap-3">
+        <input
+          type="checkbox"
+          id="subStep4Checkbox"
+          class="w-5 h-5 sm:w-6 sm:h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500 mt-1"
+        />
+        <label for="subStep4Checkbox" class="text-gray-800 text-sm sm:text-lg">
+          I have read and understood my responsibilities listed for placement.
+        </label>
       </div>
-      {% endcomment %}
-      <div class="sub-step hidden" id="subStep4">
-        <div
-          class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4"
-        >
-          <i class="fas fa-user-clock text-teal-600 text-3xl flex-shrink-0"></i>
-          <div class="flex-1 h-[500px] overflow-y-auto pr-4">
-            <h3 class="text-xl font-semibold text-teal-700">
-              During Placement
-            </h3>
-            <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
-              <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i
-                ><strong>Student Expectations:</strong>
-              </li>
-              <ul class="ml-8 list-none space-y-2">
-                <li>
-                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i
-                  ><strong>Attendance & Punctuality:</strong>
-                </li>
-                <ul class="ml-8 list-none space-y-1">
-                  <li>
-                    <i class="fas fa-circle text-teal-400 text-xs mr-2"></i
-                    >Report absences to both college and facility via email.
-                  </li>
-                  <li>
-                    <i class="fas fa-circle text-teal-400 text-xs mr-2"></i>More
-                    than 2 absences require explanation.
-                  </li>
-                  <li>
-                    <i class="fas fa-circle text-teal-400 text-xs mr-2"></i>No
-                    unauthorized schedule changes.
-                  </li>
-                </ul>
+      <p id="subStep4Error" class="text-red-600 text-sm sm:text-lg mt-2 hidden">
+        Please acknowledge the responsibilities by checking the box above.
+      </p>
+    </div>
+  </div>
 
-                <li>
-                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i
-                  ><strong>Illness:</strong>
-                </li>
-                <ul class="ml-8 list-none space-y-1">
-                  <li>
-                    <i class="fas fa-circle text-teal-400 text-xs mr-2"></i
-                    >Immediately notify both the facility and college.
-                  </li>
-                </ul>
+  <div class="flex justify-center mt-4">
+    <button
+      onclick="goToSubStep(5)"
+      class="w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300 text-sm sm:text-base"
+    >
+      Next <i class="fas fa-arrow-right ml-2"></i>
+    </button>
+  </div>
+</div>
 
-                <li>
-                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i
-                  ><strong>Commitment:</strong>
-                </li>
-                <ul class="ml-8 list-none space-y-1">
-                  <li>
-                    <i class="fas fa-circle text-teal-400 text-xs mr-2"></i
-                    >Placement site cannot be changed once assigned.
-                  </li>
-                </ul>
+<!-- SubStep 5 -->
+<div class="sub-step hidden" id="subStep5">
+  <div
+    class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-4 sm:p-6 rounded-lg shadow-md flex flex-col sm:flex-row gap-4"
+  >
+    <i class="fas fa-handshake text-teal-600 text-2xl sm:text-3xl flex-shrink-0 mt-1 sm:mt-0"></i>
+    <div class="flex-1">
+      <h3 class="text-base sm:text-xl font-semibold text-teal-700">
+        After Placement Responsibilities
+      </h3>
+      <ul class="list-none text-gray-800 mt-3 space-y-3 text-sm sm:text-lg">
+        <li>
+          <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
+          <strong>Student Responsibilities:</strong>
+        </li>
+        <ul class="ml-6 space-y-2 list-none">
+          <li>
+            <i class="fas fa-chevron-right text-teal-500 mr-2"></i>
+            Email the college with exact placement end date.
+          </li>
+          <li>
+            <i class="fas fa-chevron-right text-teal-500 mr-2"></i>
+            Submit:
+          </li>
+          <ul class="ml-6 space-y-1 list-none">
+            <li><i class="fas fa-circle text-teal-400 text-xs mr-2"></i>Completed Timesheet (Skills Passbook or Facility Log Sheet).</li>
+            <li><i class="fas fa-circle text-teal-400 text-xs mr-2"></i>Preceptor Evaluation.</li>
+          </ul>
+        </ul>
 
-                <li>
-                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i
-                  ><strong>Professional Conduct:</strong>
-                </li>
-                <ul class="ml-8 list-none space-y-1">
-                  <li>
-                    <i class="fas fa-circle text-teal-400 text-xs mr-2"></i
-                    >Respect workplace policies and people.
-                  </li>
-                  <li>
-                    <i class="fas fa-circle text-teal-400 text-xs mr-2"></i
-                    >Disrespectful or abusive behavior may lead to disciplinary
-                    action.
-                  </li>
-                </ul>
-              </ul>
+        <li>
+          <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
+          <strong>College Responsibilities:</strong>
+        </li>
+        <ul class="ml-6 space-y-2 list-none">
+          <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i>Verify placement hours and evaluation.</li>
+          <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i>File documentation for records.</li>
+        </ul>
+      </ul>
 
-              <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i
-                ><strong>College Support:</strong>
-              </li>
-              <ul class="ml-8 list-none space-y-1">
-                <li>
-                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>Monitor
-                  student performance.
-                </li>
-                <li>
-                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>Conduct
-                  mid-placement check-ins.
-                </li>
-                <li>
-                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i
-                  >Maintain accurate placement records.
-                </li>
-              </ul>
-
-              {% comment %}
-              <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i
-                ><strong>Facility Responsibilities:</strong>
-              </li>
-              <ul class="ml-8 list-none space-y-1">
-                <li>
-                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>Provide
-                  supervision and orientation.
-                </li>
-                <li>
-                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>Notify
-                  college of any student issues.
-                </li>
-                <li>
-                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>Submit
-                  preceptor evaluations by placement end.
-                </li>
-              </ul>
-              {% endcomment %}
-            </ul>
-            <div class="mt-5 flex items-center">
-              <input
-                type="checkbox"
-                id="subStep4Checkbox"
-                class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
-              />
-              <label for="subStep4Checkbox" class="ml-3 text-gray-800 text-lg">
-                I have read and understood my responsibilities listed for
-                placement
-              </label>
-            </div>
-            <p id="subStep4Error" class="text-red-600 text-lg mt-2 hidden">
-              Please acknowledge the responsibilities by checking the box above.
-            </p>
-          </div>
-        </div>
-        <div class="flex justify-center mt-4">
-          <button
-            onclick="goToSubStep(5)"
-            class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
-          >
-            Next <i class="fas fa-arrow-right ml-2"></i>
-          </button>
-        </div>
+      <div class="mt-4 flex items-start gap-3">
+        <input
+          type="checkbox"
+          id="subStep5Checkbox"
+          class="w-5 h-5 sm:w-6 sm:h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500 mt-1"
+        />
+        <label for="subStep5Checkbox" class="text-gray-800 text-sm sm:text-lg">
+          I have read and understood my responsibilities listed for placement.
+        </label>
       </div>
+      <p id="subStep5Error" class="text-red-600 text-sm sm:text-lg mt-2 hidden">
+        Please acknowledge the responsibilities by checking the box above.
+      </p>
+    </div>
+  </div>
 
-      <div class="sub-step hidden" id="subStep5">
-        <div
-          class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4"
-        >
-          <i class="fas fa-handshake text-teal-600 text-3xl flex-shrink-0"></i>
-          <div class="flex-1">
-            <h3 class="text-xl font-semibold text-teal-700">
-              After Placement Responsibilities
-            </h3>
-            <ul class="list-none text-gray-800 mt-3 space-y-3 text-lg">
-              <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i
-                ><strong>Student Responsibilities:</strong>
-              </li>
-              <ul class="ml-8 list-none space-y-2">
-                <li>
-                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>Email
-                  the college with exact placement end date.
-                </li>
-                <li>
-                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>Submit:
-                </li>
-                <ul class="ml-8 list-none space-y-1">
-                  <li>
-                    <i class="fas fa-circle text-teal-400 text-xs mr-2"></i
-                    >Completed Timesheet (Skills Passbook or Facility Log
-                    Sheet).
-                  </li>
-                  <li>
-                    <i class="fas fa-circle text-teal-400 text-xs mr-2"></i
-                    >Preceptor Evaluation.
-                  </li>
-                </ul>
-              </ul>
+  <div class="flex justify-center mt-4">
+    <button
+      onclick="goToSubStep(6)"
+      class="w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300 text-sm sm:text-base"
+    >
+      Next <i class="fas fa-arrow-right ml-2"></i>
+    </button>
+  </div>
+</div>
 
-              <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i
-                ><strong>College Responsibilities:</strong>
-              </li>
-              <ul class="ml-8 list-none space-y-2">
-                <li>
-                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>Verify
-                  placement hours and evaluation.
-                </li>
-                <li>
-                  <i class="fas fa-chevron-right text-teal-500 mr-2"></i>File
-                  documentation for records.
-                </li>
-              </ul>
-            </ul>
-            <div class="mt-5 flex items-center">
-              <input
-                type="checkbox"
-                id="subStep5Checkbox"
-                class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
-              />
-              <label for="subStep5Checkbox" class="ml-3 text-gray-800 text-lg">
-                I have read and understood my responsibilities listed for
-                placement
-              </label>
-            </div>
-            <p id="subStep5Error" class="text-red-600 text-lg mt-2 hidden">
-              Please acknowledge the responsibilities by checking the box above.
-            </p>
-          </div>
-        </div>
-        <div class="flex justify-center mt-4">
-          <button
-            onclick="goToSubStep(6)"
-            class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
-          >
-            Next <i class="fas fa-arrow-right ml-2"></i>
-          </button>
-        </div>
+     <!-- SubStep 6 -->
+<div class="sub-step hidden" id="subStep6">
+  <div
+    class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-4 sm:p-6 rounded-lg shadow-md flex flex-col sm:flex-row gap-4"
+  >
+    <i class="fas fa-handshake text-teal-600 text-2xl sm:text-3xl flex-shrink-0"></i>
+    <div class="flex-1">
+      <h3 class="text-base sm:text-xl font-semibold text-teal-700">
+        Conduct & Respect Policy
+      </h3>
+      <p class="text-gray-800 mt-2 text-sm sm:text-lg">
+        Peak College adheres to the Occupational Health and Safety Act (OHSA)
+        and the Ontario Human Rights Code (OHRC) to ensure a respectful,
+        inclusive learning environment.
+      </p>
+
+      <h4 class="mt-4 font-semibold text-teal-700 text-sm sm:text-lg">
+        Unacceptable Behaviors Include:
+      </h4>
+      <ul class="list-none text-gray-800 mt-2 space-y-2 text-sm sm:text-lg">
+        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Dismissive or demeaning acts</li>
+        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Public embarrassment</li>
+        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Undermining work</li>
+        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Harassment or discrimination</li>
+        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Retaliation for reporting concerns</li>
+      </ul>
+
+      <h4 class="mt-4 font-semibold text-teal-700 text-sm sm:text-lg">
+        Expectations:
+      </h4>
+      <ul class="list-none text-gray-800 mt-2 space-y-2 text-sm sm:text-lg">
+        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Treat everyone with dignity and respect</li>
+        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Communicate professionally</li>
+        <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Report violations confidentially and safely</li>
+      </ul>
+
+      <div class="mt-5 flex items-start gap-3">
+        <input
+          type="checkbox"
+          id="subStep6Checkbox"
+          class="w-5 h-5 sm:w-6 sm:h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500 mt-1"
+        />
+        <label for="subStep6Checkbox" class="text-gray-800 text-sm sm:text-lg">
+          I have read and understood the Conduct and Respect Policy
+        </label>
       </div>
+      <p id="subStep6Error" class="text-red-600 text-sm sm:text-lg mt-2 hidden">
+        Please acknowledge the policy by checking the box above.
+      </p>
+    </div>
+  </div>
 
-      <div class="sub-step hidden" id="subStep6">
-        <div
-          class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4"
-        >
-          <i class="fas fa-handshake text-teal-600 text-3xl flex-shrink-0"></i>
-          <div class="flex-1">
-            <h3 class="text-xl font-semibold text-teal-700">
-              Conduct & Respect Policy
-            </h3>
-            <p class="text-gray-800 mt-2 text-lg">
-              Peak College adheres to the Occupational Health and Safety Act
-              (OHSA) and the Ontario Human Rights Code (OHRC) to ensure a
-              respectful, inclusive learning environment.
-            </p>
-            <h4 class="mt-4 font-semibold text-teal-700 text-lg">
-              Unacceptable Behaviors Include:
-            </h4>
-            <ul class="list-none text-gray-800 mt-2 space-y-2 text-lg">
-              <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Dismissive
-                or demeaning acts
-              </li>
-              <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Public
-                embarrassment
-              </li>
-              <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
-                Undermining work
-              </li>
-              <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Harassment
-                or discrimination
-              </li>
-              <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
-                Retaliation for reporting concerns
-              </li>
-            </ul>
-            <h4 class="mt-4 font-semibold text-teal-700 text-lg">
-              Expectations:
-            </h4>
-            <ul class="list-none text-gray-800 mt-2 space-y-2 text-lg">
-              <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Treat
-                everyone with dignity and respect
-              </li>
-              <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
-                Communicate professionally
-              </li>
-              <li>
-                <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Report
-                violations confidentially and safely
-              </li>
-            </ul>
-            <div class="mt-5 flex items-center">
-              <input
-                type="checkbox"
-                id="subStep6Checkbox"
-                class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
-              />
-              <label for="subStep6Checkbox" class="ml-3 text-gray-800 text-lg">
-                I have read and understood the Conduct and Respect Policy
-              </label>
-            </div>
-            <p id="subStep6Error" class="text-red-600 text-lg mt-2 hidden">
-              Please acknowledge the policy by checking the box above.
-            </p>
-          </div>
-        </div>
-        <div class="flex justify-center mt-4">
-          <button
-            onclick="goToSubStep(7)"
-            class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
-          >
-            Next <i class="fas fa-arrow-right ml-2"></i>
-          </button>
-        </div>
+  <div class="flex justify-center mt-4">
+    <button
+      onclick="goToSubStep(7)"
+      class="w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300 text-sm sm:text-base"
+    >
+      Next <i class="fas fa-arrow-right ml-2"></i>
+    </button>
+  </div>
+</div>
+
+<!-- SubStep 7 -->
+<div class="sub-step hidden" id="subStep7">
+  <div
+    class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-4 sm:p-6 rounded-lg shadow-md flex flex-col sm:flex-row gap-4"
+  >
+    <i class="fas fa-envelope-open-text text-teal-600 text-2xl sm:text-3xl flex-shrink-0 mt-1 sm:mt-0"></i>
+    <div class="flex-1 max-h-[400px] overflow-y-auto pr-2 sm:pr-4">
+      <h3 class="text-base sm:text-xl font-semibold text-teal-700">
+        Communication, Hours & Stipend Policy
+      </h3>
+      <ul class="list-none text-gray-800 mt-3 space-y-4 text-sm sm:text-lg">
+        <li><strong class="text-teal-700">Communication Policy</strong></li>
+        <ul class="ml-5 sm:ml-6 space-y-2 list-none">
+          <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>All formal communication must be via email.</li>
+          <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Expect responses within 1–2 business days.</li>
+          <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Contact:
+            <a href="mailto:placement@peakcollege.ca" class="text-teal-700 underline">placement@peakcollege.ca</a>
+          </li>
+        </ul>
+
+        <li><strong class="text-teal-700">Placement Hours & Accreditation Evaluation</strong></li>
+        <ul class="ml-5 sm:ml-6 space-y-2 list-none">
+          <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Placement Requirement: 100 hours.</li>
+          <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Other recognized credentials (evaluated case-by-case):</li>
+          <ul class="ml-5 sm:ml-6 space-y-1 list-none">
+            <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i>IEN (Diploma & Transcript)</li>
+            <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i>HCSW/Elderly Care (Certificate & Job Description)</li>
+            <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i>PSW Experience (Letter of Employment)</li>
+          </ul>
+        </ul>
+
+        <li><strong class="text-teal-700">Clinical Stipend Policy</strong></li>
+        <ul class="ml-5 sm:ml-6 space-y-2 list-none">
+          <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Paid placements are limited and not guaranteed.</li>
+          <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Availability is subject to:</li>
+          <ul class="ml-5 sm:ml-6 space-y-1 list-none">
+            <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i>Facility capacity and discretion</li>
+            <li><i class="fas fa-chevron-right text-teal-500 mr-2"></i>Provincial guidelines</li>
+          </ul>
+          <li><i class="fas fa-arrow-right text-teal-600 mr-2"></i>Peak College does not manage or distribute stipends; payments are handled externally.</li>
+        </ul>
+      </ul>
+
+      <div class="mt-6 flex items-start gap-3">
+        <input
+          type="checkbox"
+          id="subStep7Checkbox"
+          class="w-5 h-5 sm:w-6 sm:h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500 mt-1"
+        />
+        <label for="subStep7Checkbox" class="text-gray-800 text-sm sm:text-lg">
+          I have read and understood my responsibilities listed for placement.
+        </label>
       </div>
+      <p id="subStep7Error" class="text-red-600 text-sm sm:text-lg mt-2 hidden">
+        Please acknowledge this section before finishing.
+      </p>
+    </div>
+  </div>
 
-      <div class="sub-step hidden" id="subStep7">
+  <div class="flex justify-center mt-4">
+    <button
+      onclick="goToSubStep(8)"
+      class="w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300 text-sm sm:text-base"
+    >
+      Next <i class="fas fa-arrow-right ml-2"></i>
+    </button>
+  </div>
+</div>
+
+<div class="sub-step hidden" id="subStep8">
+  <div
+    class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-4 sm:p-6 rounded-lg shadow-md flex flex-col sm:flex-row gap-4"
+  >
+    <i class="fas fa-envelope-open-text text-teal-600 text-2xl sm:text-3xl flex-shrink-0 mt-1"></i>
+    <div class="flex-1 h-[400px] overflow-y-auto pr-2 sm:pr-4">
+      <!-- Gender Selection -->
+      <div class="mt-6">
+        <h4 class="text-teal-700 font-semibold text-sm sm:text-lg mb-2">
+          Select Your Gender
+        </h4>
         <div
-          class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4"
+          id="genderSelector"
+          class="grid grid-cols-2 sm:grid-cols-4 gap-4"
         >
-          <i
-            class="fas fa-envelope-open-text text-teal-600 text-3xl flex-shrink-0 mt-1"
-          ></i>
-          <div class="flex-1 h-[400px] overflow-y-auto pr-4">
-            <h3 class="text-xl font-semibold text-teal-700">
-              Communication, Hours & Stipend Policy
-            </h3>
-            <ul class="list-none text-gray-800 mt-3 space-y-4 text-lg">
-              <!-- COMMUNICATION POLICY -->
-              <li>
-                <strong class="text-teal-700">Communication Policy</strong>
-              </li>
-              <ul class="ml-6 space-y-2">
-                <li>
-                  <i class="fas fa-arrow-right text-teal-600 mr-2"></i> All
-                  formal communication must be via email.
-                </li>
-                <li>
-                  <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Expect
-                  responses within 1–2 business days.
-                </li>
-                <li>
-                  <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Contact:
-                  <a
-                    href="mailto:placement@peakcollege.ca"
-                    class="text-teal-700 underline"
-                    >placement@peakcollege.ca</a
-                  >
-                </li>
-              </ul>
-
-              <!-- PLACEMENT HOURS & ACCREDITATION -->
-              <li class="pt-2">
-                <strong class="text-teal-700"
-                  >Placement Hours & Accreditation Evaluation</strong
-                >
-              </li>
-              <ul class="ml-6 space-y-2">
-                <li>
-                  <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
-                  Placement Requirement: 100 hours.
-                </li>
-                <li>
-                  <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Other
-                  recognized credentials (evaluated case-by-case with proof):
-                </li>
-                <ul class="ml-6 space-y-1">
-                  <li>
-                    <i class="fas fa-chevron-right text-teal-500 mr-2"></i> IEN
-                    (Diploma & Transcript)
-                  </li>
-                  <li>
-                    <i class="fas fa-chevron-right text-teal-500 mr-2"></i>
-                    HCSW/Elderly Care (Certificate & Job Description)
-                  </li>
-                  <li>
-                    <i class="fas fa-chevron-right text-teal-500 mr-2"></i> PSW
-                    Experience (Letter of Employment)
-                  </li>
-                </ul>
-              </ul>
-
-              <!-- CLINICAL STIPEND POLICY -->
-              <li class="pt-2">
-                <strong class="text-teal-700">Clinical Stipend Policy</strong>
-              </li>
-              <ul class="ml-6 space-y-2">
-                <li>
-                  <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Paid
-                  placements are limited and not guaranteed.
-                </li>
-                <li>
-                  <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
-                  Availability is subject to:
-                </li>
-                <ul class="ml-6 space-y-1">
-                  <li>
-                    <i class="fas fa-chevron-right text-teal-500 mr-2"></i>
-                    Facility capacity and discretion
-                  </li>
-                  <li>
-                    <i class="fas fa-chevron-right text-teal-500 mr-2"></i>
-                    Provincial guidelines (Ministry of Health & Ontario Health)
-                  </li>
-                </ul>
-                <li>
-                  <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Peak
-                  College does not manage or distribute stipends; payments (if
-                  any) are handled by the facility or provincial agency.
-                </li>
-              </ul>
-            </ul>
-
-            <!-- Acknowledgment Checkbox -->
-            <div class="mt-6 flex items-center">
-              <input
-                type="checkbox"
-                id="subStep7Checkbox"
-                class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
-              />
-              <label for="subStep7Checkbox" class="ml-3 text-gray-800 text-lg">
-                I have read and understood my responsibilities listed for
-                placement
-              </label>
-            </div>
-            <p id="subStep7Error" class="text-red-600 text-lg mt-2 hidden">
-              Please acknowledge this section before finishing.
-            </p>
-          </div>
-        </div>
-
-        <!-- Next Button -->
-        <div class="flex justify-center mt-4">
           <button
-            onclick="goToSubStep(8)"
-            class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
-          >
-            Next <i class="fas fa-arrow-right ml-2"></i>
-          </button>
-        </div>
-      </div>
-
-      <div class="sub-step hidden" id="subStep8">
-        <div
-          class="max-w-2xl mx-auto bg-teal-100 mt-10 border-l-4 border-teal-500 p-6 rounded-lg shadow-md flex items-start space-x-4"
-        >
-          <i
-            class="fas fa-envelope-open-text text-teal-600 text-3xl flex-shrink-0 mt-1"
-          ></i>
-          <div class="flex-1 h-[400px] overflow-y-auto pr-4">
-            <!-- Gender Selection Grid -->
-            <!-- Gender Selection Grid -->
-            <div class="mt-6">
-              <h4 class="text-teal-700 font-semibold text-lg mb-2">
-                Select Your Gender
-              </h4>
-              <div
-                id="genderSelector"
-                class="grid grid-cols-2 sm:grid-cols-4 gap-4"
-              >
-                <button
-                  type="button"
-                  onclick="selectGender('Male')"
-                  id="gender-Male"
-                  class="flex flex-col items-center justify-center p-4 border border-teal-300 rounded-lg hover:bg-teal-100 cursor-pointer transition duration-200"
-                >
-                  <i class="fas fa-mars text-2xl mb-1"></i>
-                  <span>Male</span>
-                </button>
-                <button
-                  type="button"
-                  onclick="selectGender('Female')"
-                  id="gender-Female"
-                  class="flex flex-col items-center justify-center p-4 border border-teal-300 rounded-lg hover:bg-teal-100 cursor-pointer transition duration-200"
-                >
-                  <i class="fas fa-venus text-2xl mb-1"></i>
-                  <span>Female</span>
-                </button>
-                <button
-                  type="button"
-                  onclick="selectGender('Other')"
-                  id="gender-Other"
-                  class="flex flex-col items-center justify-center p-4 border border-teal-300 rounded-lg hover:bg-teal-100 cursor-pointer transition duration-200"
-                >
-                  <i class="fas fa-genderless text-2xl mb-1"></i>
-                  <span>Other</span>
-                </button>
-                <button
-                  type="button"
-                  onclick="selectGender('Prefer not to say')"
-                  id="gender-Prefer not to say"
-                  class="flex flex-col items-center justify-center p-4 border border-teal-300 rounded-lg hover:bg-teal-100 cursor-pointer transition duration-200"
-                >
-                  <i class="fas fa-user-secret text-2xl mb-1"></i>
-                  <span>Prefer not to say</span>
-                </button>
-              </div>
-              <input type="hidden" name="gender" id="gender" />
-              <p id="genderError" class="text-red-600 text-lg mt-2 hidden">
-                Please select a gender before continuing.
-              </p>
-            </div>
-            <!-- Pregnancy Policy Notice (hidden by default) -->
-            <div
-              id="pregnancyNotice"
-              class="mt-6 p-4 bg-yellow-100 border-l-4 border-yellow-500 rounded hidden"
-            >
-              <h5 class="text-yellow-700 font-semibold mb-2">
-                Please read our:
-              </h5>
-              <a
-                href="/pregnancy-policy"
-                target="_blank"
-                class="inline-block px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
-              >
-                Pregnancy Policy & Waiver for Clinical Placement
-              </a>
-              <!-- Acknowledgement Checkbox -->
-              <div class="mt-4 flex items-start gap-2">
-                <input
-                  type="checkbox"
-                  id="genderAcknowledgement"
-                  class="mt-1 h-5 w-5 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
-                  onchange="toggleNextButton()"
-                />
-                <label
-                  for="genderAcknowledgement"
-                  class="text-gray-700 text-sm"
-                >
-                  I acknowledge the information provided above and confirm my
-                  selection.
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Next Button -->
-        <div class="flex justify-center mt-4">
-          <button
-            id="nextstep_2"
             type="button"
-            disabled
-            class="px-6 py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
-            onclick="nextStep(2)"
+            onclick="selectGender('Male')"
+            id="gender-Male"
+            class="flex flex-col items-center justify-center p-3 border border-teal-300 rounded-lg hover:bg-teal-100 cursor-pointer transition duration-200 text-sm"
           >
-            Next <i class="fas fa-arrow-right ml-2"></i>
+            <i class="fas fa-mars text-xl mb-1"></i>
+            <span>Male</span>
+          </button>
+          <button
+            type="button"
+            onclick="selectGender('Female')"
+            id="gender-Female"
+            class="flex flex-col items-center justify-center p-3 border border-teal-300 rounded-lg hover:bg-teal-100 cursor-pointer transition duration-200 text-sm"
+          >
+            <i class="fas fa-venus text-xl mb-1"></i>
+            <span>Female</span>
+          </button>
+          <button
+            type="button"
+            onclick="selectGender('Other')"
+            id="gender-Other"
+            class="flex flex-col items-center justify-center p-3 border border-teal-300 rounded-lg hover:bg-teal-100 cursor-pointer transition duration-200 text-sm"
+          >
+            <i class="fas fa-genderless text-xl mb-1"></i>
+            <span>Other</span>
+          </button>
+          <button
+            type="button"
+            onclick="selectGender('Prefer not to say')"
+            id="gender-Prefer not to say"
+            class="flex flex-col items-center justify-center p-3 border border-teal-300 rounded-lg hover:bg-teal-100 cursor-pointer transition duration-200 text-sm"
+          >
+            <i class="fas fa-user-secret text-xl mb-1"></i>
+            <span>Prefer not to say</span>
           </button>
         </div>
+        <input type="hidden" name="gender" id="gender" />
+        <p id="genderError" class="text-red-600 text-sm sm:text-lg mt-2 hidden">
+          Please select a gender before continuing.
+        </p>
       </div>
+
+      <!-- Pregnancy Policy Notice -->
+      <div
+        id="pregnancyNotice"
+        class="mt-6 p-4 bg-yellow-100 border-l-4 border-yellow-500 rounded hidden"
+      >
+        <h5 class="text-yellow-700 font-semibold text-sm sm:text-base mb-2">
+          Please read our:
+        </h5>
+        <a
+          href="/pregnancy-policy"
+          target="_blank"
+          class="inline-block px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition text-sm sm:text-base"
+        >
+          Pregnancy Policy & Waiver for Clinical Placement
+        </a>
+
+        <div class="mt-4 flex items-start gap-2">
+          <input
+            type="checkbox"
+            id="genderAcknowledgement"
+            class="mt-1 h-5 w-5 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+            onchange="toggleNextButton()"
+          />
+          <label
+            for="genderAcknowledgement"
+            class="text-gray-700 text-sm"
+          >
+            I acknowledge the information provided above and confirm my
+            selection.
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Next Button -->
+  <div class="flex justify-center mt-4">
+    <button
+      id="nextstep_2"
+      type="button"
+      disabled
+      class="w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300 text-sm sm:text-base"
+      onclick="nextStep(2)"
+    >
+      Next <i class="fas fa-arrow-right ml-2"></i>
+    </button>
+  </div>
+</div>
+
 
       <script>
         function selectGender(gender) {
