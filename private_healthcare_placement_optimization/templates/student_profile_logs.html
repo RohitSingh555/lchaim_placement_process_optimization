@@ -759,12 +759,12 @@
         <!-- Message Popup (Only visible when there are messages) -->
 {% if messages %}
 <div id="popup-message"
-     class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-green-500/95 backdrop-blur-md text-white px-4 sm:px-6 py-3 rounded-2xl shadow-xl flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 w-[90%] sm:w-auto max-w-sm transition-all duration-300 opacity-0 scale-95 animate-fade-in z-50">
+     class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-white/80 backdrop-blur-md border border-gray-200 text-gray-900 px-5 py-4 rounded-xl shadow-xl flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 w-[90%] sm:w-auto max-w-md transition-all duration-300 opacity-0 scale-95 animate-fade-in z-50">
 
     <!-- Icon and Message -->
     <div class="flex items-start space-x-3 w-full sm:w-auto">
-        <i class="fas fa-check-circle text-xl mt-1 text-white/90"></i>
-        <p class="text-sm sm:text-base font-medium break-words w-full">
+        <i class="fas fa-circle-check text-blue-600 text-xl mt-0.5"></i>
+        <p class="text-sm sm:text-base font-medium w-full break-words">
             {% for message in messages %}
                 {{ message|safe }}
             {% endfor %}
@@ -773,10 +773,11 @@
 
     <!-- Close Button -->
     <button id="close-popup"
-            class="text-white/80 hover:text-white text-lg font-semibold focus:outline-none transition-colors duration-200 self-end sm:self-auto">
+            class="ml-auto text-gray-400 hover:text-gray-600 text-xl font-bold focus:outline-none transition-colors duration-200 self-end sm:self-auto leading-none">
         &times;
     </button>
 </div>
+
 
 <style>
 @keyframes fade-in {

@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404
 from django.core.mail import EmailMessage
 from django.views import View
 
-from private_healthcare_placement_optimization.templatetags.forms_extras import document_group
+from private_healthcare_placement_optimization.templatetags.forms_extras import document_group, allowed_docs
 from .models import PlacementProfile, Document
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -766,12 +766,12 @@ class StudentProfileLogsView(View):
 
             # Prepare document data
             document_details = []
-            
+            docs_sorted = sorted(profile.documents.all(), key=lambda d: allowed_docs.index(d.document_type) if d.document_type in allowed_docs else 999)
             latest_approved_log = None
             approved_count = 0
             grouped_documents = OrderedDict((group, []) for group in self.DOCUMENT_GROUP_ORDER)
             
-            for doc in profile.documents.all():
+            for doc in docs_sorted:
                 latest_approval = ApprovalLog.objects.filter(document=doc, action="Approved").order_by('-timestamp').first()
                 if latest_approval:
                     approved_count += 1
@@ -800,7 +800,7 @@ class StudentProfileLogsView(View):
                 })
 
 
-            for doc in profile.documents.all():
+            for doc in docs_sorted:
                 group = document_group(doc.document_type)
                 if not group:
                     continue  # Skip documents not in any known group
@@ -1082,9 +1082,10 @@ class StudentIncompleteProfileLogsView(View):
 
             # Prepare document data
             document_details = []
+            docs_sorted = sorted(profile.documents.all(), key=lambda d: allowed_docs.index(d.document_type) if d.document_type in allowed_docs else 999)
             latest_approved_log = None
             approved_count = 0
-            for doc in profile.documents.all():
+            for doc in docs_sorted:
                 latest_approval = ApprovalLog.objects.filter(document=doc, action="Approved").order_by('-timestamp').first()
                 if latest_approval:
                     approved_count += 1
@@ -1112,14 +1113,12 @@ class StudentIncompleteProfileLogsView(View):
                     'approval_logs': approver_actions
                 })
             grouped_documents = OrderedDict((group, []) for group in self.DOCUMENT_GROUP_ORDER)
-            for doc in profile.documents.all():
+            for doc in docs_sorted:
                 group = document_group(doc.document_type)
                 if not group:
                     continue  # Skip documents not in any known group
-                
                 latest_approval = ApprovalLog.objects.filter(document=doc, action="Approved").order_by('-timestamp').first()
                 approval_logs = ApprovalLog.objects.filter(document=doc)
-
                 approver_actions = [
                     {
                         "approver": log.approver.full_name if log.approver else "Unknown",
@@ -1129,7 +1128,6 @@ class StudentIncompleteProfileLogsView(View):
                     }
                     for log in approval_logs
                 ]
-
                 doc_info = {
                     'id': doc.id,
                     'status': doc.status,
@@ -1139,8 +1137,13 @@ class StudentIncompleteProfileLogsView(View):
                     'uploaded_at': doc.uploaded_at.strftime("%Y-%m-%d %H:%M:%S") if doc.uploaded_at else "N/A",
                     'approval_logs': approver_actions
                 }
-
                 grouped_documents[group].append(doc_info)
+            # --- Sort each group by allowed_docs order ---
+            for group, docs in grouped_documents.items():
+                grouped_documents[group] = sorted(
+                    docs,
+                    key=lambda d: allowed_docs.index(d['document_type']) if d['document_type'] in allowed_docs else 999
+                )
             processed_by = latest_approved_log.approver.full_name if latest_approved_log and latest_approved_log.approver else "N/A"
             student_id = ''
             assigned_facility = ''
@@ -2708,17 +2711,36 @@ def set_official_start_date_view(request, profile_id):
             data = json.loads(request.body)
             start_date = data.get("official_start_date")
             end_date = data.get("end_date")
-            module_completed_value = data.get("module_completed")
-            print(module_completed_value)
 
             profile = PlacementProfile.objects.get(id=profile_id)
-            profile.official_start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
-            profile.exact_placement_end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
-            profile.module_completed = module_completed_value 
+            updated = False
+            if start_date:
+                profile.official_start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+                updated = True
+            if end_date:
+                profile.exact_placement_end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+                updated = True
+            if updated:
+                profile.save()
+                return JsonResponse({"status": "success", "message": "Start date and/or end date updated successfully."})
+            else:
+                return JsonResponse({"status": "error", "message": "No valid date provided."})
+
+        except PlacementProfile.DoesNotExist:
+            return JsonResponse({"status": "error", "message": "Profile not found."})
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)})
+    return JsonResponse({"status": "error", "message": "Invalid request."})
+
+def set_module_completed_view(request, profile_id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            module_completed_value = data.get("module_completed")
+            profile = PlacementProfile.objects.get(id=profile_id)
+            profile.module_completed = module_completed_value
             profile.save()
-
-            return JsonResponse({"status": "success", "message": "Start date and days updated successfully."})
-
+            return JsonResponse({"status": "success", "message": "Modules completed updated successfully."})
         except PlacementProfile.DoesNotExist:
             return JsonResponse({"status": "error", "message": "Profile not found."})
         except Exception as e:
@@ -2762,6 +2784,13 @@ def get_student_profile_by_id(request, profile_id):
         if not latest_approval or latest_approval.action != "Approved":
             complete = False
             break
+
+    # Add missing_documents calculation
+    missing_documents = []
+    for doc_type in REQUIRED_DOCUMENTS:
+        doc = documents.get(doc_type)
+        if not doc or not doc.file_name:
+            missing_documents.append(doc_type)
 
     document_details = []
     for doc in profile.documents.all():
@@ -2827,6 +2856,7 @@ def get_student_profile_by_id(request, profile_id):
         'documents': document_details,
         'is_completed': complete,
         'documents_by_group': grouped_documents,
+        'missing_documents': missing_documents,  # <-- Add this line
     }
 
     return render(request, 'student_profile.html', context)

@@ -19,28 +19,32 @@ def split(value, delimiter=","):
 @register.filter
 def is_allowed_doc(doc_type):
     return doc_type in ['Resume', 'Extra Dose of Covid', 'Other Documents']
+allowed_docs = [
+    'Experience Document',
+    # --- Medical Requirements ---
+    'Medical Certificate',
+    'X-Ray Result',
+    'MMR Lab/Vax Record',
+    'Varicella Lab/Vax Record',
+    'TDAP Vax Record',
+    'Hepatitis A Lab/Vax Record',
+    'Hepatitis B Lab/Vax Record',
+    # --- NACC Requirements ---
+    'Covid Vaccination Certificate',
+    'Vulnerable Sector Check',
+    'CPR & First Aid',
+    'Mask Fit Certificate',
+    'Basic Life Support',
+    'Flu Shot',
+    # --- Other ---
+    'Resume',
+    'Extra Dose of Covid',
+    'Other Documents',
+    'Skills Passbook',
+]
 
 @register.filter
 def is_document_status_section_allowed_doc(doc_type_display_name):
-    allowed_docs = [
-        'Experience Document',
-        'X-Ray Result',
-        'MMR Lab/Vax Record',
-        'Varicella Lab/Vax Record',
-        'TDAP Vax Record',
-        'Hepatitis B Lab/Vax Record',
-        'Hepatitis A Lab/Vax Record',
-        'Covid Vaccination Certificate',
-        'Vulnerable Sector Check',
-        'CPR & First Aid',
-        'Mask Fit Certificate',
-        'Basic Life Support',
-        'Flu Shot',
-        'Resume',
-        'Extra Dose of Covid',
-        'Other Documents',
-        'Skills Passbook',
-    ]
     return doc_type_display_name in allowed_docs
 
 @register.filter

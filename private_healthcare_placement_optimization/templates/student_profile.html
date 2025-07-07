@@ -174,9 +174,9 @@
   <i class="fas fa-file-alt text-red-500 mt-1"></i>
   <span>
     <strong>Missing Documents:</strong>
-    {% if profile.missing_documents %}
+    {% if missing_documents %}
       <ul class="list-disc list-inside text-sm text-gray-700">
-        {% for doc in profile.missing_documents %}
+        {% for doc in missing_documents %}
           <li>{{ doc }}</li>
         {% endfor %}
       </ul>
@@ -198,14 +198,18 @@
                             </p>
                         
                             <p class="flex items-center space-x-2">
-                        <i class="fas fa-play text-teal-500"></i>
-                        <span><strong>Official Start Date:</strong> {{ profile.official_start_date|date:"M d, Y" }}</span>
-                      </p>
-                      <p class="flex items-center space-x-2">
-                        <i class="fas fa-stop text-teal-500"></i>
-                        <span><strong>Exact Placement End Date:</strong> {{ profile.exact_placement_end_date|date:"M d, Y" }}</span>
-                      </p>
-                      
+                              <i class="fas fa-play text-teal-500"></i>
+                              <span><strong>Official Start Date:</strong> {{ profile.official_start_date|date:"M d, Y" }}</span>
+                              <button onclick="openEditStartDateModal()" class="ml-2 text-teal-600 hover:text-teal-800 focus:outline-none text-xs flex items-center space-x-1 px-2 py-1 border border-teal-300 rounded">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Edit Date</span>
+                              </button>
+                            </p>
+                            <p class="flex items-center space-x-2">
+                              <i class="fas fa-stop text-teal-500"></i>
+                              <span><strong>Exact Placement End Date:</strong> {{ profile.exact_placement_end_date|date:"M d, Y" }}</span>
+                            </p>
+                          
 <p class="flex items-center space-x-2">
   <i class="fas fa-passport text-blue-500"></i>
   <span>
@@ -225,51 +229,35 @@
                         
   <script>
     function openEditStartDateModal() {
-      // Get values from template context
       const startDate = "{{ profile.official_start_date|date:'Y-m-d' }}";
       const endDate = "{{ profile.exact_placement_end_date|date:'Y-m-d' }}";
-      const module_completed = "{{ profile.module_completed|default_if_none:'' }}";
-  
-      // Populate form fields
       if (startDate) {
         document.getElementById("officialStartDate").value = startDate;
       }
-
       if (endDate) {
         document.getElementById("officialEndDate").value = endDate;
       }
-  
-      if (module_completed) {
-        document.getElementById("module_completed").value = module_completed;
-      }
-  
-      // Show the modal
       document.getElementById("editStartDateModal").classList.remove("hidden");
     }
-  
     function closeEditStartDateModal() {
       document.getElementById("editStartDateModal").classList.add("hidden");
     }
-  
     function saveStartDate(event) {
       event.preventDefault();
       const profileId = document.getElementById("profileId").value;
       const startDate = document.getElementById("officialStartDate").value;
       const endDate = document.getElementById("officialEndDate").value;
-      const module_completed = document.getElementById("module_completed").value;
-  
-      // Example AJAX call to update backend (you can customize this)
       fetch(`/set-official-start-date/${profileId}/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "X-CSRFToken": "{{ csrf_token }}"
         },
-        body: JSON.stringify({ official_start_date: startDate,  end_date: endDate, module_completed: module_completed })
+        body: JSON.stringify({ official_start_date: startDate,  end_date: endDate })
       }).then(response => {
         if (response.ok) {
           closeEditStartDateModal();
-          location.reload(); // Or update UI without reload
+          location.reload();
         }
       });
     }
@@ -298,75 +286,91 @@
 
 
               {% comment %} edit section {% endcomment %}
-                <div class="flex justify-center mt-6">
-                  <div class="w-full max-w-6xl mx-auto bg-white p-6 rounded-lg shadow-md space-y-4">
-                    
-                    <!-- Section Header with One Edit Button -->
-                    <div class="flex items-center justify-between">
-                      <h2 class="text-xl font-semibold text-gray-800">Number of Modules Completed:<span><strong></strong> {{ profile.module_completed }}</span></h2>
-                      <button onclick="openEditStartDateModal()" class="text-teal-600 hover:text-teal-800 focus:outline-none text-sm flex items-center space-x-1">
-                        <i class="fas fa-pencil-alt"></i>
-                        <span>Edit</span>
-                      </button>
-                    </div>
-                
-                    <!-- Info Display -->
-                    <div class="space-y-2 text-gray-800">
-                      {% comment %} <p class="flex items-center space-x-2">
-                        <i class="fas fa-play text-teal-500"></i>
-                        <span><strong>Official Start Date:</strong> {{ profile.official_start_date|date:"M d, Y" }}</span>
-                      </p>
-                      <p class="flex items-center space-x-2">
-                        <i class="fas fa-stop text-teal-500"></i>
-                        <span><strong>Exact Placement End Date:</strong> {{ profile.exact_placement_end_date|date:"M d, Y" }}</span>
-                      </p> {% endcomment %}
-                      {% comment %} <p class="flex items-center space-x-2">
-                        <i class="fas fa-calendar-check text-teal-500"></i>
-                        <span><strong>Modules Completed:</strong> {{ profile.module_completed }}</span>
-                      </p> {% endcomment %}
-                    </div>
-                
-                    <!-- Edit Modal -->
-                    <div id="editStartDateModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
-                      <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative animate-fade-in">
-                        <button onclick="closeEditStartDateModal()" class="absolute top-3 right-3 text-gray-500 hover:text-red-500">
-                          <i class="fas fa-times"></i>
-                        </button>
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Edit Placement Information</h3>
-                        <form id="startDateForm" onsubmit="saveStartDate(event)">
-                          <input type="hidden" id="profileId" value="{{ profile.id }}">
-                
-                          <!-- Start Date (Optional) -->
-                          <div class="mb-4">
-                            <label for="officialStartDate" class="block text-sm font-medium text-gray-700">Start Date</label>
-                            <input type="date" id="officialStartDate" class="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 shadow-sm focus:ring-teal-500 focus:border-teal-500">
-                          </div>
-                
-                          <!-- End Date (Optional) -->
-                          <div class="mb-4">
-                            <label for="officialEndDate" class="block text-sm font-medium text-gray-700">End Date</label>
-                            <input type="date" id="officialEndDate" class="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 shadow-sm focus:ring-teal-500 focus:border-teal-500">
-                          </div>
-                
-                          <!-- Modules Completed (Optional) -->
-                          <div class="mb-4">
-                            <label for="module_completed" class="block text-sm font-medium text-gray-700">Modules Completed</label>
-                            <select id="module_completed" class="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 shadow-sm focus:ring-teal-500 focus:border-teal-500">
-                              <option value="">Select</option>
-                              {% for i in "1,2,3,4,5,6,7,8,9,10,11,12,13"|split:"," %}
-                                <option value="{{ i }}">{{ i }}</option>
-                              {% endfor %}
-                            </select>
-                          </div>
-                
-                          <div class="flex justify-end mt-4">
-                            <button type="submit" class="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-all">Save</button>
-                          </div>
-                        </form>
+              <div class="flex justify-center mt-6">
+                <div class="w-full max-w-6xl mx-auto">
+              
+                  <!-- Section Header - Full Width -->
+                  <div class="w-full mt-10">
+                    <div class="w-full bg-gradient-to-r from-teal-50 to-teal-100 border border-teal-200 rounded-3xl shadow-lg px-8 py-6 flex flex-wrap items-center justify-between gap-4">
+              
+                      <!-- Stats Display -->
+                      <div class="flex flex-col items-start sm:items-center justify-center">
+                        <span class="text-5xl font-extrabold text-teal-600 drop-shadow-sm">
+                          {{ profile.module_completed|default:'—' }}
+                        </span>
+                        <span class="text-sm text-gray-700 font-medium mt-2 tracking-wide">
+                          Total Modules Completed
+                        </span>
                       </div>
+              <!-- Edit Modal -->
+              <div id="editStartDateModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+                <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative animate-fade-in">
+                  <button onclick="closeEditStartDateModal()" class="absolute top-3 right-3 text-gray-500 hover:text-red-500">
+                    <i class="fas fa-times"></i>
+                  </button>
+                  <h3 class="text-lg font-semibold text-gray-800 mb-4">Edit Placement Dates</h3>
+                  <form id="startDateForm" onsubmit="saveStartDate(event)">
+                    <input type="hidden" id="editProfileId">
+          
+                    <!-- Start Date (Optional) -->
+                    <div class="mb-4">
+                      <label for="officialStartDate" class="block text-sm font-medium text-gray-700">Start Date</label>
+                      <input type="date" id="officialStartDate" class="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 shadow-sm focus:ring-teal-500 focus:border-teal-500">
+                    </div>
+          
+                    <!-- End Date (Optional) -->
+                    <div class="mb-4">
+                      <label for="officialEndDate" class="block text-sm font-medium text-gray-700">End Date</label>
+                      <input type="date" id="officialEndDate" class="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 shadow-sm focus:ring-teal-500 focus:border-teal-500">
+                    </div>
+          
+                    <div class="flex justify-end mt-4">
+                      <button type="submit" class="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-all">Save</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+                      <!-- Edit Button -->
+                      <button 
+                        onclick="openEditModuleModal('{{ profile.id }}', '{{ profile.module_completed }}')" 
+                        class="bg-teal-600 hover:bg-teal-700 text-white px-5 py-2.5 rounded-full shadow-md transition-all duration-200 flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-teal-400"
+                      >
+                        <i class="fas fa-pen"></i>
+                        <span class="font-semibold">Edit</span>
+                      </button>
+              
                     </div>
                   </div>
-                </div>                
+              
+                </div>
+              </div>
+              
+                    
+                </div>      
+                         
+<div id="editModuleModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative animate-fade-in">
+    <button onclick="closeEditModuleModal()" class="absolute top-3 right-3 text-gray-500 hover:text-red-500">
+      <i class="fas fa-times"></i>
+    </button>
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">Edit Modules Completed</h3>
+    <form id="moduleForm" onsubmit="saveModuleCompleted(event)">
+      <input type="hidden" id="editModuleProfileId" value="{{ profile.id }}">
+      <div class="mb-4">
+        <label for="module_completed_modal" class="block text-sm font-medium text-gray-700">Modules Completed</label>
+        <select id="module_completed_modal" class="w-full mt-1 border border-gray-300 rounded-lg px-3 py-2 shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+          <option value="">Select</option>
+          {% for i in "1,2,3,4,5,6,7,8,9,10,11,12,13"|split:"," %}
+            <option value="{{ i }}">{{ i }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="flex justify-end mt-4">
+        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-all">Save</button>
+      </div>
+    </form>
+  </div>
+</div>          
                 
 
               <div class="flex justify-center mt-6 px-4">
@@ -544,5 +548,33 @@
   </div>
 
     
+<script>
+  function openEditModuleModal(profileId, moduleCompleted) {
+    document.getElementById("editModuleProfileId").value = profileId;
+    document.getElementById("module_completed_modal").value = moduleCompleted || '';
+    document.getElementById("editModuleModal").classList.remove("hidden");
+  }
+  function closeEditModuleModal() {
+    document.getElementById("editModuleModal").classList.add("hidden");
+  }
+  function saveModuleCompleted(event) {
+    event.preventDefault();
+    const profileId = document.getElementById("editModuleProfileId").value;
+    const moduleCompleted = document.getElementById("module_completed_modal").value;
+    fetch(`/set-module-completed/${profileId}/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token }}"
+      },
+      body: JSON.stringify({ module_completed: moduleCompleted })
+    }).then(response => {
+      if (response.ok) {
+        closeEditModuleModal();
+        location.reload();
+      }
+    });
+  }
+  </script>
 
   {% endblock %}

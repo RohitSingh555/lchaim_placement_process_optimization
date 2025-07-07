@@ -44,6 +44,7 @@ urlpatterns = [
     path('facilities/<int:pk>/delete/', FacilityDeleteView.as_view(), name='facility_delete'),
     path('facilities/<int:facility_id>/edit/', edit_facility, name='facility_edit'),
     path('set-official-start-date/<int:profile_id>/', set_official_start_date_view, name='set_official_start_date'),
+    path('set-module-completed/<int:profile_id>/', set_module_completed_view, name='set_module_completed'),
 
 
     # OrientationDate URLs
