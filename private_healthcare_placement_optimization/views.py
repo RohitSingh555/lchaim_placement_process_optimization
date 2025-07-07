@@ -956,6 +956,13 @@ class StudentProfileLogsView(View):
 
 
 class StudentIncompleteProfileLogsView(View):
+    DOCUMENT_GROUP_ORDER = [
+    "Experience",
+    "Medical Requirements",
+    "NACC Requirements",
+    "Additional Facility Requirements",
+    "Documents Required After Placement Completion"
+]
     REQUIRED_DOCUMENTS = {
         "Medical Certificate",
         "Covid Vaccination Certificate",
@@ -1104,7 +1111,36 @@ class StudentIncompleteProfileLogsView(View):
                     'uploaded_at': doc.uploaded_at.strftime("%Y-%m-%d %H:%M:%S"),
                     'approval_logs': approver_actions
                 })
-            
+            grouped_documents = OrderedDict((group, []) for group in self.DOCUMENT_GROUP_ORDER)
+            for doc in profile.documents.all():
+                group = document_group(doc.document_type)
+                if not group:
+                    continue  # Skip documents not in any known group
+                
+                latest_approval = ApprovalLog.objects.filter(document=doc, action="Approved").order_by('-timestamp').first()
+                approval_logs = ApprovalLog.objects.filter(document=doc)
+
+                approver_actions = [
+                    {
+                        "approver": log.approver.full_name if log.approver else "Unknown",
+                        "action": log.action,
+                        "reason": log.reason,
+                        "timestamp": log.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                    for log in approval_logs
+                ]
+
+                doc_info = {
+                    'id': doc.id,
+                    'status': doc.status,
+                    'document_type': doc.document_type,
+                    'file': doc.file.url if doc.file else None,
+                    'rejection_reason': doc.rejection_reason,
+                    'uploaded_at': doc.uploaded_at.strftime("%Y-%m-%d %H:%M:%S") if doc.uploaded_at else "N/A",
+                    'approval_logs': approver_actions
+                }
+
+                grouped_documents[group].append(doc_info)
             processed_by = latest_approved_log.approver.full_name if latest_approved_log and latest_approved_log.approver else "N/A"
             student_id = ''
             assigned_facility = ''
@@ -1156,6 +1192,7 @@ class StudentIncompleteProfileLogsView(View):
                 'gender': profile.gender,
                 'facility_email_address': profile.facility_email_address,
                 'documents': document_details,
+                'documents_by_group': grouped_documents,
                 'is_completed': complete,
                 'processed_by': processed_by,
                 'approved_documents_count': approved_count,
