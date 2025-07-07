@@ -759,16 +759,55 @@
         <!-- Message Popup (Only visible when there are messages) -->
 {% if messages %}
 <div id="popup-message"
-     class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-start space-x-3 transition-opacity duration-300">
-    <i class="fas fa-check-circle text-lg"></i>
-    <p class="text-lg font-medium">
-        {% for message in messages %}
-            {{ message|safe }}
-        {% endfor %}
-    </p>
+     class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-green-500/95 backdrop-blur-md text-white px-4 sm:px-6 py-3 rounded-2xl shadow-xl flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 w-[90%] sm:w-auto max-w-sm transition-all duration-300 opacity-0 scale-95 animate-fade-in z-50">
+
+    <!-- Icon and Message -->
+    <div class="flex items-start space-x-3 w-full sm:w-auto">
+        <i class="fas fa-check-circle text-xl mt-1 text-white/90"></i>
+        <p class="text-sm sm:text-base font-medium break-words w-full">
+            {% for message in messages %}
+                {{ message|safe }}
+            {% endfor %}
+        </p>
+    </div>
+
     <!-- Close Button -->
-    <button id="close-popup" class="ml-4 text-2xl font-bold focus:outline-none">&times;</button>
+    <button id="close-popup"
+            class="text-white/80 hover:text-white text-lg font-semibold focus:outline-none transition-colors duration-200 self-end sm:self-auto">
+        &times;
+    </button>
 </div>
+
+<style>
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out forwards;
+}
+</style>
+
+<script>
+  // Optional: auto-dismiss after 5 seconds
+  setTimeout(() => {
+    const popup = document.getElementById('popup-message');
+    if (popup) popup.classList.add('opacity-0', 'scale-95');
+  }, 5000);
+
+  // Manual dismiss
+  document.getElementById('close-popup')?.addEventListener('click', () => {
+    const popup = document.getElementById('popup-message');
+    if (popup) popup.classList.add('opacity-0', 'scale-95');
+  });
+</script>
+
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {

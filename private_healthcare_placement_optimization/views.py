@@ -1269,7 +1269,7 @@ def send_skills_passbook_approved_email(profile):
     <p>Wishing you the best of luck on your NACC Exam Day, and thank you for completing your placement at Peak College!</p>
     <br>
     <p>Warm regards,<br>The Peak Healthcare Team</p>
-    <p>Website: <a href='https://www.peakcollege.ca'>www.peakcollege.ca</a></p>
+    <p>Website: <a href='https://placement.peakcollege.ca/'>www.peakcollege.ca</a></p>
     <img src='http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg' width='240' height='90'/><br>
     1140 Sheppard Ave West<br>Unit #12, North York, ON<br>M3K 2A2
     </body>
@@ -1313,7 +1313,7 @@ def approve_document(request, document_id):
         # If approved and document type is Skills Passbook, update stage and send email
         if action == DocumentStatus.APPROVED.value and document.document_type == "Skills Passbook":
             if document.profile.stage == "IN_PLACEMENT":
-                document.profile.stage = "FOR_EXAM"
+                document.profile.stage = "READY"
                 document.profile.save()
             send_skills_passbook_approved_email(document.profile)
 
