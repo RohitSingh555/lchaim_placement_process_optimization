@@ -395,7 +395,7 @@
     <tr class="bg-gray-200 font-bold">
       <td class="px-4 py-2" colspan="6">
         {% if group_name == "Additional Facility Requirements" %}
-          Additional Facility Requirements <span class="text-red-600 font-semibold">is Required</span>
+          Additional Facility Requirements <span class="text-red-600 font-semibold">if Required</span>
         {% elif group_name == "Documents Required After Placement Completion" %}
           Documents Required<span class="text-red-600 font-semibold"> After </span>Placement Completion
         {% else %}
@@ -407,7 +407,11 @@
           {% if document.document_type|is_document_status_section_allowed_doc %}
             <tr class="border-b hover:bg-gray-50 transition">
               <td class="px-4 py-2 font-medium text-gray-700">
-                {{ document.document_type }}
+                {% if document.document_type == "Medical Certificate" %}
+                  Medical Certificate Form
+                {% else %}
+                  {{ document.document_type }}
+                {% endif %}
               </td>
               <td class="px-4 py-2 text-gray-600">
                 {% if document.file %}

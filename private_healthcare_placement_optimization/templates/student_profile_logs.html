@@ -208,24 +208,10 @@
                   <label class="block text-sm font-medium text-gray-700 mb-1">Shift Requested</label>
                   <select name="shift_requested" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
                     <option value="">All Shifts</option>
-                    <option value="Morning" {% if request.GET.shift_requested == "Morning" %}selected{% endif %}>
-                      Morning - Mon to Fri - 7AM to 3PM
-                    </option>
-                    <option value="Evening" {% if request.GET.shift_requested == "Evening" %}selected{% endif %}>
-                      Evening - Mon to Fri - 3PM to 11PM
-                    </option>
-                    <option value="Night" {% if request.GET.shift_requested == "Night" %}selected{% endif %}>
-                      Night - Mon to Fri - 11PM to 7AM
-                    </option>
-                    <option value="Weekend Morning" {% if request.GET.shift_requested == "Weekend Morning" %}selected{% endif %}>
-                      Weekend Morning - Sat & Sun
-                    </option>
-                    <option value="Weekend Evening" {% if request.GET.shift_requested == "Weekend Evening" %}selected{% endif %}>
-                      Weekend Evening - Sat & Sun
-                    </option>
-                    <option value="Weekend Night" {% if request.GET.shift_requested == "Weekend Night" %}selected{% endif %}>
-                      Weekend Night - Sat & Sun
-                    </option>
+                    <option value="Monday to Friday - Morning" {% if request.GET.shift_requested == "Monday to Friday - Morning" %}selected{% endif %}>Monday to Friday - Morning</option>
+                    <option value="Monday to Friday - Evening" {% if request.GET.shift_requested == "Monday to Friday - Evening" %}selected{% endif %}>Monday to Friday - Evening</option>
+                    <option value="Saturday & Sunday - Morning" {% if request.GET.shift_requested == "Saturday & Sunday - Morning" %}selected{% endif %}>Saturday & Sunday - Morning</option>
+                    <option value="Saturday & Sunday - Evening" {% if request.GET.shift_requested == "Saturday & Sunday - Evening" %}selected{% endif %}>Saturday & Sunday - Evening</option>
                   </select>
                 </div>
                 
@@ -605,11 +591,21 @@
                   {% for group_name, documents in profile.documents_by_group.items %}
                     {% if documents %}
                       <div class="bg-gray-100 p-2 rounded-lg mb-2">
-                        <h4 class="font-semibold text-lg mb-2">{{ group_name|default:'Other Documents' }}</h4>
+                        <h4 class="font-semibold text-lg mb-2">
+                          {% if group_name == "Additional Facility Requirements" %}
+                            Additional Facility Requirements <span class="text-red-600 font-semibold">if Required</span>
+                          {% else %}
+                            {{ group_name|default:'Other Documents' }}
+                          {% endif %}
+                        </h4>
                         {% for document in documents %}
                           <div class="flex items-center justify-between border-b border-gray-200 py-2">
                             <div>
-                              <p class="text-md font-medium">{{ document.document_type }}</p>
+                              <p class="text-md font-medium">{% if document.document_type == "Medical Certificate" %}
+                                Medical Certificate Form
+                              {% else %}
+                                {{ document.document_type }}
+                              {% endif %}</p>
                               {% if document.file_name %}
                                 <p class="text-xs text-gray-600">{{ document.uploaded_at }}</p>
                               {% endif %}
@@ -689,7 +685,11 @@
                             <h4 class="font-semibold text-lg mb-2">Other Documents</h4>
                             <div class="flex items-center justify-between border-b border-gray-200 py-2">
                               <div>
-                                <p class="text-md font-medium">{{ document.document_type }}</p>
+                                <p class="text-md font-medium">{% if document.document_type == "Medical Certificate" %}
+                                  Medical Certificate Form
+                                {% else %}
+                                  {{ document.document_type }}
+                                {% endif %}</p>
                                 {% if document.file_name %}
                                   <p class="text-xs text-gray-600">{{ document.uploaded_at }}</p>
                                 {% endif %}

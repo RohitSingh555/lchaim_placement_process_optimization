@@ -37,12 +37,10 @@ class PlacementProfile(models.Model):
     shift_requested = models.CharField(
         max_length=50,
         choices=[
-            ("Morning", "Morning - Mon to Fri - 7AM to 3PM"),
-            ("Evening", "Evening - Mon to Fri - 3PM to 11PM"),
-            ("Night", "Night - Mon to Fri - 11PM to 7AM"),
-            ("Weekend Morning", "Weekend Morning - Sat & Sun"),
-            ("Weekend Evening", "Weekend Evening - Sat & Sun"),
-            ("Weekend Night", "Weekend Night - Sat & Sun"),
+            ("Monday to Friday - Morning", "Monday to Friday - Morning"),
+            ("Monday to Friday - Evening", "Monday to Friday - Evening"),
+            ("Saturday & Sunday - Morning", "Saturday & Sunday - Morning"),
+            ("Saturday & Sunday - Evening", "Saturday & Sunday - Evening"),
         ]
     )
     preferred_facility_name = models.CharField(max_length=255, blank=True, null=True)
@@ -167,6 +165,8 @@ class PlacementNotification(models.Model):
 class StudentID(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student_id_record')
     student_id = models.CharField(max_length=50, unique=True)
+    pregnancy_signature_file = models.FileField(upload_to='pregnancy_signatures/', null=True, blank=True)
+    signed_on_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.student_id}"

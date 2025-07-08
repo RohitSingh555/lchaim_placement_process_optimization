@@ -2,6 +2,7 @@ from datetime import datetime
 import json
 import os
 import re
+import time
 
 import zipfile
 from django.conf import settings
@@ -52,6 +53,7 @@ from .models import (
     PlacementProfile,
     StudentID,
 )
+from django.views.decorators.http import require_POST
 
 
 def staff_required(view_func):
@@ -238,6 +240,14 @@ class PlacementProfileView(View):
         city_preference_1 = request.POST.get('city_preference_1')
         city_preference_2 = request.POST.get('city_preference_2')
         gender = request.POST.get('gender')
+        required_hours = request.POST.get('required_hours')
+        if not required_hours:
+            if experience_level == 'No Experience':
+                required_hours = 300
+            elif experience_level in ['1 Year PSW Experience', 'International Nurse', 'Caregiver Experience']:
+                required_hours = 200
+            else:
+                required_hours = None
 
         try:
             profile = PlacementProfile.objects.create(
@@ -259,6 +269,7 @@ class PlacementProfileView(View):
                 city_preference_1=city_preference_1,
                 city_preference_2=city_preference_2,
                 gender=gender,
+                required_hours=required_hours,
             )
         except Exception as e:
             print(f"Error saving PlacementProfile: {e}")
@@ -1257,10 +1268,15 @@ def delete_profile(request, profile_id):
 
 def send_skills_passbook_approved_email(profile):
     subject = "Book NACC Exam. Your Skills Passbook has been APPROVED!"
+    try:
+        student_id = profile.user.student_id_record.student_id
+    except Exception:
+        student_id = ""
+    greeting_line = f"Dear {profile.first_name} {profile.last_name} with ID No. {student_id},"
     message = f"""
     <html>
     <body>
-    <p>Greetings!</p>
+    <p>{greeting_line}</p>
     <p>Your Skills Passbook is now <span style='color:green; font-weight:bold;'>APPROVED</span>.</p>
     <p>To schedule your NACC Exam, please contact <a href='mailto:ara@peakcollege.ca'>ara@peakcollege.ca</a>.</p>
     <p>Remember to bring your Skills Passbook on the day of your exam.</p>
@@ -2981,3 +2997,34 @@ def add_document_comment(request, document_id):
         )
         return JsonResponse({'message': 'Comment added!'}, status=200)
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+@csrf_exempt
+@login_required
+@require_POST
+def update_pregnancy_signature(request):
+    user = request.user
+    from .models import StudentID
+    # Try to get or create the StudentID object
+    student_id_obj, created = StudentID.objects.get_or_create(
+        user=user,
+        defaults={
+            'student_id': f"{user.username}_{int(time.time())}"
+        }
+    )
+    file = request.FILES.get('pregnancy_signature_file')
+    signed_on_date = request.POST.get('signed_on_date')
+    errors = {}
+    if not file:
+        errors['pregnancy_signature_file'] = 'Signature file is required.'
+    elif not file.content_type.startswith('image/'):
+        errors['pregnancy_signature_file'] = 'Only image files are allowed.'
+    elif file.size > 2 * 1024 * 1024:
+        errors['pregnancy_signature_file'] = 'File size must be 2MB or less.'
+    if not signed_on_date:
+        errors['signed_on_date'] = 'Date is required.'
+    if errors:
+        return JsonResponse({'success': False, 'errors': errors}, status=400)
+    student_id_obj.pregnancy_signature_file = file
+    student_id_obj.signed_on_date = signed_on_date
+    student_id_obj.save()
+    return JsonResponse({'success': True})
