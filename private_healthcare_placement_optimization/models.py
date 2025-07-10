@@ -94,6 +94,12 @@ class PlacementProfile(models.Model):
         blank=True
     )
     facility_email_address = models.EmailField(null=True, blank=True)
+    municipality = models.CharField(
+        max_length=50,
+        null=True,
+        blank=True,
+        help_text="Required if city is Toronto. One of: Downtown, Etobicoke, Scarborough, North York, East York, York."
+    )
     @property
     def facility_name(self):
         if self.assigned_facility:

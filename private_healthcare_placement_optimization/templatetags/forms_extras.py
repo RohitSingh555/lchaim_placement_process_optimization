@@ -22,7 +22,7 @@ def is_allowed_doc(doc_type):
 allowed_docs = [
     'Experience Document',
     # --- Medical Requirements ---
-    'Medical Certificate',
+    'Medical Certificate Form',
     'X-Ray Result',
     'MMR Lab/Vax Record',
     'Varicella Lab/Vax Record',
@@ -54,7 +54,7 @@ def document_group(doc_type_display_name):
     ]:
         return 'Experience'
     if doc_type_display_name in [
-        'Medical Certificate',
+        'Medical Certificate Form',
         'X-Ray Result',
         'MMR Lab/Vax Record',
         'Varicella Lab/Vax Record',

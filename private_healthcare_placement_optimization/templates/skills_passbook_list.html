@@ -28,28 +28,30 @@
   </form>
 
   <!-- Responsive Table -->
-  <div class="overflow-x-auto rounded-2xl shadow-xl border border-gray-100 bg-gradient-to-br from-white via-gray-50 to-gray-100">
-    <table class="min-w-full text-sm text-left text-gray-800">
+  <div class="overflow-x-auto" style="scrollbar-color: #cbd5e1 #f1f5f9; scrollbar-width: thin;">
+    <table class="min-w-[1200px] text-sm text-left text-gray-800">
       <thead class="bg-gradient-to-r from-teal-100 to-cyan-100 text-teal-800 uppercase text-xs font-bold">
         <tr>
-          <th class="px-6 py-4 whitespace-nowrap">Student ID</th>
-          <th class="px-6 py-4 whitespace-nowrap">Name</th>
-          <th class="px-6 py-4 whitespace-nowrap">Email</th>
-          <th class="px-6 py-4 whitespace-nowrap">Date Uploaded</th>
-          <th class="px-6 py-4 whitespace-nowrap">Status</th>
-          <th class="px-6 py-4 whitespace-nowrap">Rejection Reason</th>
-          <th class="px-6 py-4 whitespace-nowrap">Comment</th>
-          <th class="px-6 py-4 whitespace-nowrap">Actions</th>
+          <th class="px-6 py-4 whitespace-nowrap max-w-[120px]">Student ID</th>
+          <th class="px-6 py-4 whitespace-nowrap max-w-[140px]">Name</th>
+          <th class="px-6 py-4 whitespace-nowrap max-w-[220px]">Email</th>
+          <th class="px-6 py-4 whitespace-nowrap max-w-[140px]">Date Uploaded</th>
+          <th class="px-6 py-4 whitespace-nowrap max-w-[120px]">Status</th>
+          <th class="px-6 py-4 whitespace-nowrap max-w-[200px]">Rejection Reason</th>
+          <th class="px-6 py-4 whitespace-nowrap max-w-[200px]">Comment</th>
+          <th class="px-6 py-4 whitespace-nowrap max-w-[160px]">Last Action Time</th>
+          {# Sticky Actions column #}
+          <th class="px-6 py-4 whitespace-nowrap min-w-[140px] w-[140px] bg-gradient-to-r from-teal-100 to-cyan-100 sticky right-0 z-30 border-l border-gray-100">Actions</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-200">
         {% for entry in skills_data %}
         <tr class="hover:bg-gradient-to-r hover:from-teal-50 hover:to-cyan-50 transition-all">
-          <td class="px-6 py-3 align-middle">{{ entry.student_id }}</td>
-          <td class="px-6 py-3 align-middle">{{ entry.first_name }} {{ entry.last_name }}</td>
-          <td class="px-6 py-3 align-middle break-all">{{ entry.email }}</td>
-          <td class="px-6 py-3 align-middle">{{ entry.uploaded_at|date:'Y-m-d H:i' }}</td>
-          <td class="px-6 py-3 align-middle">
+          <td class="px-6 py-3 align-middle max-w-[120px] truncate">{{ entry.student_id }}</td>
+          <td class="px-6 py-3 align-middle max-w-[140px] truncate">{{ entry.first_name }} {{ entry.last_name }}</td>
+          <td class="px-6 py-3 align-middle break-all max-w-[220px] whitespace-normal">{{ entry.email }}</td>
+          <td class="px-6 py-3 align-middle max-w-[140px] truncate">{{ entry.uploaded_at|date:'Y-m-d H:i' }}</td>
+          <td class="px-6 py-3 align-middle max-w-[120px] truncate">
             <span id="status-{{ entry.doc_id }}" class="inline-block px-3 py-1 rounded-full font-semibold tracking-wide text-xs
               {% if entry.status == 'Approved' %}bg-green-100 text-green-700
               {% elif entry.status == 'Rejected' %}bg-red-100 text-red-700
@@ -58,22 +60,30 @@
               <i class="fas fa-circle mr-1 text-xs align-middle"></i> {{ entry.status }}
             </span>
           </td>
-          <td class="px-6 py-3 align-middle rejection-reason">
+          <td class="px-6 py-3 align-middle max-w-[200px] break-words whitespace-normal">
             {% if entry.rejection_reason %}
               <span class="text-red-600">{{ entry.rejection_reason }}</span>
             {% else %}
               <span class="text-gray-400">N/A</span>
             {% endif %}
           </td>
-          <td class="px-6 py-3 align-middle">
+          <td class="px-6 py-3 align-middle max-w-[200px] break-words whitespace-normal">
             {% if entry.latest_comment %}
               <span class="text-gray-700"><i class="fas fa-comment mr-1"></i>{{ entry.latest_comment }}</span>
             {% else %}
               <span class="text-gray-400">N/A</span>
             {% endif %}
           </td>
-          <td class="px-6 py-3 align-middle">
-            <div class="flex flex-row flex-wrap gap-2 items-center justify-center">
+          <td class="px-6 py-3 align-middle max-w-[160px] truncate">
+            {% if entry.latest_approval %}
+              {{ entry.latest_approval.timestamp|date:'Y-m-d H:i' }}
+            {% else %}
+              N/A
+            {% endif %}
+          </td>
+          {# Sticky Actions column #}
+          <td class="px-6 py-3 align-middle min-w-[140px] w-[140px] bg-gradient-to-br from-white via-gray-50 to-gray-100 sticky right-0 z-30 border-l border-gray-100">
+            <div class="flex flex-row flex-nowrap gap-x-2 items-center justify-center">
               <button type="button" class="action-btn-icon" onclick="handleApprove({{ entry.doc_id }})" aria-label="Approve" data-tooltip="Approve Passbook">
                 <i class="fas fa-check"></i>
               </button>
@@ -91,7 +101,7 @@
         </tr>
         {% empty %}
         <tr>
-          <td colspan="8" class="px-6 py-8 text-center text-gray-400">No Skills Passbook submissions found.</td>
+          <td colspan="9" class="px-6 py-8 text-center text-gray-400">No Skills Passbook submissions found.</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -194,6 +204,17 @@
     }
     #notification.hidden {
       display: none;
+    }
+    /* Custom horizontal scrollbar for the table wrapper */
+    .overflow-x-auto::-webkit-scrollbar {
+      height: 8px;
+    }
+    .overflow-x-auto::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 8px;
+    }
+    .overflow-x-auto::-webkit-scrollbar-track {
+      background: #f1f5f9;
     }
   </style>
 </div>

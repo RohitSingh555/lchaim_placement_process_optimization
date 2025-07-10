@@ -231,6 +231,7 @@ class PlacementProfileView(View):
         city = request.POST.get('city')
         province = request.POST.get('province')
         postal_code = request.POST.get('postal_code')
+        municipality = request.POST.get('municipality')
         open_to_outside_city = request.POST.get('open_to_outside_city') == 'Yes'
         experience_level = request.POST.get('experience_level')
         shift_requested = request.POST.get('shift_requested')
@@ -260,6 +261,7 @@ class PlacementProfileView(View):
                 city=city,
                 province=province,
                 postal_code=postal_code,
+                municipality=municipality,
                 open_to_outside_city=open_to_outside_city,
                 experience_level=experience_level,
                 shift_requested=shift_requested,
@@ -276,63 +278,54 @@ class PlacementProfileView(View):
             return render(request, 'placement_profile_form.html', {'error': 'Failed to save Placement'})
 
         documents_data = {
-            'medical_certificate': 'Medical Certificate',
+            'experience_document': 'Experience Document',
+            'medical_certificate_form': 'Medical Certificate Form',
+            'xray_result': 'X-Ray Result',
+            'mmr_lab_vax_record': 'MMR Lab/Vax Record',
+            'varicella_lab_vax_record': 'Varicella Lab/Vax Record',
+            'tdap_vax_record': 'TDAP Vax Record',
+            'hepatitis_b_lab_vax_record': 'Hepatitis B Lab/Vax Record',
+            'hepatitis_a_lab_vax_record': 'Hepatitis A Lab/Vax Record',
             'covid_vaccination_certificate': 'Covid Vaccination Certificate',
             'vulnerable_sector_check': 'Vulnerable Sector Check',
             'cpr_or_first_aid': 'CPR & First Aid',
             'mask_fit_certificate': 'Mask Fit Certificate',
-            'bls_certificate': 'Basic Life Support',
-            'experience_document': 'Experience Document',
-            'resume': 'Resume',  # ✅ Already present
-            'skills_passbook': 'Skills Passbook',
-            'x_ray_result': 'X-Ray Result',
-            'mmr_lab_vax_record': 'MMR Lab/Vax Record',
-            'varicella_lav_vax_record': 'Varicella Lab/Vax Record',
-            'tdap_vax_record': 'TDAP Vax Record',
-            'hepatitis_b_lab_vax_record': 'Hepatitis B Lab/Vax Record',
-            'hepatitis_a_lab_vax_record': 'Hepatitis A Lab/Vax Record',  # ✅ Newly added
+            'basic_life_support': 'Basic Life Support',
             'flu_shot': 'Flu Shot',
+            'resume': 'Resume',
             'extra_dose_of_covid': 'Extra Dose of Covid',
             'other_documents': 'Other Documents',
+            'skills_passbook': 'Skills Passbook',
         }
-
-
         missing_documents = []
         submitted_documents = []
         for file_field, doc_name in documents_data.items():
             file = request.FILES.get(file_field)
-
             if file:
                 file_extension = file.name.split('.')[-1]
                 new_file_name = f"{first_name}_{last_name}_{doc_name}.{file_extension}"
-
                 file_path = os.path.join("documents/uploads", new_file_name)
                 saved_path = default_storage.save(file_path, ContentFile(file.read()))
-
                 submitted_documents.append(doc_name)
             else:
                 missing_documents.append(file_field)
-                saved_path = None 
-
+                saved_path = None
+                new_file_name = None
             try:
                 document_entry = Document.objects.create(
                     profile=profile,
                     document_type=doc_name,
-                    file=saved_path if saved_path else None, 
+                    file=saved_path if saved_path else None,
                     file_name=new_file_name if file else None
                 )
-
                 if file:
                     print(f"Document saved: {doc_name} - {new_file_name}")
                 else:
                     print(f"Document entry created for missing: {doc_name}")
-
             except Exception as e:
                 print(f"Error saving document {doc_name}: {e}")
 
-        required_document_keys = {'medical_certificate', 'covid_vaccination_certificate', 
-                                  'vulnerable_sector_check', 'cpr_or_first_aid',
-                                  'mask_fit_certificate', }
+        required_document_keys = {'experience_document', 'medical_certificate_form', 'xray_result', 'mmr_lab_vax_record', 'varicella_lab_vax_record', 'tdap_vax_record', 'hepatitis_b_lab_vax_record', 'hepatitis_a_lab_vax_record', 'covid_vaccination_certificate', 'vulnerable_sector_check', 'cpr_or_first_aid', 'mask_fit_certificate', 'basic_life_support', 'flu_shot', 'resume', 'extra_dose_of_covid', 'other_documents', 'skills_passbook'}
         
         missing_required_docs = [documents_data[key] for key in required_document_keys if key in missing_documents]
 
@@ -1299,6 +1292,33 @@ def send_skills_passbook_approved_email(profile):
     email.content_subtype = "html"
     email.send()
 
+def send_skills_passbook_rejected_email(profile, rejection_reason, timestamp):
+    subject = "Skills Passbook Rejected - Action Required"
+    try:
+        student_id = profile.user.student_id_record.student_id
+    except Exception:
+        student_id = ""
+    greeting_line = f"Dear {profile.first_name} {profile.last_name} with ID No. {student_id},"
+    message = f"""
+    <html>
+    <body>
+    <p>{greeting_line}</p>
+    <p>Your Skills Passbook was <span style='color:red; font-weight:bold;'>REJECTED</span> on {timestamp}.</p>
+    <p><b>Reason:</b> {rejection_reason}</p>
+    <p>Please review the feedback and resubmit your Skills Passbook for approval.</p>
+    <br>
+    <p>Warm regards,<br>The Peak Healthcare Team</p>
+    <p>Website: <a href='https://placement.peakcollege.ca/'>www.peakcollege.ca</a></p>
+    <img src='http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg' width='240' height='90'/><br>
+    1140 Sheppard Ave West<br>Unit #12, North York, ON<br>M3K 2A2
+    </body>
+    </html>
+    """
+    recipients = [profile.college_email, 'ara@peakcollege.ca']
+    email = EmailMessage(subject, message, to=recipients)
+    email.content_subtype = "html"
+    email.send()
+
 @csrf_exempt
 @user_passes_test(lambda u: u.is_superuser)
 def approve_document(request, document_id):
@@ -1317,7 +1337,7 @@ def approve_document(request, document_id):
         document.rejection_reason = rejection_reason if action == DocumentStatus.REJECTED.value else None
         document.save()
 
-        ApprovalLog.objects.create(
+        approval_log = ApprovalLog.objects.create(
             approver=approver,
             document=document,
             action=action,
@@ -1329,12 +1349,15 @@ def approve_document(request, document_id):
             document.profile.required_hours = 200
             document.profile.save()
 
-        # If approved and document type is Skills Passbook, update stage and send email
+        # If approved and document type is Skills Passbook, update stage to DONE and send email
         if action == DocumentStatus.APPROVED.value and document.document_type == "Skills Passbook":
-            if document.profile.stage == "IN_PLACEMENT":
-                document.profile.stage = "READY"
-                document.profile.save()
+            document.profile.stage = "DONE"
+            document.profile.save()
             send_skills_passbook_approved_email(document.profile)
+
+        # If rejected and document type is Skills Passbook, send rejection email with timestamp
+        if action == DocumentStatus.REJECTED.value and document.document_type == "Skills Passbook":
+            send_skills_passbook_rejected_email(document.profile, rejection_reason, approval_log.timestamp.strftime('%Y-%m-%d %H:%M:%S'))
 
         # Send placement notification
         message = f"Your document '{document.document_type}' has been {action.lower()}."
@@ -2713,8 +2736,16 @@ def get_cities_and_provinces(request):
                 city_data[province_name] = []
             city_data[province_name].append(city.name)
         
+        # Ontario first, then others alphabetically
+        ordered_city_data = {}
+        if 'Ontario' in city_data:
+            ordered_city_data['Ontario'] = sorted(city_data['Ontario'])
+        for prov in sorted(city_data.keys()):
+            if prov != 'Ontario':
+                ordered_city_data[prov] = sorted(city_data[prov])
+        
         # Return the data as JSON
-        return JsonResponse(city_data)
+        return JsonResponse(ordered_city_data)
     
     except Exception as e:
         # Log the error for debugging

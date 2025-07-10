@@ -10,6 +10,7 @@ class PlacementProfileForm(forms.ModelForm):
         fields = [
             'college_email', 'first_name', 'last_name',  
             'apt_house_no', 'street', 'city', 'province', 'postal_code',  # New address fields
+            'municipality',
             'open_to_outside_city',  # New placement question field
             'experience_level', 'employer_letter', 'shift_requested', 
             'preferred_facility_name', 'preferred_facility_address', 'preferred_facility_contact_person','city_preference_1', 'city_preference_2','gender'
@@ -20,6 +21,14 @@ class PlacementProfileForm(forms.ModelForm):
         if not email.endswith("@peakcollege.ca"):
             raise forms.ValidationError("Email must end with @peakcollege.ca")
         return email
+
+    def clean(self):
+        cleaned_data = super().clean()
+        city = cleaned_data.get('city', '').strip().lower()
+        municipality = cleaned_data.get('municipality')
+        if city == 'toronto' and not municipality:
+            self.add_error('municipality', 'Municipality is required when city is Toronto.')
+        return cleaned_data
 
 
 class DocumentForm(forms.ModelForm):
