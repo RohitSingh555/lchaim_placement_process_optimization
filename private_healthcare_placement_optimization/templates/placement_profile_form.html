@@ -19,7 +19,6 @@
     enctype="multipart/form-data"
     id="wizardForm"
     class="space-y-4 sm:space-y-6"
-    onsubmit="showLoadingOverlay()"
   >
     {% csrf_token %}
 
@@ -188,6 +187,7 @@
             <i class="fas fa-arrow-left"></i> Back
           </button>
           <button
+            type="button"
             onclick="goToSubStep(3)"
             class="w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300 text-sm sm:text-base ml-2"
           >
@@ -249,6 +249,7 @@
             <i class="fas fa-arrow-left"></i> Back
           </button>
           <button
+            type="button"
             onclick="goToSubStep(4)"
             class="w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300 text-sm sm:text-base ml-2"
           >
@@ -346,6 +347,7 @@
       <i class="fas fa-arrow-left"></i> Back
     </button>
     <button
+      type="button"
       onclick="goToSubStep(5)"
       class="w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300 text-sm sm:text-base ml-2"
     >
@@ -419,6 +421,7 @@
       <i class="fas fa-arrow-left"></i> Back
     </button>
     <button
+      type="button"
       onclick="goToSubStep(6)"
       class="w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300 text-sm sm:text-base ml-2"
     >
@@ -488,6 +491,7 @@
       <i class="fas fa-arrow-left"></i> Back
     </button>
     <button
+      type="button"
       onclick="goToSubStep(7)"
       class="w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300 text-sm sm:text-base ml-2"
     >
@@ -564,6 +568,7 @@
       <i class="fas fa-arrow-left"></i> Back
     </button>
     <button
+      type="button"
       onclick="goToSubStep(8)"
       class="w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-3 bg-teal-500 text-white font-semibold rounded-full shadow-md hover:bg-teal-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300 text-sm sm:text-base ml-2"
     >
@@ -747,7 +752,7 @@
             </div>
             <div>
               <label for="signed_on_date" class="block text-teal-700 font-semibold mb-2">Date Signed</label>
-              <input type="date" id="signed_on_date" name="signed_on_date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400" required />
+              <input type="date" id="signed_on_date" name="signed_on_date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400" />
               <div id="dateError" class="text-red-600 text-xs mt-2 hidden"></div>
             </div>
             <div class="flex justify-end gap-2">
@@ -757,208 +762,6 @@
           </form>
         </div>
       </div>
-      <script>
-        // Modal open/close
-        function openPregnancyModal() {
-          document.getElementById('pregnancyPolicyModal').classList.remove('hidden');
-          document.body.classList.add('overflow-hidden');
-          document.getElementById('genderAcknowledgement').disabled = true;
-          document.getElementById('waiverSuccessMsg').classList.add('hidden');
-        }
-        function closePregnancyModal() {
-          document.getElementById('pregnancyPolicyModal').classList.add('hidden');
-          document.body.classList.remove('overflow-hidden');
-        }
-        // Drag and drop for signature
-        const dropzone = document.getElementById('signatureDropzone');
-        const fileInput = document.getElementById('pregnancy_signature_file');
-        const preview = document.getElementById('signaturePreview');
-        const errorDiv = document.getElementById('signatureError');
-        const dropText = document.getElementById('signatureDropText');
-        let signatureFile = null;
-        function showSignaturePreview(file) {
-          preview.innerHTML = '';
-          if (!file) return;
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            img.alt = 'Signature Preview';
-            img.className = 'max-h-32 rounded shadow mb-2';
-            preview.appendChild(img);
-            // Remove button
-            const removeBtn = document.createElement('button');
-            removeBtn.type = 'button';
-            removeBtn.textContent = 'Remove';
-            removeBtn.className = 'mt-1 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-xs font-semibold';
-            removeBtn.onclick = function() {
-              signatureFile = null;
-              fileInput.value = '';
-              preview.innerHTML = '';
-              dropText.classList.remove('hidden');
-            };
-            preview.appendChild(removeBtn);
-          };
-          reader.readAsDataURL(file);
-          dropText.classList.add('hidden');
-        }
-        dropzone.addEventListener('dragover', function(e) {
-          e.preventDefault();
-          dropzone.classList.add('border-teal-600', 'bg-teal-100');
-        });
-        dropzone.addEventListener('dragleave', function(e) {
-          e.preventDefault();
-          dropzone.classList.remove('border-teal-600', 'bg-teal-100');
-        });
-        dropzone.addEventListener('drop', function(e) {
-          e.preventDefault();
-          dropzone.classList.remove('border-teal-600', 'bg-teal-100');
-          const file = e.dataTransfer.files[0];
-          handleSignatureFile(file);
-        });
-        dropzone.addEventListener('click', function(e) {
-          if (e.target === dropzone) fileInput.click();
-        });
-        fileInput.addEventListener('change', function() {
-          const file = fileInput.files[0];
-          handleSignatureFile(file);
-        });
-        function handleSignatureFile(file) {
-          errorDiv.classList.add('hidden');
-          if (!file) return;
-          if (!file.type.startsWith('image/')) {
-            errorDiv.textContent = 'Only image files are allowed.';
-            errorDiv.classList.remove('hidden');
-            fileInput.value = '';
-            return;
-          }
-          if (file.size > 2 * 1024 * 1024) {
-            errorDiv.textContent = 'File size must be 2MB or less.';
-            errorDiv.classList.remove('hidden');
-            fileInput.value = '';
-            return;
-          }
-          signatureFile = file;
-          showSignaturePreview(file);
-        }
-        // Form validation and submission
-        document.getElementById('pregnancySignatureForm').addEventListener('submit', function(e) {
-          e.preventDefault();
-          let valid = true;
-          // Validate file
-          if (!signatureFile) {
-            errorDiv.textContent = 'Signature image is required.';
-            errorDiv.classList.remove('hidden');
-            valid = false;
-          } else {
-            errorDiv.classList.add('hidden');
-          }
-          // Validate date
-          const dateInput = document.getElementById('signed_on_date');
-          const dateError = document.getElementById('dateError');
-          if (!dateInput.value) {
-            dateError.textContent = 'Date is required.';
-            dateError.classList.remove('hidden');
-            valid = false;
-          } else {
-            dateError.classList.add('hidden');
-          }
-          if (!valid) return false;
-          // AJAX submit
-          const formData = new FormData();
-          formData.append('pregnancy_signature_file', signatureFile);
-          formData.append('signed_on_date', dateInput.value);
-          fetch('/update-pregnancy-signature/', {
-            method: 'POST',
-            headers: {
-              'X-Requested-With': 'XMLHttpRequest',
-              'X-CSRFToken': (document.querySelector('[name=csrfmiddlewaretoken]') || {}).value || ''
-            },
-            body: formData
-          })
-          .then(response => response.json().then(data => ({status: response.status, body: data})))
-          .then(({status, body}) => {
-            if (body.success) {
-              // Show success, enable checkbox, do not close modal
-              document.getElementById('genderAcknowledgement').disabled = false;
-              document.getElementById('waiverSuccessMsg').classList.remove('hidden');
-              closePregnancyModal();
-            } else if (body.errors) {
-              if (body.errors.pregnancy_signature_file) {
-                errorDiv.textContent = body.errors.pregnancy_signature_file;
-                errorDiv.classList.remove('hidden');
-              }
-              if (body.errors.signed_on_date) {
-                dateError.textContent = body.errors.signed_on_date;
-                dateError.classList.remove('hidden');
-              }
-            }
-          })
-          .catch(() => {
-            errorDiv.textContent = 'An error occurred. Please try again.';
-            errorDiv.classList.remove('hidden');
-          });
-          return false;
-        });
-        document.getElementById('waiverSaveBtn').addEventListener('click', function(e) {
-          e.preventDefault();
-          let valid = true;
-          // Validate file
-          if (!signatureFile) {
-            errorDiv.textContent = 'Signature image is required.';
-            errorDiv.classList.remove('hidden');
-            valid = false;
-          } else {
-            errorDiv.classList.add('hidden');
-          }
-          // Validate date
-          const dateInput = document.getElementById('signed_on_date');
-          const dateError = document.getElementById('dateError');
-          if (!dateInput.value) {
-            dateError.textContent = 'Date is required.';
-            dateError.classList.remove('hidden');
-            valid = false;
-          } else {
-            dateError.classList.add('hidden');
-          }
-          if (!valid) return false;
-          // AJAX submit
-          const formData = new FormData();
-          formData.append('pregnancy_signature_file', signatureFile);
-          formData.append('signed_on_date', dateInput.value);
-          fetch('/update-pregnancy-signature/', {
-            method: 'POST',
-            headers: {
-              'X-Requested-With': 'XMLHttpRequest',
-              'X-CSRFToken': (document.querySelector('[name=csrfmiddlewaretoken]') || {}).value || ''
-            },
-            body: formData
-          })
-          .then(response => response.json().then(data => ({status: response.status, body: data})))
-          .then(({status, body}) => {
-            if (body.success) {
-              // Show success, enable checkbox, do not close modal
-              document.getElementById('genderAcknowledgement').disabled = false;
-              document.getElementById('waiverSuccessMsg').classList.remove('hidden');
-              closePregnancyModal();
-            } else if (body.errors) {
-              if (body.errors.pregnancy_signature_file) {
-                errorDiv.textContent = body.errors.pregnancy_signature_file;
-                errorDiv.classList.remove('hidden');
-              }
-              if (body.errors.signed_on_date) {
-                dateError.textContent = body.errors.signed_on_date;
-                dateError.classList.remove('hidden');
-              }
-            }
-          })
-          .catch(() => {
-            errorDiv.textContent = 'An error occurred. Please try again.';
-            errorDiv.classList.remove('hidden');
-          });
-          return false;
-        });
-      </script>
     </div>
   </div>
 
@@ -1115,16 +918,41 @@
         </div>
 
         <div class="flex flex-col">
-          <label for="city" class="text-lg font-medium text-gray-700"
+          <label for="city_0" class="text-lg font-medium text-gray-700"
             >City <strong style="color: red">*</strong></label
           >
-          <input
-            type="text"
-            name="city"
-            id="city"
+          <select
+            name="city_0"
+            id="city_0"
             required
             class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+            onchange="toggleMunicipalityDropdown()"
+          >
+            <option value="">Select a city</option>
+          </select>
+        </div>
+
+        <!-- Municipality Dropdown (only if city is Toronto) -->
+        <div class="flex flex-col" id="municipalityDiv" style="display:none;">
+          <label for="municipality" class="text-lg font-medium text-gray-700">
+            Municipality <strong style="color: red">*</strong>
+          </label>
+          <select
+            name="municipality"
+            id="municipality"
+            class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="" selected disabled>Select your area</option>
+            <option value="Downtown">Downtown</option>
+            <option value="Etobicoke">Etobicoke</option>
+            <option value="Scarborough">Scarborough</option>
+            <option value="North York">North York</option>
+            <option value="East York">East York</option>
+            <option value="York">York</option>
+          </select>
+          <p id="municipalityError" class="text-red-600 text-sm mt-1 hidden">
+            Please select your municipality.
+          </p>
         </div>
 
         <div class="flex flex-col">
@@ -1295,10 +1123,12 @@
           .then((data) => {
             const dropdown1 = document.getElementById("city_preference_1");
             const dropdown2 = document.getElementById("city_preference_2");
+            const dropdown0 = document.getElementById("city_0");
 
             // Clear old options
             dropdown1.innerHTML = '<option value="">Select a city</option>';
             dropdown2.innerHTML = '<option value="">Select a city</option>';
+            dropdown0.innerHTML = '<option value="">Select a city</option>';
 
             // Ontario first, then the rest
             const provinces = Object.keys(data);
@@ -1319,22 +1149,74 @@
               group1.label = province;
               const group2 = document.createElement("optgroup");
               group2.label = province;
+              const group0 = document.createElement("optgroup");
+              group0.label = province;
               cities.forEach((city) => {
                 const option1 = new Option(city, city);
                 const option2 = new Option(city, city);
+                const option0 = new Option(city, city);
                 group1.appendChild(option1);
                 group2.appendChild(option2);
+                group0.appendChild(option0);
               });
               dropdown1.appendChild(group1);
               dropdown2.appendChild(group2);
+              dropdown0.appendChild(group0);
             });
           })
           .catch((error) => {
             console.error("Error loading cities:", error);
           });
       }
+      document.addEventListener("DOMContentLoaded", function () {
+  loadCityDropdowns();
+});
     </script>
+<script>
+  function toggleMunicipalityDropdown() {
+    const cityDropdown = document.getElementById('city_0');
+    const municipalityDiv = document.getElementById('municipalityDiv');
+    const municipalitySelect = document.getElementById('municipality');
+    if (cityDropdown.value.trim().toLowerCase() === 'toronto') {
+      municipalityDiv.style.display = '';
+      municipalitySelect.setAttribute('required', 'required');
+    } else {
+      municipalityDiv.style.display = 'none';
+      municipalitySelect.value = '';
+      municipalitySelect.removeAttribute('required');
+    }
+  }
 
+  // Validate municipality before next step
+  function validateMunicipalityIfNeeded() {
+    const cityDropdown = document.getElementById('city_0');
+    const municipalitySelect = document.getElementById('municipality');
+    const errorMsg = document.getElementById('municipalityError');
+    if (cityDropdown.value.trim().toLowerCase() === 'toronto' && !municipalitySelect.value) {
+      municipalitySelect.classList.add('border-red-500');
+      errorMsg.classList.remove('hidden');
+      return false;
+    } else {
+      municipalitySelect.classList.remove('border-red-500');
+      errorMsg.classList.add('hidden');
+      return true;
+    }
+  }
+
+  // Patch the Next button validation to include municipality
+  document.addEventListener('DOMContentLoaded', function() {
+    const addressNextBtn = document.querySelector('#step3 button[type="button"]');
+    if (addressNextBtn) {
+      const origHandler = addressNextBtn.onclick;
+      addressNextBtn.onclick = function() {
+        if (validateMunicipalityIfNeeded() && validateCityPreferenceIfNeeded()) {
+          if (typeof origHandler === 'function') origHandler();
+          else nextStep(4);
+        }
+      };
+    }
+  });
+</script>
     <!-- Experience Level Dropdown (Step 4) -->
     <div class="form-step hidden bg-white p-6 rounded-lg shadow-lg" id="step4">
       <h2 class="text-2xl font-semibold text-gray-800 mb-4">
@@ -1580,29 +1462,6 @@
           Next <i class="fas fa-arrow-right ml-2"></i>
         </button>
       </div>
-      <script>
-        document.addEventListener("DOMContentLoaded", function () {
-          const shiftSelect = document.getElementById("shift_requested");
-          const nextBtn = document.getElementById("nextStepBtn7");
-      
-          function updateNextBtnState() {
-            if (
-              shiftSelect.value === "Monday to Friday - Morning" ||
-              shiftSelect.value === "Monday to Friday - Evening" ||
-              shiftSelect.value === "Saturday & Sunday - Morning" ||
-              shiftSelect.value === "Saturday & Sunday - Evening"
-            ) {
-              nextBtn.disabled = false;
-              nextBtn.classList.remove("opacity-50", "cursor-not-allowed");
-            } else {
-              nextBtn.disabled = true;
-              nextBtn.classList.add("opacity-50", "cursor-not-allowed");
-            }
-          }
-          shiftSelect.addEventListener("change", updateNextBtnState);
-          updateNextBtnState();
-        });
-      </script>
     </div>
 
 
@@ -1714,18 +1573,6 @@
         </div>
       </div>
 
-      <!-- Loading Spinner & Background Blur -->
-      <div
-        id="loading-overlay"
-        class="hidden fixed inset-0 flex justify-center items-center z-50 classy-loading-overlay"
-      >
-        <div class="classy-loading-card">
-          <img src="/static/images/peak_logo.png" alt="Peak College Logo" class="classy-loading-logo mb-4" onerror="this.style.display='none'" />
-          <div class="classy-spinner mb-6"></div>
-          <p class="classy-loading-text">Submitting your placement profile...</p>
-        </div>
-      </div>
-
       <div class="flex justify-center mt-6">
         <button
           id="submitBtn"
@@ -1821,57 +1668,6 @@
         .file-error {
           color: #e53e3e;
       }
-        /* Classy Loading Overlay Styles */
-        .classy-loading-overlay {
-          background: rgba(30, 41, 59, 0.25);
-          backdrop-filter: blur(8px) saturate(180%);
-          animation: classy-fade-in 0.5s ease;
-        }
-        @keyframes classy-fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        .classy-loading-card {
-          background: rgba(255, 255, 255, 0.85);
-          border-radius: 2rem;
-          box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
-          padding: 2.5rem 2.5rem 2rem 2.5rem;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          min-width: 320px;
-          max-width: 90vw;
-        }
-        .classy-loading-logo {
-          width: 64px;
-          height: 64px;
-          object-fit: contain;
-          border-radius: 1rem;
-          box-shadow: 0 2px 8px rgba(56, 178, 172, 0.12);
-          background: white;
-        }
-        .classy-spinner {
-          width: 56px;
-          height: 56px;
-          border: 6px solid #e0f2f1;
-          border-top: 6px solid #14b8a6;
-          border-radius: 50%;
-          animation: classy-spin 1s linear infinite;
-          margin-bottom: 1.5rem;
-        }
-        @keyframes classy-spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        .classy-loading-text {
-          font-family: 'Segoe UI', 'Inter', 'Helvetica Neue', Arial, sans-serif;
-          font-size: 1.25rem;
-          color: #134e4a;
-          font-weight: 500;
-          letter-spacing: 0.01em;
-          text-align: center;
-          margin-top: 0.5rem;
-        }
       </style>
 
     <!-- JavaScript for handling form submission -->
@@ -1879,11 +1675,10 @@
       function showLoadingOverlay() {
         const submitButton = document.getElementById("submitBtn");
         const loadingOverlay = document.getElementById("loading-overlay");
-
+        console.log('[DEBUG] showLoadingOverlay called');
         // Disable the submit button to prevent multiple submissions
         submitButton.disabled = true;
         submitButton.classList.add("opacity-50", "cursor-not-allowed");
-
         // Show the loading overlay
         loadingOverlay.classList.remove("hidden");
       }
@@ -1893,9 +1688,9 @@
       function setUserExperience() {
         const experienceSelect = document.getElementById("experience_level");
         const experience = experienceSelect.value;
+        console.log('[DEBUG] setUserExperience', { experience });
         if (experience === "No Experience") {
           localStorage.setItem("user_experience", "No Experience");
-          // nextButtons.forEach((btn) => btn.click());
         }
       }
 
@@ -1904,7 +1699,7 @@
         const nextButtonExperience = document.querySelector(
           ".next-button-experience-select"
         );
-
+        console.log('[DEBUG] handleExperienceChangeSelect', { value: experienceSelect.value });
         if (experienceSelect.value === "Select your experience") {
           nextButtonExperience.setAttribute("disabled", "true");
           nextButtonExperience.classList.add(
@@ -1920,13 +1715,10 @@
         }
       }
 
-      // Attach event listener to select dropdown
-      document
-        .getElementById("experience_level")
-        .addEventListener("change", handleExperienceChangeSelect);
-
-      // Ensure button starts as disabled
-      document.addEventListener("mousemove", handleExperienceChangeSelect);
+      const experienceLevelEl = document.getElementById("experience_level");
+      if (experienceLevelEl) {
+        experienceLevelEl.addEventListener("change", handleExperienceChangeSelect);
+      }
     </script>
     <script>
       function handleExperienceChange() {
@@ -1937,12 +1729,12 @@
         const step4nextButton = document.querySelector("#step4 button");
         const nextButtons = document.querySelectorAll(
           ".next-button-experience"
-        ); // Select all buttons
+        );
         const nextButtonExperience = document.querySelector(
           ".next-button-experience"
         );
-        // Set placement hours based on experience
         const placementHoursInput = document.getElementById("placement_hours");
+        console.log('[DEBUG] handleExperienceChange', { experience });
         if (placementHoursInput) {
           if (experience === "No Experience") {
             placementHoursInput.value = 300;
@@ -1956,24 +1748,12 @@
             placementHoursInput.value = "";
           }
         }
-
-        console.log(experience);
-        console.log(experience === "No Experience");
-
-        // Save "No Experience" in local storage and auto-click next button
-
-        // Enable/Disable the Next button in step 4
         if (experience !== "No Experience") {
           step4nextButton.disabled = false;
           step4nextButton.classList.remove("opacity-50", "cursor-not-allowed");
-        } else {
-          console.log("No Experience");
         }
-
-        // Show/Hide document upload section
         if (experience === "No Experience") {
           uploadDiv.classList.add("hidden");
-
           nextButtons.forEach((btn) => {
             btn.classList.remove("cursor-not-allowed", "bg-gray-400");
             btn.classList.add(
@@ -1981,21 +1761,16 @@
               "hover:bg-teal-600",
               "hover:shadow-lg"
             );
-            // btn.disabled = false;
           });
         } else {
           uploadDiv.classList.remove("hidden");
-
           nextButtonExperience.classList.add(
             "opacity-50",
             "cursor-not-allowed"
           );
         }
-
         const sampleNote = document.getElementById("sampleNote");
         const noteText = document.getElementById("noteText");
-
-        // Show or hide sample note based on selection
         if (experience === "International Nurse") {
           sampleNote.classList.add("hidden");
           noteText.textContent =
@@ -2005,14 +1780,11 @@
           noteText.textContent =
             "Note: If the submitted document/s lack all necessary information, the document will be rejected.";
         }
-
-        // Update document label based on experience selection
         const documentLabels = {
           "1 Year PSW Experience": "Letter of Employment",
           "International Nurse": "Diploma and/or Transcript",
           "Caregiver Experience": "Letter from Employer",
         };
-
         if (documentLabels[experience]) {
           uploadLabel.textContent = documentLabels[experience];
         }
@@ -2023,13 +1795,14 @@
         const checkbox = document.getElementById("responsibilitiesCheckbox");
         const errorText = document.getElementById("checkboxError");
         const nextButton = document.getElementById("nextButton");
-
-        // Initially disable the Next button
+        if (!checkbox || !errorText || !nextButton) {
+          console.warn('[DEBUG] responsibilitiesCheckbox, checkboxError, or nextButton not found');
+          return;
+        }
         nextButton.disabled = true;
         nextButton.classList.add("opacity-50", "cursor-not-allowed");
-
-        // Enable or disable the button based on checkbox state
         checkbox.addEventListener("change", function () {
+          console.log('[DEBUG] responsibilitiesCheckbox changed', { checked: checkbox.checked });
           if (checkbox.checked) {
             nextButton.disabled = false;
             nextButton.classList.remove("opacity-50", "cursor-not-allowed");
@@ -2039,21 +1812,23 @@
             nextButton.classList.add("opacity-50", "cursor-not-allowed");
           }
         });
-
-        // Prevent proceeding if the checkbox isn't checked
         nextButton.addEventListener("click", function (event) {
           if (!checkbox.checked) {
             errorText.classList.remove("hidden");
             event.preventDefault();
+            console.error('[DEBUG] Next button blocked: responsibilitiesCheckbox not checked');
           }
         });
       });
-
       function nextStep(step) {
-        if (document.getElementById("responsibilitiesCheckbox").checked) {
-          document.getElementById("step1").classList.add("hidden");
-          document.getElementById(`step${step}`).classList.remove("hidden");
+        console.log('[DEBUG] nextStep called', { step });
+        if (document.getElementById("responsibilitiesCheckbox") && !document.getElementById("responsibilitiesCheckbox").checked) {
+          console.error('[DEBUG] nextStep blocked: responsibilitiesCheckbox not checked');
+          document.getElementById("checkboxError").classList.remove("hidden");
+          return;
         }
+        document.getElementById("step1").classList.add("hidden");
+        document.getElementById(`step${step}`).classList.remove("hidden");
       }
     </script>
     <script>
@@ -2061,8 +1836,8 @@
         const fileInput = document.getElementById("experience_document");
         const nextButtons = document.querySelectorAll(
           ".next-button-experience"
-        ); // Select all buttons
-
+        );
+        console.log('[DEBUG] validateFileUpload', { fileInput: fileInput.files });
         nextButtons.forEach((nextButton) => {
           if (fileInput.files.length > 0) {
             nextButton.classList.remove("cursor-not-allowed", "opacity-50");
@@ -2071,7 +1846,6 @@
               "hover:bg-teal-600",
               "hover:shadow-lg"
             );
-
             nextButton.disabled = false;
           } else {
             nextButton.classList.add("cursor-not-allowed", "bg-gray-400");
@@ -2158,7 +1932,7 @@
       </div>
       <div>
         <label for="signed_on_date" class="block text-teal-700 font-semibold mb-2">Date Signed</label>
-        <input type="date" id="signed_on_date" name="signed_on_date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400" required />
+        <input type="date" id="signed_on_date" name="signed_on_date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400" />
         <div id="dateError" class="text-red-600 text-xs mt-2 hidden"></div>
       </div>
       <div class="flex justify-end gap-2">
@@ -2180,6 +1954,7 @@ document.getElementById('waiverSaveBtn').addEventListener('click', function(e) {
     errorDiv.textContent = 'Signature image is required.';
     errorDiv.classList.remove('hidden');
     valid = false;
+    console.error('[DEBUG] Waiver: signatureFile missing');
   } else {
     errorDiv.classList.add('hidden');
   }
@@ -2190,6 +1965,7 @@ document.getElementById('waiverSaveBtn').addEventListener('click', function(e) {
     dateError.textContent = 'Date is required.';
     dateError.classList.remove('hidden');
     valid = false;
+    console.error('[DEBUG] Waiver: signed_on_date missing');
   } else {
     dateError.classList.add('hidden');
   }
@@ -2198,6 +1974,7 @@ document.getElementById('waiverSaveBtn').addEventListener('click', function(e) {
   const formData = new FormData();
   formData.append('pregnancy_signature_file', signatureFile);
   formData.append('signed_on_date', dateInput.value);
+  console.log('[DEBUG] Waiver: submitting formData', { signatureFile, signed_on_date: dateInput.value });
   fetch('/update-pregnancy-signature/', {
     method: 'POST',
     headers: {
@@ -2208,8 +1985,8 @@ document.getElementById('waiverSaveBtn').addEventListener('click', function(e) {
   })
   .then(response => response.json().then(data => ({status: response.status, body: data})))
   .then(({status, body}) => {
+    console.log('[DEBUG] Waiver: AJAX response', { status, body });
     if (body.success) {
-      // Show success, enable checkbox, do not close modal
       document.getElementById('genderAcknowledgement').disabled = false;
       document.getElementById('waiverSuccessMsg').classList.remove('hidden');
       closePregnancyModal();
@@ -2217,16 +1994,19 @@ document.getElementById('waiverSaveBtn').addEventListener('click', function(e) {
       if (body.errors.pregnancy_signature_file) {
         errorDiv.textContent = body.errors.pregnancy_signature_file;
         errorDiv.classList.remove('hidden');
+        console.error('[DEBUG] Waiver: server error', body.errors.pregnancy_signature_file);
       }
       if (body.errors.signed_on_date) {
         dateError.textContent = body.errors.signed_on_date;
         dateError.classList.remove('hidden');
+        console.error('[DEBUG] Waiver: server error', body.errors.signed_on_date);
       }
     }
   })
-  .catch(() => {
+  .catch((err) => {
     errorDiv.textContent = 'An error occurred. Please try again.';
     errorDiv.classList.remove('hidden');
+    console.error('[DEBUG] Waiver: AJAX error', err);
   });
   return false;
 });
@@ -2354,7 +2134,7 @@ document.getElementById('waiverSaveBtn').addEventListener('click', function(e) {
     }
 
     function validateEmail() {
-      if (!collegeEmail.value.endsWith("@peakcollege.ca")) {
+      if (collegeEmail && !collegeEmail.value.endsWith("@peakcollege.ca")) {
         showError(collegeEmail, "Email must end with @peakcollege.ca");
         return false;
       }
@@ -2362,31 +2142,33 @@ document.getElementById('waiverSaveBtn').addEventListener('click', function(e) {
     }
 
     function validateEmployerLetter() {
-      if (
-        experienceLevel.value === "1 Year PSW Experience" &&
-        !employerLetter.files.length
-      ) {
-        showError(
-          employerLetter,
-          "Letter from Employer is mandatory for this experience level."
-        );
-        return false;
-      }
-      if (
-        experienceLevel.value === "International Nurse" &&
-        !employerLetter.files.length
-      ) {
-        showError(
-          employerLetter,
-          "Diploma and/or transcript is mandatory for this experience level."
-        );
-        return false;
+      if (experienceLevel && employerLetter) {
+        if (
+          experienceLevel.value === "1 Year PSW Experience" &&
+          !employerLetter.files.length
+        ) {
+          showError(
+            employerLetter,
+            "Letter from Employer is mandatory for this experience level."
+          );
+          return false;
+        }
+        if (
+          experienceLevel.value === "International Nurse" &&
+          !employerLetter.files.length
+        ) {
+          showError(
+            employerLetter,
+            "Diploma and/or transcript is mandatory for this experience level."
+          );
+          return false;
+        }
       }
       return true;
     }
 
     function handleAddressChange() {
-      if (addressUpdated.value === "Yes") {
+      if (addressUpdated && addressUpdated.value === "Yes") {
         window.open(
           "https://docs.google.com/forms/d/1AjR2hpVOLnUY9qT8a-mzdV4LVpMnwRPZydsavp7aDBY/edit",
           "_blank"
@@ -2394,108 +2176,59 @@ document.getElementById('waiverSaveBtn').addEventListener('click', function(e) {
       }
     }
 
-    addressUpdated.addEventListener("change", handleAddressChange);
-    experienceLevel.addEventListener("change", validateEmployerLetter);
+    if (addressUpdated) {
+      addressUpdated.addEventListener("change", handleAddressChange);
+    }
+    if (experienceLevel) {
+      experienceLevel.addEventListener("change", validateEmployerLetter);
+    }
 
     form.addEventListener("submit", function (event) {
+      console.log('[DEBUG] Form submit event fired');
+      // Remove 'required' from all hidden fields before validation
+      removeRequiredFromHiddenFields();
       clearErrors();
       let valid = true;
 
+      // Log key field values
+      console.log('[DEBUG] collegeEmail:', collegeEmail ? collegeEmail.value : null);
+      console.log('[DEBUG] experienceLevel:', experienceLevel ? experienceLevel.value : null);
+      console.log('[DEBUG] employerLetter:', employerLetter ? employerLetter.value : null);
+
       if (!validateEmail()) valid = false;
+      else console.log('[DEBUG] validateEmail passed');
       if (!validateEmployerLetter()) valid = false;
+      else console.log('[DEBUG] validateEmployerLetter passed');
 
-      if (!valid) event.preventDefault();
-    });
-  });
-</script>
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const nextButton = document.getElementById("nextStepBtn7");
-    const shiftSelect = document.getElementById("shift_requested");
-    const ltcDropdown = document.getElementById("ltc_facility_question");
-    const facilityInfoBox = document.getElementById("facility_info_box");
-    const emailField = document.getElementById("preferred_facility_email");
-
-    const requiredFields = ["shift_requested", "ltc_facility_question"];
-
-    const conditionalFields = [
-      "preferred_facility_name",
-      "preferred_facility_address",
-      "preferred_facility_contact_person",
-      "preferred_facility_email",
-    ];
-
-    function updateNextButtonState() {
-      let isValid = true;
-
-      // Validate required fields
-      for (const id of requiredFields) {
-        const el = document.getElementById(id);
-        if (
-          !el ||
-          el.value.trim() === "" ||
-          el.value === "Select your shift request"
-        ) {
-          isValid = false;
-          break;
-        }
+      console.log('[DEBUG] Final valid value:', valid);
+      if (!valid) {
+        event.preventDefault();
+        console.log('Form blocked due to validation errors.');
+      } else {
+        console.log('[DEBUG] Form will be submitted!');
       }
+    });
 
-      // Validate conditional LTC fields if Yes is selected
-      if (ltcDropdown.value === "Yes") {
-        for (const id of conditionalFields) {
-          const el = document.getElementById(id);
-          if (!el || el.value.trim() === "") {
-            isValid = false;
+    // Utility function to remove 'required' from all hidden fields
+    function removeRequiredFromHiddenFields() {
+      // Remove 'required' from all hidden inputs and selects
+      document.querySelectorAll('input[required], select[required], textarea[required]').forEach(function(field) {
+        // If field or any parent has display:none or .hidden
+        let el = field;
+        let isHidden = false;
+        while (el) {
+          const style = window.getComputedStyle(el);
+          if (style.display === 'none' || el.classList.contains('hidden')) {
+            isHidden = true;
             break;
           }
+          el = el.parentElement;
         }
-
-        // Email-specific validation
-        const emailValue = emailField.value.trim();
-        const emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i;
-        const isValidEmail = emailRegex.test(emailValue);
-        const isLongEnough = emailValue.length >= 8;
-
-        if (!(isValidEmail && isLongEnough)) {
-          isValid = false;
-        }
-      }
-
-      // Enable or disable the button
-      nextButton.disabled = !isValid;
-      nextButton.classList.toggle("opacity-50", !isValid);
-      nextButton.classList.toggle("cursor-not-allowed", !isValid);
-    }
-
-    function toggleFacilityFields() {
-      const shouldShow = ltcDropdown.value === "Yes";
-      facilityInfoBox.classList.toggle("hidden", !shouldShow);
-
-      conditionalFields.forEach((id) => {
-        const field = document.getElementById(id);
-        if (field) {
-          field.required = shouldShow;
+        if (isHidden) {
+          field.removeAttribute('required');
         }
       });
-
-      updateNextButtonState(); // Revalidate all fields
     }
-
-    // Attach listeners to all relevant fields
-    [...requiredFields, ...conditionalFields].forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener("input", updateNextButtonState);
-        el.addEventListener("change", updateNextButtonState);
-      }
-    });
-
-    ltcDropdown.addEventListener("change", toggleFacilityFields);
-
-    // Initial state on page load
-    toggleFacilityFields();
-    updateNextButtonState();
   });
 </script>
 
@@ -2597,3 +2330,7 @@ document.getElementById('waiverSaveBtn').addEventListener('click', function(e) {
 </style>
 
 {% endblock %}
+
+<!-- At the end, before </body> or {% endblock %} -->
+<script src="{% static 'placement_profile_form.js' %}"></script>
+
