@@ -29,28 +29,29 @@
 
   <!-- Responsive Table -->
   <div class="overflow-x-auto rounded-2xl shadow-xl border border-gray-100 bg-gradient-to-br from-white via-gray-50 to-gray-100">
-    <table class="min-w-full text-sm text-left text-gray-800">
+    <table class="min-w-full text-sm text-left text-gray-800 table-fixed" style="table-layout: fixed;">
       <thead class="bg-gradient-to-r from-teal-100 to-cyan-100 text-teal-800 uppercase text-xs font-bold">
         <tr>
-          <th class="px-6 py-4 whitespace-nowrap">Student ID</th>
-          <th class="px-6 py-4 whitespace-nowrap">Name</th>
-          <th class="px-6 py-4 whitespace-nowrap">Email</th>
-          <th class="px-6 py-4 whitespace-nowrap">Date Uploaded</th>
-          <th class="px-6 py-4 whitespace-nowrap">Status</th>
-          <th class="px-6 py-4 whitespace-nowrap">Rejection Reason</th>
-          <th class="px-6 py-4 whitespace-nowrap">Comment</th>
-          <th class="px-6 py-4 whitespace-nowrap">Actions</th>
+          <th class="px-3 py-2 whitespace-nowrap break-words" style="width: 110px;">Student ID</th>
+          <th class="px-3 py-2 whitespace-nowrap break-words" style="width: 140px;">Name</th>
+          <th class="px-3 py-2 whitespace-nowrap break-words" style="width: 220px;">Email</th>
+          <th class="px-3 py-2 whitespace-nowrap break-words" style="width: 120px;">Date Uploaded</th>
+          <th class="px-3 py-2 whitespace-nowrap break-words" style="width: 100px;">Status</th>
+          <th class="px-3 py-2 whitespace-nowrap break-words" style="width: 120px;">Action Date</th>
+          <th class="px-3 py-2 whitespace-nowrap break-words" style="width: 180px;">Rejection Reason</th>
+          <th class="px-3 py-2 whitespace-nowrap break-words" style="width: 180px;">Comment</th>
+          <th class="px-3 py-2 whitespace-nowrap break-words sticky right-0 z-10 bg-gradient-to-r from-teal-50 via-white to-white border-l-2 border-teal-500" style="min-width: 240px;">Actions</th>
         </tr>
       </thead>
-      <tbody class="divide-y divide-gray-200">
+      <tbody>
         {% for entry in skills_data %}
-        <tr class="hover:bg-gradient-to-r hover:from-teal-50 hover:to-cyan-50 transition-all">
-          <td class="px-6 py-3 align-middle">{{ entry.student_id }}</td>
-          <td class="px-6 py-3 align-middle">{{ entry.first_name }} {{ entry.last_name }}</td>
-          <td class="px-6 py-3 align-middle break-all">{{ entry.email }}</td>
-          <td class="px-6 py-3 align-middle">{{ entry.uploaded_at|date:'Y-m-d H:i' }}</td>
-          <td class="px-6 py-3 align-middle">
-            <span id="status-{{ entry.doc_id }}" class="inline-block px-3 py-1 rounded-full font-semibold tracking-wide text-xs
+        <tr class="hover:bg-gradient-to-r hover:from-teal-50 hover:to-cyan-50 transition-all border-b-2 border-teal-200">
+          <td class="px-3 py-2 align-middle break-words whitespace-normal">{{ entry.student_id }}</td>
+          <td class="px-3 py-2 align-middle break-words whitespace-normal">{{ entry.first_name }} {{ entry.last_name }}</td>
+          <td class="px-3 py-2 align-middle break-words whitespace-normal">{{ entry.email }}</td>
+          <td class="px-3 py-2 align-middle break-words whitespace-normal">{{ entry.uploaded_at|date:'Y-m-d H:i' }}</td>
+          <td class="px-3 py-2 align-middle break-words whitespace-nowrap">
+            <span id="status-{{ entry.doc_id }}" class="inline-block px-3 py-1 rounded-full font-semibold tracking-wide text-xs whitespace-nowrap
               {% if entry.status == 'Approved' %}bg-green-100 text-green-700
               {% elif entry.status == 'Rejected' %}bg-red-100 text-red-700
               {% elif entry.status == 'In Review' %}bg-yellow-100 text-yellow-700
@@ -58,22 +59,29 @@
               <i class="fas fa-circle mr-1 text-xs align-middle"></i> {{ entry.status }}
             </span>
           </td>
-          <td class="px-6 py-3 align-middle rejection-reason">
+          <td class="px-3 py-2 align-middle break-words whitespace-normal">
+            {% if entry.latest_approval %}
+              <span class="text-gray-700">{{ entry.latest_approval.timestamp|date:'Y-m-d H:i' }}</span>
+            {% else %}
+              <span class="text-gray-400">N/A</span>
+            {% endif %}
+          </td>
+          <td class="px-3 py-2 align-middle rejection-reason break-words whitespace-normal">
             {% if entry.rejection_reason %}
               <span class="text-red-600">{{ entry.rejection_reason }}</span>
             {% else %}
               <span class="text-gray-400">N/A</span>
             {% endif %}
           </td>
-          <td class="px-6 py-3 align-middle">
+          <td class="px-3 py-2 align-middle break-words whitespace-normal">
             {% if entry.latest_comment %}
               <span class="text-gray-700"><i class="fas fa-comment mr-1"></i>{{ entry.latest_comment }}</span>
             {% else %}
               <span class="text-gray-400">N/A</span>
             {% endif %}
           </td>
-          <td class="px-6 py-3 align-middle">
-            <div class="flex flex-row flex-wrap gap-2 items-center justify-center">
+          <td class="px-3 py-2 align-middle sticky right-0 z-10 bg-gradient-to-r from-teal-50 via-white to-white border-l-2 border-teal-500 whitespace-nowrap" style="min-width: 240px;">
+            <div class="flex flex-row flex-nowrap gap-2 items-center justify-center whitespace-nowrap">
               <button type="button" class="action-btn-icon" onclick="handleApprove({{ entry.doc_id }})" aria-label="Approve" data-tooltip="Approve Passbook">
                 <i class="fas fa-check"></i>
               </button>
@@ -91,7 +99,7 @@
         </tr>
         {% empty %}
         <tr>
-          <td colspan="8" class="px-6 py-8 text-center text-gray-400">No Skills Passbook submissions found.</td>
+          <td colspan="9" class="px-6 py-8 text-center text-gray-400">No Skills Passbook submissions found.</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -170,7 +178,7 @@
       .tooltip { min-width: 80px; font-size: 0.7em; }
       table th, table td { padding-left: 0.5em !important; padding-right: 0.5em !important; }
     }
-    table { border-collapse: separate; border-spacing: 0; border-radius: 1.5rem; overflow: hidden; }
+    table { border-collapse: separate; border-spacing: 0; border-radius: 1.5rem; overflow: hidden; table-layout: fixed; }
     thead tr { border-radius: 1.5rem; }
     tbody tr { border-radius: 1.5rem; }
     tbody tr:hover { background: linear-gradient(90deg, #e0f7fa 0%, #f1f8e9 100%); }
@@ -194,6 +202,13 @@
     }
     #notification.hidden {
       display: none;
+    }
+    th.sticky, td.sticky {
+      position: sticky;
+      right: 0;
+      z-index: 10;
+      background: linear-gradient(to right, #f0fdfa 80%, #fff 100%);
+      border-left: 2px solid #14b8a6;
     }
   </style>
 </div>
@@ -242,6 +257,14 @@ function handleApprove(docId) {
     if (data.document) {
       document.getElementById(`status-${docId}`).innerHTML = `<i class='fas fa-circle mr-1 text-xs align-middle'></i> Approved`;
       document.getElementById(`status-${docId}`).className = 'inline-block px-3 py-1 rounded-full font-semibold tracking-wide text-xs bg-green-100 text-green-700';
+      
+      // Update the Action Date column
+      const row = document.getElementById(`status-${docId}`).closest('tr');
+      const actionDateCell = row.querySelector('td:nth-child(6)'); // Action Date column
+      if (actionDateCell && data.document.approval_timestamp) {
+        actionDateCell.innerHTML = `<span class="text-gray-700">${data.document.approval_timestamp}</span>`;
+      }
+      
       showNotification('Approved successfully!', 'success');
     } else {
       showNotification(data.error || 'Error approving.', 'error');
@@ -286,6 +309,13 @@ document.getElementById('rejectForm').onsubmit = function(e) {
       document.getElementById(`status-${docId}`).className = 'inline-block px-3 py-1 rounded-full font-semibold tracking-wide text-xs bg-red-100 text-red-700';
       const row = document.getElementById(`status-${docId}`).closest('tr');
       row.querySelector('.rejection-reason').innerHTML = `<span class='text-red-600'>${reason}</span>`;
+      
+      // Update the Action Date column
+      const actionDateCell = row.querySelector('td:nth-child(6)'); // Action Date column
+      if (actionDateCell && data.document.approval_timestamp) {
+        actionDateCell.innerHTML = `<span class="text-gray-700">${data.document.approval_timestamp}</span>`;
+      }
+      
       showNotification('Rejected successfully!', 'success');
       closeRejectModal();
     } else {

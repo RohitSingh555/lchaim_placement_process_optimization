@@ -1299,6 +1299,117 @@ def send_skills_passbook_approved_email(profile):
     email.content_subtype = "html"
     email.send()
 
+def send_skills_passbook_rejected_email(profile, rejection_reason):
+    """Send email notification when Skills Passbook is rejected."""
+    subject = "Skills Passbook Rejected - Action Required"
+    try:
+        student_id = profile.user.student_id_record.student_id
+    except Exception:
+        student_id = ""
+    
+    greeting_line = f"Dear {profile.first_name} {profile.last_name} with ID No. {student_id},"
+    message = f"""
+    <html>
+    <head>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                background: linear-gradient(to bottom, rgba(0, 128, 128, 0.1), #ffffff);
+                padding: 20px;
+                color: #333;
+            }}
+            .container {{
+                background-color: #ffffff;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                width: 100%;
+                margin: auto;
+            }}
+            h2 {{
+                color: #008080;
+                font-size: 24px;
+            }}
+            p {{
+                line-height: 1.6;
+                font-size: 16px;
+            }}
+            .footer {{
+                margin-top: 20px;
+                font-size: 14px;
+                color: #555;
+            }}
+            .footer a {{
+                color: #008080;
+                text-decoration: none;
+            }}
+            .bold {{
+                font-weight: bold;
+            }}
+            .highlight {{
+                color: #008080;
+            }}
+            .rejection-reason {{
+                background-color: #fff3cd;
+                border: 1px solid #ffeaa7;
+                border-radius: 5px;
+                padding: 15px;
+                margin: 15px 0;
+            }}
+            img {{
+                width: 240px;
+                height: 90px;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <p>{greeting_line}</p>
+            <p>Your Skills Passbook has been <span class="bold" style="color: #dc3545;">REJECTED</span> and requires correction.</p>
+            
+            <div class="rejection-reason">
+                <p><span class="bold">Reason for Rejection:</span></p>
+                <p>{rejection_reason}</p>
+            </div>
+            
+            <p>Please address the issues mentioned above and resubmit your Skills Passbook for review.</p>
+            
+            <p><span class="bold">Next Steps:</span></p>
+            <ol>
+                <li>Review the rejection reason carefully</li>
+                <li>Make the necessary corrections to your Skills Passbook</li>
+                <li>Resubmit the corrected document through your profile</li>
+                <li>Wait for the next review</li>
+            </ol>
+            
+            <p>If you have any questions about the rejection or need clarification, please contact us.</p>
+            
+            <div class="footer">
+                <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
+                <span>Warm regards, </span>
+                <br>
+                <span> The Peak Healthcare Team</span>
+                <br>
+                <span>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></span>
+                <br>
+                <img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg"></img>
+                <br>
+                <span>1140 Sheppard Ave West</span>
+                <br>
+                <span>Unit #12, North York, ON</span>
+                <br>
+                <span>M3K 2A2</span>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
+    recipients = [profile.college_email, 'ara@peakcollege.ca']
+    email = EmailMessage(subject, message, to=recipients)
+    email.content_subtype = "html"
+    email.send()
+
 @csrf_exempt
 @user_passes_test(lambda u: u.is_superuser)
 def approve_document(request, document_id):
@@ -1317,7 +1428,8 @@ def approve_document(request, document_id):
         document.rejection_reason = rejection_reason if action == DocumentStatus.REJECTED.value else None
         document.save()
 
-        ApprovalLog.objects.create(
+        # Create approval log with timestamp (timestamp is automatically added by Django)
+        approval_log = ApprovalLog.objects.create(
             approver=approver,
             document=document,
             action=action,
@@ -1329,12 +1441,15 @@ def approve_document(request, document_id):
             document.profile.required_hours = 200
             document.profile.save()
 
-        # If approved and document type is Skills Passbook, update stage and send email
+        # If approved and document type is Skills Passbook, update stage to DONE and send email
         if action == DocumentStatus.APPROVED.value and document.document_type == "Skills Passbook":
-            if document.profile.stage == "IN_PLACEMENT":
-                document.profile.stage = "READY"
-                document.profile.save()
+            document.profile.stage = "DONE"
+            document.profile.save()
             send_skills_passbook_approved_email(document.profile)
+
+        # If rejected and document type is Skills Passbook, send rejection email
+        if action == DocumentStatus.REJECTED.value and document.document_type == "Skills Passbook":
+            send_skills_passbook_rejected_email(document.profile, rejection_reason)
 
         # Send placement notification
         message = f"Your document '{document.document_type}' has been {action.lower()}."
@@ -1356,6 +1471,7 @@ def approve_document(request, document_id):
                 "rejection_reason": document.rejection_reason,
                 "uploaded_at": document.uploaded_at.strftime("%Y-%m-%d %H:%M:%S"),
                 "file": document.file.url if document.file else None,
+                "approval_timestamp": approval_log.timestamp.strftime("%Y-%m-%d %H:%M:%S") if approval_log.timestamp else None,
             }
         }, status=200)
 
