@@ -240,3 +240,24 @@ class City(models.Model):
 
     class Meta:
         unique_together = ('name', 'province')  # allow same city name in different provinces
+
+class ActionLog(models.Model):
+    ACTION_CHOICES = [
+        ("remind_fee", "Remind Fee"),
+        ("notify_result", "Notify Result"),
+        ("done", "Done"),
+        ("notify_placement", "Notify Placement"),
+        ("view", "View"),
+    ]
+    student_id = models.CharField(max_length=50)
+    profile = models.ForeignKey(PlacementProfile, on_delete=models.CASCADE, related_name="action_logs")
+    action = models.CharField(max_length=30, choices=ACTION_CHOICES)
+    performed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    extra_info = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.student_id} - {self.action} at {self.timestamp}"  
+
+    class Meta:
+        unique_together = ('profile', 'action')  

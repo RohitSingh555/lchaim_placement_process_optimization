@@ -94,10 +94,10 @@
                             </p>
                         
                             <div class="space-y-1">
-                              <p class="flex items-center space-x-2">
+                              {% comment %} <p class="flex items-center space-x-2">
                                 <i class="fas fa-map-marked-alt text-teal-500"></i>
                                 <span><strong>Open to Other Cities:</strong> {{ profile.city_preference_1|yesno:"Yes,No" }}</span>
-                              </p>
+                              </p> {% endcomment %}
                               <div class="ml-6 text-sm text-gray-600 space-y-2">
                                 {% if profile.city_preference_1 %}
                                   <p class="flex items-center space-x-2">
@@ -170,21 +170,17 @@
                               {% endif %}
                             </div>
                         
-                        <p class="flex items-start space-x-2">
-  <i class="fas fa-file-alt text-red-500 mt-1"></i>
-  <span>
-    <strong>Missing Documents:</strong>
-    {% if missing_documents %}
-      <ul class="list-disc list-inside text-sm text-gray-700">
-        {% for doc in missing_documents %}
-          <li>{{ doc }}</li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <span class="text-green-600">All required documents uploaded</span>
-    {% endif %}
-  </span>
-</p>
+                            <p class="flex items-start space-x-2">
+                              <i class="fas fa-file-alt text-red-500 mt-1"></i>
+                              <span>
+                                <strong>Missing Documents:</strong>
+                                {% if missing_documents %}
+                                  <span class="text-red-600">{{ missing_documents|length }}</span>
+                                {% else %}
+                                  <span class="text-green-600">0</span>
+                                {% endif %}
+                              </span>
+                            </p>
 
 
                             <p class="flex items-center space-x-2">
@@ -517,14 +513,14 @@
                                 <i class="fas fa-mail-bulk text-teal-500"></i>
                                 <span><strong>Postal Code:</strong> {{ profile.postal_code }}</span>
                             </p>
-                            <p class="flex items-center space-x-2">
+                            {% comment %} <p class="flex items-center space-x-2">
                                 <i class="fas fa-globe-americas text-teal-500"></i>
                                 <span><strong>Open to Other Cities:</strong> {{ profile.open_to_outside_city|yesno:"Yes,No" }}</span>
-                            </p>
+                            </p> {% endcomment %}
                         </div>
                     </div>
                 
-                    <div class="bg-white border border-gray-200 rounded-lg shadow-md p-6 w-full max-w-6xl mx-auto">
+                    {% comment %} <div class="bg-white border border-gray-200 rounded-lg shadow-md p-6 w-full max-w-6xl mx-auto">
                         <h4 class="text-lg font-semibold text-teal-700 mb-4 flex items-center space-x-2">
                             <i class="fas fa-map-marker-alt"></i>
                             <span>Facility Address Information</span>
@@ -545,7 +541,7 @@
                                 <span><strong>Facility Contact:</strong> {{ profile.preferred_facility_contact_person }}</span>
                             </p>
                         </div>
-                    </div>
+                    </div> {% endcomment %}
                 </div>
                 
   </div>

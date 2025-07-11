@@ -3,83 +3,90 @@
 {% load forms_extras %}
 
 {% block content %}
-<div class="max-w-lg mx-auto p-6">
-    <h2 class="text-2xl font-semibold text-center mb-4">Login</h2>
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-teal-100 via-white to-white" style="background: linear-gradient(160deg, #d1fae5 0%, #ffffff 80%);">
+  <div class="max-w-lg w-full p-4 sm:p-6 bg-white rounded-2xl shadow-xl border border-gray-200 animate-fadeInUp">
+    <h2 class="text-3xl font-extrabold text-center mb-6 bg-gradient-to-r from-teal-600 via-teal-400 to-cyan-400 text-transparent bg-clip-text drop-shadow-md tracking-wide">Login</h2>
 
     <form method="POST" class="space-y-4">
-        {% csrf_token %}
-
-        <!-- College Email Field -->
-        <div>
-            <label for="college_email" class="block text-sm font-medium text-gray-700">College Email</label>
-            <input type="email" name="username" id="college_email"
-                class="block w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                required>
+      {% csrf_token %}
+      <!-- College Email Field -->
+      <div>
+        <label for="college_email" class="block text-sm font-semibold text-gray-700 mb-1">College Email</label>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 pointer-events-none">
+            <i class="fa fa-envelope"></i>
+          </span>
+          <input type="email" name="username" id="college_email"
+            class="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500 bg-gray-50 placeholder-gray-400 text-base transition-all"
+            required>
         </div>
-
-        <!-- Password Field -->
-        <div>
-            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-            <input type="password" name="password" id="password"
-                class="block w-full px-4 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                required>
+      </div>
+      <!-- Password Field -->
+      <div>
+        <label for="password" class="block text-sm font-semibold text-gray-700 mb-1">Password</label>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 pointer-events-none">
+            <i class="fa fa-lock"></i>
+          </span>
+          <input type="password" name="password" id="password"
+            class="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500 bg-gray-50 placeholder-gray-400 text-base transition-all"
+            required>
+          <span class="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer" onclick="togglePassword('password', 'togglePasswordIcon')">
+            <i id="togglePasswordIcon" class="fa fa-eye-slash text-gray-500"></i>
+          </span>
         </div>
-
-        <!-- Display error message if authentication fails -->
-        {% if error_message %}
-            <p class="text-red-600 text-center">{{ error_message }}</p>
-        {% endif %}
-
-        <!-- Submit Button -->
-        <button type="submit" class="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Login</button>
+      </div>
+      <!-- Display error message if authentication fails -->
+      {% if error_message %}
+        <p class="text-red-600 text-center">{{ error_message }}</p>
+      {% endif %}
+      <!-- Submit Button -->
+      <button type="submit" class="w-full py-2 bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-lg font-semibold shadow hover:from-teal-600 hover:to-cyan-600 transition-all text-lg mt-2">Login</button>
     </form>
-
     <div class="mt-6 text-center">
-        <p>Don't have an account? <a href="{% url 'signup' %}" class="text-blue-600 hover:underline">Sign up</a></p>
-        <p class="mt-2"><a href="{% url 'password_reset' %}" class="text-blue-600 hover:underline">Forgot Password?</a></p>
+      <p class="text-gray-600">Don't have an account? <a href="{% url 'signup' %}" class="text-teal-600 hover:underline font-semibold">Sign up</a></p>
+      <p class="mt-2"><a href="{% url 'password_reset' %}" class="text-teal-600 hover:underline font-semibold">Forgot Password?</a></p>
     </div>
-</div>
-
-<!-- Message Popup (Only visible when there are messages) -->
-{% if messages %}
-    <div id="popup-message"
-         class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-3 transition-opacity duration-300">
+    {% if messages %}
+      <div id="popup-message"
+           class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-3 transition-opacity duration-300">
         <i class="fas fa-check-circle text-lg"></i>
         <p class="text-sm font-medium">
-            {% for message in messages %}
-                {{ message }}
-            {% endfor %}
+          {% for message in messages %}
+            {{ message }}
+          {% endfor %}
         </p>
-    </div>
-
-    <script>
+      </div>
+      <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const popup = document.getElementById("popup-message");
-            if (popup) {
-                setTimeout(() => {
-                    popup.classList.add("opacity-0");
-                    setTimeout(() => popup.remove(), 500);
-                }, 2000);
-            }
+          const popup = document.getElementById("popup-message");
+          if (popup) {
+            setTimeout(() => {
+              popup.classList.add("opacity-0");
+              setTimeout(() => popup.remove(), 500);
+            }, 2000);
+          }
         });
-    </script>
-{% endif %}
-
+      </script>
+    {% endif %}
+  </div>
+</div>
 <script>
-    // Function to toggle password visibility
-    function togglePassword(passwordFieldId, iconId) {
-        const passwordField = document.getElementById(passwordFieldId);
-        const icon = document.getElementById(iconId);
-
-        if (passwordField.type === "password") {
-            passwordField.type = "text";
-            icon.classList.remove("fa-eye-slash");
-            icon.classList.add("fa-eye");
-        } else {
-            passwordField.type = "password";
-            icon.classList.remove("fa-eye");
-            icon.classList.add("fa-eye-slash");
-        }
+  // Function to toggle password visibility
+  function togglePassword(passwordFieldId, iconId) {
+    const passwordField = document.getElementById(passwordFieldId);
+    const icon = document.getElementById(iconId);
+    if (passwordField.type === "password") {
+      passwordField.type = "text";
+      icon.classList.remove("fa-eye-slash");
+      icon.classList.add("fa-eye");
+    } else {
+      passwordField.type = "password";
+      icon.classList.remove("fa-eye");
+      icon.classList.add("fa-eye-slash");
     }
+  }
 </script>
+<!-- FontAwesome for Eye Icons -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
 {% endblock %}

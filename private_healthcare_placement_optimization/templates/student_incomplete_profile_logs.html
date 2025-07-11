@@ -34,7 +34,7 @@
 }
 </style>
 <h2 
-  class="text-4xl font-extrabold text-center mb-12 bg-gradient-to-r from-red-600 via-orange-400 to-yellow-400 text-transparent bg-clip-text drop-shadow-md tracking-wide opacity-0 translate-y-4 animate-fadeInUp"
+  class="text-4xl pt-6 font-extrabold text-center mb-12 bg-gradient-to-r from-red-600 via-orange-400 to-yellow-400 text-transparent bg-clip-text drop-shadow-md tracking-wide opacity-0 translate-y-4 animate-fadeInUp"
 >
   Incomplete Student Placement Profiles
 </h2>
@@ -459,18 +459,30 @@
                     <i class="fas fa-credit-card"></i>
                     <span>Remind Fee</span>
                   </button>
+                  {% if profile.action_log_times.remind_fee %}
+                    <div class="text-xs text-gray-500 mt-1 mb-2">Last used: {{ profile.action_log_times.remind_fee }}</div>
+                  {% endif %}
                   <button onclick="sendEmailAction('{{ profile.profile_id }}', 'notify_result'); closeActionModal('{{ profile.profile_id }}')" class="w-full text-left bg-blue-500 text-white px-3 py-2 rounded-md hover:bg-blue-600 flex items-center space-x-2">
                     <i class="fas fa-bell"></i>
                     <span>Notify Result</span>
                   </button>
+                  {% if profile.action_log_times.notify_result %}
+                    <div class="text-xs text-gray-500 mt-1 mb-2">Last used: {{ profile.action_log_times.notify_result }}</div>
+                  {% endif %}
                   <button onclick="sendEmailAction('{{ profile.profile_id }}', 'done'); closeActionModal('{{ profile.profile_id }}')" class="w-full text-left bg-green-500 text-white px-3 py-2 rounded-md hover:bg-green-600 flex items-center space-x-2">
                     <i class="fas fa-check-circle"></i>
                     <span>Done</span>
                   </button>
+                  {% if profile.action_log_times.done %}
+                    <div class="text-xs text-gray-500 mt-1 mb-2">Last used: {{ profile.action_log_times.done }}</div>
+                  {% endif %}
                   <button onclick="sendEmailAction('{{ profile.profile_id }}', 'notify_placement'); closeActionModal('{{ profile.profile_id }}')" class="w-full text-left bg-orange-500 text-white px-3 py-2 rounded-md hover:bg-orange-600 flex items-center space-x-2">
                     <i class="fas fa-building"></i>
                     <span>Notify Placement</span>
                   </button>
+                  {% if profile.action_log_times.notify_placement %}
+                    <div class="text-xs text-gray-500 mt-1 mb-2">Last used: {{ profile.action_log_times.notify_placement }}</div>
+                  {% endif %}
                 {% endif %}
                 {% if is_superuser %}
                   {% if only_users_no_profile %}
@@ -651,7 +663,14 @@
                                 {% endif %}
                                 <p class="text-xs text-gray-600 px-2">
                                   <span class="document-status {{ document.status|lower }}">
-                                    {% if document.file %}{{ document.status }}{% else %}<span class="text-red-500">File Not Uploaded</span>{% endif %}
+                                    {% if document.file %}
+                                      {{ document.status }}
+                                      {% if document.uploaded_at %}
+                                        <span class="text-gray-500 ml-2">({{ document.uploaded_at|format_long_date }})</span>
+                                      {% endif %}
+                                    {% else %}
+                                      <span class="text-red-500">File Not Uploaded</span>
+                                    {% endif %}
                                   </span>
                                 </p>
                               </div>
@@ -692,7 +711,14 @@
                                 {% endif %}
                                 <p class="text-xs text-gray-600 px-2">
                                   <span class="document-status {{ document.status|lower }}">
-                                    {% if document.file %}{{ document.status }}{% else %}<span class="text-red-500">File Not Uploaded</span>{% endif %}
+                                    {% if document.file %}
+                                      {{ document.status }}
+                                      {% if document.uploaded_at %}
+                                        <span class="text-gray-500 ml-2">({{ document.uploaded_at|format_long_date }})</span>
+                                      {% endif %}
+                                    {% else %}
+                                      <span class="text-red-500">File Not Uploaded</span>
+                                    {% endif %}
                                   </span>
                                 </p>
                                 {% if document.rejection_reason %}

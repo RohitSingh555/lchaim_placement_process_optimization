@@ -29,17 +29,14 @@
         <label class="block text-sm font-medium text-gray-700 mb-1">
           Orientation Date
         </label>
-        <select
-          name="orientation_id"
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-teal-500 focus:border-teal-500"
-        >
-          <option value="">Select a Date</option>
-          {% for date in orientation_dates %}
-          <option value="{{ date.id }}">
-            {{ date.orientation_date|date:"M d, Y" }}
-          </option>
-          {% endfor %}
-        </select>
+        <input
+          type="text"
+          id="orientation-date-picker"
+          name="orientation_date"
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-teal-500 focus:border-teal-500 transition duration-150 ease-in-out shadow-sm hover:border-teal-400 hover:shadow-md"
+          placeholder="Select a date"
+          readonly
+        />
       </div>
 
       <div class="w-full md:w-auto mt-4 md:mt-7">
@@ -181,7 +178,38 @@
   </form>
 </div>
 
+{% block extra_head %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <style>
+    /* Custom highlight for orientation dates */
+    .flatpickr-day.orientation-highlight {
+      background: linear-gradient(135deg, #14b8a6 60%, #2dd4bf 100%);
+      color: #fff;
+      font-weight: bold;
+      border-radius: 50% !important;
+      box-shadow: 0 2px 8px rgba(20,184,166,0.15);
+      border: 2px solid #0f766e;
+      transition: background 0.2s, color 0.2s;
+    }
+    .flatpickr-day.orientation-highlight:hover {
+      background: linear-gradient(135deg, #0f766e 60%, #14b8a6 100%);
+      color: #fff;
+    }
+    /* Message styling */
+    .no-orientation-msg {
+      color: #0f766e;
+      font-size: 1rem;
+      text-align: center;
+      margin: 1.5em 0 0.5em 0;
+      font-weight: 600;
+      background: #f0fdfa;
+      border-radius: 0.5em;
+      padding: 0.5em 0.5em;
+    }
+  </style>
+{% endblock %}
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
   function toggleSelectAll(source) {
     const checkboxes = document.querySelectorAll(".user-checkbox");
@@ -202,6 +230,71 @@
         }
       });
     });
+
+    // Pass your orientation dates from Django to JS
+    const orientationDates = [
+      {% for date in orientation_dates %}
+        "{{ date.orientation_date|date:'Y-m-d' }}",
+      {% endfor %}
+    ];
+    // Use a Set for fast lookup
+    const orientationDateSet = new Set(orientationDates);
+
+    // Helper: get all orientation dates for a given month/year
+    function getMonthOrientationDates(year, month) {
+      return orientationDates.filter(dateStr => {
+        const d = new Date(dateStr + 'T00:00:00');
+        return d.getFullYear() === year && d.getMonth() === month;
+      });
+    }
+
+    flatpickr("#orientation-date-picker", {
+      enable: orientationDates,
+      dateFormat: "Y-m-d",
+      allowInput: false,
+      clickOpens: true,
+      onDayCreate: function(dObj, dStr, fp, dayElem) {
+        // Highlight enabled/orientation dates (compare local date, not UTC)
+        const date = dayElem.dateObj;
+        const y = date.getFullYear();
+        const m = (date.getMonth() + 1).toString().padStart(2, '0');
+        const d = date.getDate().toString().padStart(2, '0');
+        const ymd = `${y}-${m}-${d}`;
+        if (orientationDateSet.has(ymd)) {
+          dayElem.classList.add("orientation-highlight");
+        }
+      },
+      onMonthChange: function(selectedDates, dateStr, instance) {
+        showNoOrientationMsg(instance);
+      },
+      onOpen: function(selectedDates, dateStr, instance) {
+        showNoOrientationMsg(instance);
+      },
+      onYearChange: function(selectedDates, dateStr, instance) {
+        showNoOrientationMsg(instance);
+      }
+    });
+
+    function showNoOrientationMsg(instance) {
+      // Remove any previous message
+      const cal = instance.calendarContainer;
+      let msg = cal.querySelector('.no-orientation-msg');
+      if (msg) msg.remove();
+      // Get current month/year
+      const month = instance.currentMonth;
+      const year = instance.currentYear;
+      const monthDates = getMonthOrientationDates(year, month);
+      if (monthDates.length === 0) {
+        // Insert message below days grid
+        const days = cal.querySelector('.flatpickr-days');
+        if (days) {
+          msg = document.createElement('div');
+          msg.className = 'no-orientation-msg';
+          msg.textContent = 'No orientation dates in this month';
+          days.parentNode.insertBefore(msg, days.nextSibling);
+        }
+      }
+    }
 
     // Search by Name
     const searchInput = document.getElementById("search-bar");

@@ -12,7 +12,7 @@ from django.core.mail import EmailMessage
 from django.views import View
 
 from private_healthcare_placement_optimization.templatetags.forms_extras import document_group, allowed_docs
-from .models import PlacementProfile, Document
+from .models import PlacementProfile, Document, ActionLog
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import redirect, render
@@ -52,9 +52,11 @@ from .models import (
     PlacementNotification,
     PlacementProfile,
     StudentID,
+    ActionLog
 )
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 
+from PyPDF2 import PdfMerger
 
 def staff_required(view_func):
     return user_passes_test(lambda u: u.is_staff)(view_func)
@@ -219,8 +221,6 @@ class PlacementProfileView(View):
         })
 
     def post(self, request):
-        print("POST Data:", request.POST)
-        print("FILES Data:", request.FILES)
 
         user = request.user
         college_email = user.email 
@@ -351,6 +351,43 @@ class PlacementProfileView(View):
                 print(f"Documents incomplete email sent to {profile.college_email}")
             except Exception as e:
                 print(f"Error sending incomplete documents email: {e}")
+
+        # After all documents are uploaded, check for medical requirements
+        MEDICAL_REQUIREMENTS = [
+            'Medical Certificate Form',
+            'X-Ray Result',
+            'MMR Lab/Vax Record',
+            'Varicella Lab/Vax Record',
+            'TDAP Vax Record',
+            'Hepatitis A Lab/Vax Record',
+            'Hepatitis B Lab/Vax Record',
+        ]
+        # Get all medical requirement docs for this profile
+        medical_docs = Document.objects.filter(profile=profile, document_type__in=MEDICAL_REQUIREMENTS)
+        # Only proceed if all are uploaded and are PDFs
+        if medical_docs.count() == len(MEDICAL_REQUIREMENTS) and all(doc.file and doc.file.name.lower().endswith('.pdf') for doc in medical_docs):
+            pdf_paths = [doc.file.path for doc in medical_docs]
+            safe_first_name = re.sub(r'\W+', '_', first_name or '').strip('_')
+            safe_last_name = re.sub(r'\W+', '_', last_name or '').strip('_')
+            merged_medical_pdf_name = f"{safe_first_name}_{safe_last_name}_MedCert.pdf"
+            merged_medical_pdf_dir = os.path.join(settings.MEDIA_ROOT, "documents", "uploads")
+            os.makedirs(merged_medical_pdf_dir, exist_ok=True)
+            merged_medical_pdf_path = os.path.join(merged_medical_pdf_dir, merged_medical_pdf_name)
+            merge_pdfs(pdf_paths, merged_medical_pdf_path)
+            # Save merged file to storage
+            with open(merged_medical_pdf_path, 'rb') as f:
+                merged_file_content = ContentFile(f.read())
+                merged_file_storage_path = default_storage.save(os.path.join("documents/uploads", merged_medical_pdf_name), merged_file_content)
+            # Create or update Document entry for merged PDF
+            Document.objects.update_or_create(
+                profile=profile,
+                document_type='Merged Medical Certificate',
+                defaults={
+                    'file': merged_file_storage_path,
+                    'file_name': merged_medical_pdf_name,
+                    'status': 'In Review',
+                }
+            )
 
         return redirect('student_profile_logs')
     
@@ -667,7 +704,7 @@ class StudentProfileLogsView(View):
 ]
 
     REQUIRED_DOCUMENTS = {
-        "Medical Certificate",
+        "Medical Certificate Form",
         "Covid Vaccination Certificate",
         "Vulnerable Sector Check",
         "CPR & First Aid",
@@ -799,19 +836,21 @@ class StudentProfileLogsView(View):
                     'document_type': doc.document_type,
                     'file': doc.file.url if doc.file else None,
                     'rejection_reason': doc.rejection_reason,
-                    'uploaded_at': doc.uploaded_at.strftime("%Y-%m-%d %H:%M:%S"),
+                    'uploaded_at': doc.uploaded_at,  # Pass as datetime object
                     'approval_logs': approver_actions
                 })
 
 
+            all_doc_types = [d.document_type for d in docs_sorted]
+            merged_present = 'Merged Medical Certificate' in all_doc_types
+
             for doc in docs_sorted:
-                group = document_group(doc.document_type)
+                group = document_group(doc.document_type, all_doc_types)
                 if not group:
                     continue  # Skip documents not in any known group
-                
+
                 latest_approval = ApprovalLog.objects.filter(document=doc, action="Approved").order_by('-timestamp').first()
                 approval_logs = ApprovalLog.objects.filter(document=doc)
-
                 approver_actions = [
                     {
                         "approver": log.approver.full_name if log.approver else "Unknown",
@@ -821,16 +860,21 @@ class StudentProfileLogsView(View):
                     }
                     for log in approval_logs
                 ]
-
                 doc_info = {
                     'id': doc.id,
                     'status': doc.status,
                     'document_type': doc.document_type,
                     'file': doc.file.url if doc.file else None,
                     'rejection_reason': doc.rejection_reason,
-                    'uploaded_at': doc.uploaded_at.strftime("%Y-%m-%d %H:%M:%S") if doc.uploaded_at else "N/A",
+                    'uploaded_at': doc.uploaded_at if doc.uploaded_at else None,
                     'approval_logs': approver_actions
                 }
+
+                # If merged is present, only add the merged doc to the group, and skip all others
+                if group == 'Medical Requirements' and merged_present:
+                    if doc.document_type == 'Merged Medical Certificate':
+                        grouped_documents[group] = [doc_info]  # Set only once
+                    continue  # Skip all other medical docs
 
                 grouped_documents[group].append(doc_info)
             
@@ -880,7 +924,14 @@ class StudentProfileLogsView(View):
                 else:
                     experience_document_result = "Uploaded"
                 
-            print(grouped_documents)
+            # Action log times
+            action_log_times = {}
+            for action in ["remind_fee", "notify_result", "done", "notify_placement"]:
+                last_log = ActionLog.objects.filter(profile=profile, action=action).order_by('-timestamp').first()
+                if last_log:
+                    action_log_times[action] = last_log.timestamp.strftime('%Y-%m-%d %H:%M')
+                else:
+                    action_log_times[action] = None
             filtered_profile_details.append({
                 'profile_id': profile.id,
                 'first_name': profile.first_name,
@@ -930,6 +981,7 @@ class StudentProfileLogsView(View):
                 'missing_documents': missing_documents,
                 'skills_passbook_result': skills_passbook_result,
                 'experience_document_result': experience_document_result,
+                'action_log_times': action_log_times,
             })
         # Pagination (10 items per page)
         paginator = Paginator(filtered_profile_details, 10)
@@ -968,7 +1020,7 @@ class StudentIncompleteProfileLogsView(View):
     "Documents Required After Placement Completion"
 ]
     REQUIRED_DOCUMENTS = {
-        "Medical Certificate",
+        "Medical Certificate Form",
         "Covid Vaccination Certificate",
         "Vulnerable Sector Check",
         "CPR & First Aid",
@@ -1113,14 +1165,21 @@ class StudentIncompleteProfileLogsView(View):
                     'document_type': doc.document_type,
                     'file': doc.file.url if doc.file else None,
                     'rejection_reason': doc.rejection_reason,
-                    'uploaded_at': doc.uploaded_at.strftime("%Y-%m-%d %H:%M:%S"),
+                    'uploaded_at': doc.uploaded_at,  # Pass as datetime object
                     'approval_logs': approver_actions
                 })
             grouped_documents = OrderedDict((group, []) for group in self.DOCUMENT_GROUP_ORDER)
+            # --- Custom logic for Medical Requirements group ---
+            merged_medical_doc = None
+            for doc in docs_sorted:
+                if doc.document_type == 'Merged Medical Certificate':
+                    merged_medical_doc = doc
+                    break
+            # Always build all groups except Medical Requirements first
             for doc in docs_sorted:
                 group = document_group(doc.document_type)
-                if not group:
-                    continue  # Skip documents not in any known group
+                if not group or group == 'Medical Requirements':
+                    continue
                 latest_approval = ApprovalLog.objects.filter(document=doc, action="Approved").order_by('-timestamp').first()
                 approval_logs = ApprovalLog.objects.filter(document=doc)
                 approver_actions = [
@@ -1138,10 +1197,60 @@ class StudentIncompleteProfileLogsView(View):
                     'document_type': doc.document_type,
                     'file': doc.file.url if doc.file else None,
                     'rejection_reason': doc.rejection_reason,
-                    'uploaded_at': doc.uploaded_at.strftime("%Y-%m-%d %H:%M:%S") if doc.uploaded_at else "N/A",
+                    'uploaded_at': doc.uploaded_at if doc.uploaded_at else None,
                     'approval_logs': approver_actions
                 }
                 grouped_documents[group].append(doc_info)
+            # Now handle Medical Requirements group
+            if merged_medical_doc:
+                group = document_group(merged_medical_doc.document_type)
+                latest_approval = ApprovalLog.objects.filter(document=merged_medical_doc, action="Approved").order_by('-timestamp').first()
+                approval_logs = ApprovalLog.objects.filter(document=merged_medical_doc)
+                approver_actions = [
+                    {
+                        "approver": log.approver.full_name if log.approver else "Unknown",
+                        "action": log.action,
+                        "reason": log.reason,
+                        "timestamp": log.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                    for log in approval_logs
+                ]
+                doc_info = {
+                    'id': merged_medical_doc.id,
+                    'status': merged_medical_doc.status,
+                    'document_type': merged_medical_doc.document_type,
+                    'file': merged_medical_doc.file.url if merged_medical_doc.file else None,
+                    'rejection_reason': merged_medical_doc.rejection_reason,
+                    'uploaded_at': merged_medical_doc.uploaded_at if merged_medical_doc.uploaded_at else None,
+                    'approval_logs': approver_actions
+                }
+                grouped_documents['Medical Requirements'] = [doc_info]
+            else:
+                # Only add individual medical docs if merged does not exist
+                for doc in docs_sorted:
+                    if document_group(doc.document_type) != 'Medical Requirements':
+                        continue
+                    latest_approval = ApprovalLog.objects.filter(document=doc, action="Approved").order_by('-timestamp').first()
+                    approval_logs = ApprovalLog.objects.filter(document=doc)
+                    approver_actions = [
+                        {
+                            "approver": log.approver.full_name if log.approver else "Unknown",
+                            "action": log.action,
+                            "reason": log.reason,
+                            "timestamp": log.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+                        }
+                        for log in approval_logs
+                    ]
+                    doc_info = {
+                        'id': doc.id,
+                        'status': doc.status,
+                        'document_type': doc.document_type,
+                        'file': doc.file.url if doc.file else None,
+                        'rejection_reason': doc.rejection_reason,
+                        'uploaded_at': doc.uploaded_at if doc.uploaded_at else None,
+                        'approval_logs': approver_actions
+                    }
+                    grouped_documents['Medical Requirements'].append(doc_info)
             # --- Sort each group by allowed_docs order ---
             for group, docs in grouped_documents.items():
                 grouped_documents[group] = sorted(
@@ -1160,6 +1269,14 @@ class StudentIncompleteProfileLogsView(View):
             for doc_type in self.REQUIRED_DOCUMENTS:
                 doc = documents.get(doc_type)
                 document_upload_status[doc_type] = bool(doc and doc.file)
+            action_log_times = {}
+            for action in ["remind_fee", "notify_result", "done", "notify_placement"]:
+                last_log = ActionLog.objects.filter(profile=profile, action=action).order_by('-timestamp').first()
+                if last_log:
+                    action_log_times[action] = last_log.timestamp.strftime('%Y-%m-%d %H:%M')
+                else:
+                    action_log_times[action] = None
+
             filtered_profile_details.append({
                 'profile_id': profile.id,
                 'first_name': profile.first_name,
@@ -1203,6 +1320,7 @@ class StudentIncompleteProfileLogsView(View):
                 'is_completed': complete,
                 'processed_by': processed_by,
                 'approved_documents_count': approved_count,
+                'action_log_times': action_log_times,
             })
 
         # Pagination (10 items per page)
@@ -1369,6 +1487,19 @@ def approve_document(request, document_id):
             subject=f"Document {action}: {document.document_type}",
             message=message
         )
+
+        # After approval, check if all medical requirements are approved and PDFs
+        MEDICAL_REQUIREMENTS = [
+            'Medical Certificate Form',
+            'X-Ray Result',
+            'MMR Lab/Vax Record',
+            'Varicella Lab/Vax Record',
+            'TDAP Vax Record',
+            'Hepatitis A Lab/Vax Record',
+            'Hepatitis B Lab/Vax Record',
+        ]
+        if document.document_type in MEDICAL_REQUIREMENTS and action == DocumentStatus.APPROVED.value:
+            merge_medical_requirements_if_ready(document.profile, debug_prefix="[DEBUG]")
 
         return JsonResponse({
             "message": f"Document {action.lower()} successfully!",
@@ -2196,8 +2327,34 @@ def send_email_resubmit(profile, documents):
 def handle_button_action(request, profile_id, action):
     try:
         profile = PlacementProfile.objects.prefetch_related("documents").get(id=profile_id)
-
         documents = profile.documents.all()
+
+        # --- Medical Requirements group as per forms_extras.py ---
+        MEDICAL_REQUIREMENTS = [
+            'Medical Certificate Form',
+            'X-Ray Result',
+            'MMR Lab/Vax Record',
+            'Varicella Lab/Vax Record',
+            'TDAP Vax Record',
+            'Hepatitis A Lab/Vax Record',
+            'Hepatitis B Lab/Vax Record',
+        ]
+
+        # Prepare a dict of approved documents by type
+        approved_docs = {doc.document_type: doc for doc in documents if doc.status == 'Approved' and doc.file and doc.file.name}
+        all_medical_approved = all(doc_type in approved_docs for doc_type in MEDICAL_REQUIREMENTS)
+        merged_medical_pdf_path = None
+        merged_medical_pdf_name = None
+        if all_medical_approved:
+            # Merge all medical requirement PDFs
+            pdf_paths = [approved_docs[doc_type].file.path for doc_type in MEDICAL_REQUIREMENTS]
+            safe_first_name = re.sub(r'\W+', '_', profile.first_name or '').strip('_')
+            safe_last_name = re.sub(r'\W+', '_', profile.last_name or '').strip('_')
+            merged_medical_pdf_name = f"{safe_first_name}_{safe_last_name}_MedCert.pdf"
+            merged_medical_pdf_dir = os.path.join(settings.MEDIA_ROOT, "documents", "uploads")
+            os.makedirs(merged_medical_pdf_dir, exist_ok=True)
+            merged_medical_pdf_path = os.path.join(merged_medical_pdf_dir, merged_medical_pdf_name)
+            merge_pdfs(pdf_paths, merged_medical_pdf_path)
 
         if action == 'notify_result':
             zip_file_name = f"{profile.id}_{profile.first_name}_{profile.last_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
@@ -2206,10 +2363,16 @@ def handle_button_action(request, profile_id, action):
             with zipfile.ZipFile(zip_file_path, 'w') as zipf:
                 for document in documents:
                     if document.file and document.file.name: 
+                        # Exclude individual medical requirement files if merged PDF is present
+                        if all_medical_approved and document.document_type in MEDICAL_REQUIREMENTS:
+                            continue
                         try:
                             zipf.write(document.file.path, os.path.basename(document.file.name))
                         except Exception as e:
                             continue  
+                # Add merged medical PDF if present
+                if all_medical_approved and merged_medical_pdf_path:
+                    zipf.write(merged_medical_pdf_path, merged_medical_pdf_name)
             zip_url = os.path.join(settings.MEDIA_URL, 'documents', 'uploads', zip_file_name)
 
             rejected_documents = documents.filter(status="Rejected")
@@ -2224,11 +2387,16 @@ def handle_button_action(request, profile_id, action):
             with zipfile.ZipFile(zip_file_path, 'w') as zipf:
                 for document in documents:
                     if document.file and document.file.name:
+                        # Exclude individual medical requirement files if merged PDF is present
+                        if all_medical_approved and document.document_type in MEDICAL_REQUIREMENTS:
+                            continue
                         try:
                             zipf.write(document.file.path, os.path.basename(document.file.name))
                         except Exception:
                             continue
-            
+                # Add merged medical PDF if present
+                if all_medical_approved and merged_medical_pdf_path:
+                    zipf.write(merged_medical_pdf_path, merged_medical_pdf_name)
             zip_url = os.path.join(settings.MEDIA_URL, 'documents', 'uploads', zip_file_name)
             send_email_done(profile, documents)
             send_placement_email(profile)
@@ -2242,6 +2410,20 @@ def handle_button_action(request, profile_id, action):
             sender_name = request.user.get_full_name() or request.user.username
 
             send_email_notify_placement(profile, facility, orientation_date, requested_hours, sender_name)
+
+        # Log the action
+        try:
+            student_id = profile.user.student_id_record.student_id
+        except Exception:
+            student_id = ''
+        # Only create log if it does not already exist for this profile/action
+        if not ActionLog.objects.filter(profile=profile, action=action).exists():
+            ActionLog.objects.create(
+                student_id=student_id,
+                profile=profile,
+                action=action,
+                performed_by=request.user if request.user.is_authenticated else None
+            )
 
         return JsonResponse({"status": "success", "message": f"Email sent for action {action}"})
 
@@ -2384,11 +2566,43 @@ def submit_new_file(request):
             student_id = profile.user.student_id_record.student_id
         except StudentID.DoesNotExist:
             student_id = None 
-        print(document_type, "document type")
         if document_type == "Resume":
             send_email_notify_resume(profile, [new_document], student_id=student_id)
         elif document_type == "Skills Passbook":
             send_email_notify_skills_passbook(profile, [new_document], student_id=student_id)
+
+        # After uploading a new file, check for medical requirements
+        MEDICAL_REQUIREMENTS = [
+            'Medical Certificate Form',
+            'X-Ray Result',
+            'MMR Lab/Vax Record',
+            'Varicella Lab/Vax Record',
+            'TDAP Vax Record',
+            'Hepatitis A Lab/Vax Record',
+            'Hepatitis B Lab/Vax Record',
+        ]
+        medical_docs = Document.objects.filter(profile=profile, document_type__in=MEDICAL_REQUIREMENTS)
+        if medical_docs.count() == len(MEDICAL_REQUIREMENTS) and all(doc.file and doc.file.name.lower().endswith('.pdf') for doc in medical_docs):
+            pdf_paths = [doc.file.path for doc in medical_docs]
+            safe_first_name = re.sub(r'\W+', '_', profile.first_name or '').strip('_')
+            safe_last_name = re.sub(r'\W+', '_', profile.last_name or '').strip('_')
+            merged_medical_pdf_name = f"{safe_first_name}_{safe_last_name}_MedCert.pdf"
+            merged_medical_pdf_dir = os.path.join(settings.MEDIA_ROOT, "documents", "uploads")
+            os.makedirs(merged_medical_pdf_dir, exist_ok=True)
+            merged_medical_pdf_path = os.path.join(merged_medical_pdf_dir, merged_medical_pdf_name)
+            merge_pdfs(pdf_paths, merged_medical_pdf_path)
+            with open(merged_medical_pdf_path, 'rb') as f:
+                merged_file_content = ContentFile(f.read())
+                merged_file_storage_path = default_storage.save(os.path.join("documents/uploads", merged_medical_pdf_name), merged_file_content)
+            Document.objects.update_or_create(
+                profile=profile,
+                document_type='Merged Medical Certificate',
+                defaults={
+                    'file': merged_file_storage_path,
+                    'file_name': merged_medical_pdf_name,
+                    'status': 'In Review',
+                }
+            )
 
         return JsonResponse({"success": True, "new_document_id": new_document.id})
 
@@ -2439,7 +2653,7 @@ def incomplete_profiles_view(request):
     profiles = PlacementProfile.objects.all().prefetch_related("documents")
     for profile in profiles:
         required_docs = [
-            "Medical Certificate",
+            "Medical Certificate Form",
             "Covid Vaccination Certificate",
             "Vulnerable Sector Check",
             "CPR & First Aid",
@@ -2471,7 +2685,7 @@ def complete_profiles_view(request):
     profiles = PlacementProfile.objects.all().prefetch_related("documents")
     for profile in profiles:
         required_docs = [
-            "Medical Certificate",
+            "Medical Certificate Form",
             "Covid Vaccination Certificate",
             "Vulnerable Sector Check",
             "CPR & First Aid",
@@ -2641,7 +2855,7 @@ from django.db.models import Count, Q
 
 def get_profiles_facilities_orientations():
     required_docs = [
-        "Medical Certificate",
+        "Medical Certificate Form",
         "Covid Vaccination Certificate",
         "Vulnerable Sector Check",
         "Mask Fit Certificate",
@@ -2812,7 +3026,7 @@ def get_student_profile_by_id(request, profile_id):
     )
 
     REQUIRED_DOCUMENTS = {
-        "Medical Certificate",
+        "Medical Certificate Form",
         "Covid Vaccination Certificate",
         "Vulnerable Sector Check",
         "CPR & First Aid",
@@ -3059,3 +3273,75 @@ def update_pregnancy_signature(request):
     student_id_obj.signed_on_date = signed_on_date
     student_id_obj.save()
     return JsonResponse({'success': True})
+@require_GET
+def get_action_logs(request, profile_id):
+    profile = get_object_or_404(PlacementProfile, id=profile_id)
+    logs = ActionLog.objects.filter(profile=profile).order_by('-timestamp')
+    data = [
+        {
+            'action': log.get_action_display(),
+            'timestamp': log.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            'performed_by': log.performed_by.get_full_name() if log.performed_by else 'System',
+            'extra_info': log.extra_info or ''
+        }
+        for log in logs
+    ]
+    return JsonResponse({'logs': data})
+
+def merge_pdfs(pdf_paths, output_path):
+    """
+    Merge multiple PDF files into a single PDF.
+    Args:
+        pdf_paths (list): List of file paths to PDF files.
+        output_path (str): Output file path for the merged PDF.
+    """
+    merger = PdfMerger()
+    for pdf in pdf_paths:
+        merger.append(pdf)
+    with open(output_path, 'wb') as fout:
+        merger.write(fout)
+    merger.close()
+
+# --- Helper function for merging medical requirements ---
+def merge_medical_requirements_if_ready(profile, debug_prefix="[DEBUG]"):
+    MEDICAL_REQUIREMENTS = [
+        'Medical Certificate Form',
+        'X-Ray Result',
+        'MMR Lab/Vax Record',
+        'Varicella Lab/Vax Record',
+        'TDAP Vax Record',
+        'Hepatitis A Lab/Vax Record',
+        'Hepatitis B Lab/Vax Record',
+    ]
+    approved_medical_docs = Document.objects.filter(
+        profile=profile,
+        document_type__in=MEDICAL_REQUIREMENTS,
+        status=DocumentStatus.APPROVED.value
+    )
+    print(f"{debug_prefix} Approved medical docs count: {approved_medical_docs.count()} / {len(MEDICAL_REQUIREMENTS)}")
+    if approved_medical_docs.count() == len(MEDICAL_REQUIREMENTS) and all(doc.file and doc.file.name.lower().endswith('.pdf') for doc in approved_medical_docs):
+        print(f"{debug_prefix} All medical docs approved and are PDFs. Proceeding to merge.")
+        pdf_paths = [doc.file.path for doc in approved_medical_docs]
+        safe_first_name = re.sub(r'\\W+', '_', profile.first_name or '').strip('_')
+        safe_last_name = re.sub(r'\\W+', '_', profile.last_name or '').strip('_')
+        merged_medical_pdf_name = f"{safe_first_name}_{safe_last_name}_MedCert.pdf"
+        merged_medical_pdf_dir = os.path.join(settings.MEDIA_ROOT, "documents", "uploads")
+        os.makedirs(merged_medical_pdf_dir, exist_ok=True)
+        merged_medical_pdf_path = os.path.join(merged_medical_pdf_dir, merged_medical_pdf_name)
+        merge_pdfs(pdf_paths, merged_medical_pdf_path)
+        print(f"{debug_prefix} Merged PDF created at {merged_medical_pdf_path}")
+        with open(merged_medical_pdf_path, 'rb') as f:
+            merged_file_content = ContentFile(f.read())
+            merged_file_storage_path = default_storage.save(os.path.join("documents/uploads", merged_medical_pdf_name), merged_file_content)
+        doc_obj, created = Document.objects.update_or_create(
+            profile=profile,
+            document_type='Merged Medical Certificate',
+            defaults={
+                'file': merged_file_storage_path,
+                'file_name': merged_medical_pdf_name,
+                'status': 'In Review',
+            }
+        )
+        print(f"{debug_prefix} Merged Medical Certificate Document {'created' if created else 'updated'}: {doc_obj.id}")
+    else:
+        print(f"{debug_prefix} Not all medical docs are approved and PDFs. No merge performed.")

@@ -63,5 +63,6 @@ urlpatterns = [
     path('ready-for-exam/<int:profile_id>/', ready_for_exam, name='ready_for_exam'),
     path('add-document-comment/<int:document_id>/', add_document_comment, name='add_document_comment'),
     path('update-pregnancy-signature/', update_pregnancy_signature, name='update_pregnancy_signature'),
+    path('get-action-logs/<int:profile_id>/', get_action_logs, name='get_action_logs'),
 ]
 handler404 = 'private_healthcare_placement_optimization.custom_404'
