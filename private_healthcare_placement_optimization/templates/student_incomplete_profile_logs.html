@@ -33,220 +33,81 @@
   animation: fadeInUp 0.8s ease-out forwards;
 }
 </style>
-<h2 
-  class="text-4xl pt-6 font-extrabold text-center mb-12 bg-gradient-to-r from-red-600 via-orange-400 to-yellow-400 text-transparent bg-clip-text drop-shadow-md tracking-wide opacity-0 translate-y-4 animate-fadeInUp"
->
-  Incomplete Student Placement Profiles
-</h2>
-
-<p class="text-gray-600 text-base mb-6 flex items-start space-x-2 mx-auto max-w-3xl text-center">
-    <i class="fas fa-exclamation-circle text-red-500 mt-1"></i>
-    <span>
-        This page displays all the student profiles that are <strong>incomplete</strong>, meaning one or more required documents are missing or have not been approved.
-        Please review these profiles and ensure all necessary documents are submitted and approved.
-    </span>
-</p>
-
-
-  
     
     {% if profile_details and is_approver or profile_details and is_superuser %}
-    <div class="flex justify-center mb-6">
-        <form method="get" class="w-full md:w-1/2 bg-white border border-teal-200 rounded-2xl shadow-sm px-6 py-5 transition duration-300 ease-in-out hover:shadow-md">
-          <div class="flex flex-col md:flex-row md:items-end gap-6">
-      
-            <!-- Status Filter -->
-            <!-- <div class="flex-1">
-              <label for="status" class="block text-sm font-medium text-teal-700 mb-1">
-                <i class="fas fa-filter mr-1 text-teal-500"></i>Status
-              </label>
-              <select
-                name="status"
-                id="status"
-                class="w-full bg-white border border-teal-300 rounded-xl px-4 py-2 text-sm text-gray-800 focus:ring-2 focus:ring-teal-400 focus:outline-none transition duration-200 ease-in-out"
-              >
-                <option value="">All</option>
-                <option value="completed" {% if filter_status == "completed" %}selected{% endif %}>Completed</option>
-                <option value="incomplete" {% if filter_status == "incomplete" %}selected{% endif %}>Incomplete</option>
-                <option value="usersNoProfile" {% if filter_status == "usersNoProfile" %}selected{% endif %}>Users with No Profile</option>
-
-
-              </select>
-            </div> -->
-      
-            <!-- Search Input -->
-            <div class="flex-1">
-              <label for="search" class="block text-sm font-medium text-teal-700 mb-1">
-                <i class="fas fa-search mr-1 text-teal-500"></i>Search Name, Email or Student ID
-              </label>
-              <input
-                type="text"
-                name="search"
-                id="search"
-                value="{{ search_query }}"
-                placeholder="e.g. John Doe or john@college.edu"
-                class="w-full bg-white border border-teal-300 rounded-xl px-4 py-2 text-sm text-gray-800 focus:ring-2 focus:ring-teal-400 focus:outline-none transition duration-200 ease-in-out"
-              />
-            </div>
-      
-            <!-- Submit Button -->
-            <div class="flex-shrink-0">
-              <button
-                type="submit"
-                class="mt-1 md:mt-6 bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm px-6 py-2 rounded-xl shadow-sm transition duration-300 ease-in-out flex items-center gap-2"
-              >
-                <i class="fas fa-search"></i> Apply Search
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-      
-    {% endif %}
-    {% if not profile_details and not has_profile %}
-  <div class="mb-4 text-center">
-    <a href="{% url 'create_placement_profile' %}" class="inline-block px-8 py-4 bg-blue-600 text-white rounded-full text-lg font-semibold hover:bg-blue-700 transition-colors duration-300">
-      Create Placement Profile
-    </a>
-  </div>
-{% elif not profile_details %}
-<div class="flex justify-center items-center mt-16">
-    <div class="bg-white border border-teal-200 rounded-2xl px-6 py-8 text-center shadow-sm w-full md:w-1/2 animate-fadeIn">
-      <h3 class="text-2xl font-semibold text-teal-600 mb-2">
-        <i class="fas fa-info-circle text-teal-400 mr-2"></i> No Matching Profiles
-      </h3>
-      <p class="text-gray-600 text-sm mb-6">
-        We couldn't find any student profiles matching your selected filters.
-        Try adjusting the status or search keywords and try again.
+    <!-- Fixed Filter/Header Section -->
+<div id="fixed-filters" class="fixed top-20 left-0 w-full z-40 bg-white shadow-md border-b border-teal-100 hidden md:block">
+  <div class="max-w-screen-xxl mx-auto px-4 py-2 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+    <!-- Left: Title & Description -->
+    <div class="flex flex-col justify-center gap-1 min-w-[260px]">
+      <h2 class="text-2xl font-extrabold bg-gradient-to-r from-red-600 via-orange-400 to-yellow-400 text-transparent bg-clip-text drop-shadow-md tracking-wide leading-tight mb-0">Incomplete Student Placement Profiles</h2>
+      <p class="text-xs text-gray-600 flex items-center gap-2 mt-1 mb-0">
+        <i class="fas fa-exclamation-circle text-red-500"></i>
+        <span>This page shows <strong>incomplete</strong> student profiles. Review and ensure all documents are submitted and approved.</span>
       </p>
-  
-      <!-- Clear Filters Button -->
-      <a 
-        href="/" 
-        class="inline-flex items-center gap-2 px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium rounded-xl transition duration-300 ease-in-out"
-      >
-        <i class="fas fa-sync-alt"></i> Clear Filters
-      </a>
     </div>
+    <!-- Right: Search & Filters -->
+    <form method="get" class="flex flex-wrap items-center gap-2 justify-end bg-white rounded-xl p-2 shadow-sm border border-teal-100">
+      <input type="text" name="search" id="search" value="{{ search_query }}" placeholder="Search Name, Email, ID" class="bg-white border border-teal-300 rounded-lg px-3 py-1 text-sm text-gray-800 focus:ring-2 focus:ring-teal-400 focus:outline-none w-40 md:w-48" />
+      <select name="gender" class="rounded-lg border border-gray-300 px-2 py-1 text-xs focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
+        <option value="">Gender</option>
+        <option value="Male" {% if request.GET.gender == "Male" %}selected{% endif %}>Male</option>
+        <option value="Female" {% if request.GET.gender == "Female" %}selected{% endif %}>Female</option>
+        <option value="Other" {% if request.GET.gender == "Other" %}selected{% endif %}>Other</option>
+      </select>
+      <select name="stage" class="rounded-lg border border-gray-300 px-2 py-1 text-xs focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
+        <option value="">Stage</option>
+        <option value="Pending" {% if request.GET.stage == "Pending" %}selected{% endif %}>Pending</option>
+        <option value="Approved" {% if request.GET.stage == "Approved" %}selected{% endif %}>Approved</option>
+        <option value="Rejected" {% if request.GET.stage == "Rejected" %}selected{% endif %}>Rejected</option>
+        <option value="DONE" {% if request.GET.stage == "DONE" %}selected{% endif %}>Done</option>
+        <option value="ENDORSED" {% if request.GET.stage == "ENDORSED" %}selected{% endif %}>Endorsed</option>
+        <option value="IN_PLACEMENT" {% if request.GET.stage == "IN_PLACEMENT" %}selected{% endif %}>In Placement</option>
+        <option value="CANCELLED" {% if request.GET.stage == "CANCELLED" %}selected{% endif %}>Cancelled</option>
+        <option value="TRANSFERED" {% if request.GET.stage == "TRANSFERED" %}selected{% endif %}>Transferred</option>
+        <option value="ONHOLD" {% if request.GET.stage == "ONHOLD" %}selected{% endif %}>On Hold</option>
+        <option value="ONGOING_PROCESS" {% if request.GET.stage == "ONGOING_PROCESS" %}selected{% endif %}>Ongoing</option>
+        <option value="ORIENTATION_SCHEDULED" {% if request.GET.stage == "ORIENTATION_SCHEDULED" %}selected{% endif %}>Orientation</option>
+        <option value="READY" {% if request.GET.stage == "READY" %}selected{% endif %}>Ready</option>
+      </select>
+      <select name="experience_level" class="rounded-lg border border-gray-300 px-2 py-1 text-xs focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
+        <option value="">Experience</option>
+        <option value="No Experience" {% if request.GET.experience_level == "No Experience" %}selected{% endif %}>No Exp</option>
+        <option value="1 Year PSW Experience" {% if request.GET.experience_level == "1 Year PSW Experience" %}selected{% endif %}>1yr PSW</option>
+        <option value="International Nurse" {% if request.GET.experience_level == "International Nurse" %}selected{% endif %}>Intl Nurse</option>
+        <option value="Caregiver Experience" {% if request.GET.experience_level == "Caregiver Experience" %}selected{% endif %}>Caregiver</option>
+      </select>
+      <select name="shift_requested" class="rounded-lg border border-gray-300 px-2 py-1 text-xs focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
+        <option value="">Shift</option>
+        <option value="Monday to Friday - Morning" {% if request.GET.shift_requested == "Monday to Friday - Morning" %}selected{% endif %}>M-F Morning</option>
+        <option value="Monday to Friday - Evening" {% if request.GET.shift_requested == "Monday to Friday - Evening" %}selected{% endif %}>M-F Evening</option>
+        <option value="Saturday & Sunday - Morning" {% if request.GET.shift_requested == "Saturday & Sunday - Morning" %}selected{% endif %}>S-S Morning</option>
+        <option value="Saturday & Sunday - Evening" {% if request.GET.shift_requested == "Saturday & Sunday - Evening" %}selected{% endif %}>S-S Evening</option>
+      </select>
+      <select name="assigned_facility" class="rounded-lg border border-gray-300 px-2 py-1 text-xs focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
+        <option value="">Facility</option>
+        {% for facility in facilities %}
+        <option value="{{ facility }}" {% if request.GET.assigned_facility == facility %}selected{% endif %}>{{ facility }}</option>
+        {% endfor %}
+      </select>
+      <select name="orientation_date" class="rounded-lg border border-gray-300 px-2 py-1 text-xs focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
+        <option value="">Orientation</option>
+        {% for date in orientation_dates %}
+        <option value="{{ date|date:'Y-m-d' }}" {% if request.GET.orientation_date == date|date:'Y-m-d' %}selected{% endif %}>{{ date|date:'M j' }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs px-3 py-1 rounded shadow flex items-center gap-1"><i class="fas fa-filter"></i> Filter</button>
+      <a href="{% url request.resolver_match.view_name %}" class="bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200 text-xs shadow flex items-center gap-1"><i class="fas fa-times"></i> Clear</a>
+    </form>
   </div>
-  
-{% endif %}
-
-
-    {% if profile_details %}
-        <div class="rounded-lg overflow-hidden mb-8">
+</div>
+<!-- End Fixed Filter/Header Section -->
+<div id="profile-logs-content">
+    <div class="rounded-lg overflow-hidden mb-8">
             <div id="messagePopup" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
                 <span id="messageText"></span>
             </div>
-            <div class="overflow-x-auto custom-scrollbar">
-                {% if is_approver %}
-                <!-- Filter Section -->
-                <form method="get" class="bg-white shadow-md rounded-xl p-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  
-                      <!-- Gender -->
-                      <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-                        <select name="gender" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
-                          <option value="">All Genders</option>
-                          <option value="Male" {% if request.GET.gender == "Male" %}selected{% endif %}>Male</option>
-                          <option value="Female" {% if request.GET.gender == "Female" %}selected{% endif %}>Female</option>
-                          <option value="Other" {% if request.GET.gender == "Other" %}selected{% endif %}>Other</option>
-                        </select>
-                      </div>
-                  
-                      <!-- Stage -->
-                      <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Stage</label>
-                        <select name="stage" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
-                          <option value="">All Stages</option>
-                          <option value="Pending" {% if request.GET.stage == "Pending" %}selected{% endif %}>Pending</option>
-                          <option value="Approved" {% if request.GET.stage == "Approved" %}selected{% endif %}>Approved</option>
-                          <option value="Rejected" {% if request.GET.stage == "Rejected" %}selected{% endif %}>Rejected</option>
-                          <option value="DONE" {% if request.GET.stage == "DONE" %}selected{% endif %}>Done</option>
-                          <option value="ENDORSED" {% if request.GET.stage == "ENDORSED" %}selected{% endif %}>Endorsed</option>
-                          <option value="IN_PLACEMENT" {% if request.GET.stage == "IN_PLACEMENT" %}selected{% endif %}>In Placement</option>
-                          <option value="CANCELLED" {% if request.GET.stage == "CANCELLED" %}selected{% endif %}>Cancelled</option>
-                          <option value="TRANSFERED" {% if request.GET.stage == "TRANSFERED" %}selected{% endif %}>Transferred</option>
-                          <option value="ONHOLD" {% if request.GET.stage == "ONHOLD" %}selected{% endif %}>On Hold</option>
-                          <option value="ONGOING_PROCESS" {% if request.GET.stage == "ONGOING_PROCESS" %}selected{% endif %}>Ongoing Process</option>
-                          <option value="ORIENTATION_SCHEDULED" {% if request.GET.stage == "ORIENTATION_SCHEDULED" %}selected{% endif %}>Orientation Scheduled</option>
-                          <option value="READY" {% if request.GET.stage == "READY" %}selected{% endif %}>Ready for Exam</option>
-                        </select>
-                      </div>
-                  
-                      <!-- Experience Level -->
-                      <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Experience Level</label>
-                        <select name="experience_level" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
-                          <option value="">All Experience Levels</option>
-                          <option value="No Experience" {% if request.GET.experience_level == "No Experience" %}selected{% endif %}>No Experience (300 Hrs)</option>
-                          <option value="1 Year PSW Experience" {% if request.GET.experience_level == "1 Year PSW Experience" %}selected{% endif %}>1 Year PSW Experience (200 Hrs)</option>
-                          <option value="International Nurse" {% if request.GET.experience_level == "International Nurse" %}selected{% endif %}>International Nurse (200 Hrs)</option>
-                          <option value="Caregiver Experience" {% if request.GET.experience_level == "Caregiver Experience" %}selected{% endif %}>Caregiver Experience (200 Hrs)</option>
-                        </select>
-                      </div>
-                  
-                     <!-- Shift Requested -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Shift Requested</label>
-                    <select name="shift_requested" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
-                      <option value="">All Shifts</option>
-                      <option value="Monday to Friday - Morning" {% if request.GET.shift_requested == "Monday to Friday - Morning" %}selected{% endif %}>
-                        Monday to Friday - Morning
-                      </option>
-                      <option value="Monday to Friday - Evening" {% if request.GET.shift_requested == "Monday to Friday - Evening" %}selected{% endif %}>
-                        Monday to Friday - Evening
-                      </option>
-                      <option value="Saturday & Sunday - Morning" {% if request.GET.shift_requested == "Saturday & Sunday - Morning" %}selected{% endif %}>
-                        Saturday & Sunday - Morning
-                      </option>
-                      <option value="Saturday & Sunday - Evening" {% if request.GET.shift_requested == "Saturday & Sunday - Evening" %}selected{% endif %}>
-                        Saturday & Sunday - Evening
-                      </option>
-                    </select>
-                  </div>
-                  
-                  
-                      <!-- Assigned Facility -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Assigned Facility</label>
-                    <select name="assigned_facility" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
-                      <option value="">All Facilities</option>
-                      {% for facility in facilities %}
-                      <option value="{{ facility }}" {% if request.GET.assigned_facility == facility %}selected{% endif %}>{{ facility }}</option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                  
-              
-                  <!-- Orientation Date -->
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Orientation Date</label>
-                    <select name="orientation_date" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
-                      <option value="">All Dates</option>
-                      {% for date in orientation_dates %}
-                      <option value="{{ date|date:'Y-m-d' }}" {% if request.GET.orientation_date == date|date:'Y-m-d' %}selected{% endif %}>
-                        {{ date|date:'F j, Y' }}
-                      </option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                  
-                      <!-- Actions -->
-                      <div class="flex items-end gap-2 mt-1 col-span-full md:col-span-2 lg:col-span-1">
-                        <button type="submit"
-                          class="flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition text-sm shadow">
-                          <i class="fas fa-filter"></i> Apply Filters
-                        </button>
-                        <a href="{% url request.resolver_match.view_name %}"
-                          class="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition text-sm shadow">
-                          <i class="fas fa-times"></i> Clear
-                        </a>
-                      </div>
-                  
-                    </div>
-                  </form>
+           
                   
                 
 
@@ -262,7 +123,7 @@
                               </button>
                             </div>
                           </div>
-                          <div id="scroll-container" class="overflow-x-auto">
+                          <div id="scroll-container" class="overflow-x-auto" style="max-height: 50vh; overflow-y: auto;">
                             <!-- Fixed Scroll Buttons -->
         
                             <script>
@@ -279,61 +140,45 @@
                             <table class="bg-white shadow-lg min-w-full table-auto border-collapse border border-gray-300">
                                 <thead class="bg-gradient-to-r from-teal-400 to-teal-700 text-white">
                                     <tr class="border border-gray-300">
-                                      <th class="sticky left-0 bg-teal-600 px-4 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px] w-[120px] max-w-[120px]">
-                                        Student ID
-                                      </th>
-                                      <th class="sticky left-[120px] bg-teal-600 px-4 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[140px] w-[140px] max-w-[140px]">
-                                        Actions
-                                      </th>
-                                      <th class="sticky left-[260px] bg-teal-600 px-4 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[150px] w-[150px] max-w-[150px]">
-                                        Name
-                                      </th>
-                                      <th class="sticky left-[410px] bg-teal-600 px-4 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px] w-[160px] max-w-[160px]">
-                                        Processed By
-                                      </th>
-                                      <th class="sticky left-[570px] bg-teal-600 px-4 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px] w-[160px] max-w-[160px]">
-                                        Files Approved
-                                      </th>
-                                      <th class="sticky left-[730px] bg-teal-600 px-4 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px] w-[160px] max-w-[160px]">
-                                        Stage
-                                      </th>
-                                      <th class="sticky left-[880px] bg-teal-600 px-4 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px] w-[160px] max-w-[160px]">
-                                        Assigned Facility
-                                      </th>
-                                      <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">College Email</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Orientation Date</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[140px]">Start Date</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[140px]">End Date</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Experience Level</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Shift Requested</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">CPR & First Aid</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Vulnerable Sector Check</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Mask Fit Certificate</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Basic Life Support</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Medical Certificate</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Covid Vaccination Certificate</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Experience Document</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Preferred Facility</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[200px]">Facility Address</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Facility Contact</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">Home City</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">City Pref 1</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">City Pref 2</th>
-                                        
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[200px]">Facility Feedback</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[200px]">College Feedback</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Notes</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Date Completed</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Required Hours</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Time Period</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">Days</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Module Completed</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Pregnancy Waiver</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">Gender</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Facility Email</th>
-                                        <th class="px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Created At</th>
-                                      </tr>
-                                      
+                                        <th class="sticky left-0 top-0 z-30 bg-teal-800 px-4 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px] w-[120px] max-w-[120px]">Student ID</th>
+                                        <th class="sticky left-[120px] top-0 z-30 bg-teal-800 px-4 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[140px] w-[140px] max-w-[140px]">Actions</th>
+                                        <th class="sticky left-[260px] top-0 z-30 bg-teal-800 px-4 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[150px] w-[150px] max-w-[150px]">Name</th>
+                                        <th class="sticky left-[410px] top-0 z-30 bg-teal-800 px-4 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px] w-[160px] max-w-[160px]">Processed By</th>
+                                        <th class="sticky left-[570px] top-0 z-30 bg-teal-800 px-4 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px] w-[160px] max-w-[160px]">Files Approved</th>
+                                        <th class="sticky left-[730px] top-0 z-30 bg-teal-800 px-4 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px] w-[160px] max-w-[160px]">Stage</th>
+                                        <th class="sticky left-[880px] top-0 z-30 bg-teal-800 px-4 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px] w-[160px] max-w-[160px]">Assigned Facility</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">College Email</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Orientation Date</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[140px]">Start Date</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[140px]">End Date</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Experience Level</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Shift Requested</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">CPR & First Aid</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Vulnerable Sector Check</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Mask Fit Certificate</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Basic Life Support</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Medical Certificate</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Covid Vaccination Certificate</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Experience Document</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Preferred Facility</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[200px]">Facility Address</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Facility Contact</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">Home City</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">City Pref 1</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">City Pref 2</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[200px]">Facility Feedback</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[200px]">College Feedback</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Notes</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Date Completed</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Required Hours</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Time Period</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">Days</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Module Completed</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Pregnancy Waiver</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[120px]">Gender</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[180px]">Facility Email</th>
+                                        <th class="sticky top-0 z-20 bg-teal-600 px-6 py-4 text-left text-lg font-semibold whitespace-nowrap border border-gray-300 min-w-[160px]">Created At</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
                                     {% for profile in profile_details %}
@@ -1006,9 +851,6 @@ function deleteUser(profileId) {
 
         </script>
 
-    {% else %}
-        <div class="text-center text-red-500 text-lg"></div>
-    {% endif %}
 <script>
     function openCommentModal(documentId, newStatus) {
     if (newStatus === "Rejected") {
@@ -1290,4 +1132,17 @@ function sendDocumentsEmail(profileId) {
 }
 
 </style>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    function adjustContentPadding() {
+        var header = document.getElementById("fixed-filters");
+        var content = document.getElementById("profile-logs-content");
+        if (header && content) {
+          content.style.paddingTop = (header.offsetHeight * 1.3) + "px";
+        }
+    }
+    adjustContentPadding();
+    window.addEventListener("resize", adjustContentPadding);
+});
+</script>
 {% endblock %}

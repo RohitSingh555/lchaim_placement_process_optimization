@@ -325,7 +325,7 @@ class PlacementProfileView(View):
             except Exception as e:
                 print(f"Error saving document {doc_name}: {e}")
 
-        required_document_keys = {'experience_document', 'medical_certificate_form', 'xray_result', 'mmr_lab_vax_record', 'varicella_lab_vax_record', 'tdap_vax_record', 'hepatitis_b_lab_vax_record', 'hepatitis_a_lab_vax_record', 'covid_vaccination_certificate', 'vulnerable_sector_check', 'cpr_or_first_aid', 'mask_fit_certificate', 'basic_life_support', 'flu_shot', 'resume', 'extra_dose_of_covid', 'other_documents', 'skills_passbook'}
+        required_document_keys = {'medical_certificate_form', 'covid_vaccination_certificate', 'vulnerable_sector_check', 'cpr_or_first_aid', 'mask_fit_certificate', 'experience_document', 'basic_life_support'}
         
         missing_required_docs = [documents_data[key] for key in required_document_keys if key in missing_documents]
 
@@ -2602,6 +2602,91 @@ def submit_new_file(request):
             uploaded_new_file=True,
             version=new_version
         )
+
+        # Notify the latest rejecting approver if the previous document was rejected
+        latest_rejection = ApprovalLog.objects.filter(document=existing_document, action="Rejected").order_by('-timestamp').first()
+        if latest_rejection and latest_rejection.approver and latest_rejection.approver.user.email:
+            approver_email = latest_rejection.approver.user.email
+            subject = f"Resubmission: {document_type} by {profile.first_name} {profile.last_name}"
+            review_link = f"https://www.peakcollege.ca/approver-view?document_id={new_document.id}"
+            message = f"""
+            <html>
+            <head>
+                <style>
+                    body {{
+                        font-family: Arial, sans-serif;
+                        background: linear-gradient(to bottom, rgba(0, 128, 128, 0.1), #ffffff);
+                        padding: 20px;
+                        color: #333;
+                    }}
+                    .container {{
+                        background-color: #ffffff;
+                        padding: 30px;
+                        border-radius: 10px;
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                        width: 100%;
+                        margin: auto;
+                    }}
+                    h2 {{
+                        color: #008080;
+                        font-size: 24px;
+                    }}
+                    p {{
+                        line-height: 1.6;
+                        font-size: 16px;
+                    }}
+                    .footer {{
+                        margin-top: 20px;
+                        font-size: 14px;
+                        color: #555;
+                    }}
+                    .footer a {{
+                        color: #008080;
+                        text-decoration: none;
+                    }}
+                    .highlight {{
+                        color: #008080;
+                    }}
+                    img {{
+                        width: 240px;
+                        height: 90px;
+                    }}
+                </style>
+            </head>
+            <body>
+                <div class=\"container\">
+                    <p>Dear {latest_rejection.approver.full_name},</p>
+                    <p>The student <strong>{profile.first_name} {profile.last_name}</strong> has resubmitted the <strong>{document_type}</strong> document for your review.</p>
+                    <p>Please click the link below to review and take action:</p>
+                    <p><a href=\"{review_link}\" class=\"highlight\">Review Document: Click here</a></p>
+                    <div class=\"footer\">
+                        <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
+                        <span>Warm regards, </span>
+                        <br>
+                        <span> The Peak Healthcare Team</span>
+                        <br>
+                        <span>Website: <a href=\"https://www.peakcollege.ca\">www.peakcollege.ca</a></span>
+                        <br>
+                        <img src=\"http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg\"></img>
+                        <br>
+                        <span>1140 Sheppard Ave West</span>
+                        <br>
+                        <span>Unit #12, North York, ON</span>
+                        <br>
+                        <span>M3K 2A2</span>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
+            from django.core.mail import send_mail
+            send_mail(
+                subject,
+                "",  # Plain text fallback
+                settings.DEFAULT_FROM_EMAIL,
+                [approver_email],
+                html_message=message,
+            )
 
         existing_document.delete()
         

@@ -21,7 +21,7 @@
   </head>
   <body class="bg-gray-50">
     <!-- Navbar -->
-    <header class="bg-teal-700 text-white shadow-md">
+    <header class="bg-teal-700 text-white shadow-md fixed top-0 left-0 w-full z-50">
       <nav
         class="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between"
       >
@@ -210,7 +210,7 @@
     </header>
 
     <!-- Main Content -->
-    <main class="min-h-[100vh]">
+    <main class="min-h-[100vh] pt-16"> <!-- pt-16 = 64px top padding for fixed navbar -->
       <div class="max-w-screen-xxl mx-auto px-4 sm:px-2">
         {% block content %}{% endblock %}
       </div>
