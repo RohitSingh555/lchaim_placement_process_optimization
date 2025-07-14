@@ -24,9 +24,9 @@
                 <tr id="orientationRow{{ orientation.id }}" class="border-b">
                     <td class="py-3 px-4">{{ orientation.orientation_date|date:"F j, Y" }}</td>
                     <td class="py-3 px-4">
-                        <!-- Delete Button -->
-                        <button type="button" class="bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 px-3 py-1 rounded-md" onclick="openDeleteModal({{ orientation.id }})">
-                            <i class="fas fa-trash-alt"></i> Delete
+                        <!-- Edit Button -->
+                        <button type="button" class="bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 px-3 py-1 rounded-md" onclick="openEditModal({{ orientation.id }}, '{{ orientation.orientation_date|date:'Y-m-d' }}')">
+                            <i class="fas fa-edit"></i> Edit
                         </button>
                     </td>
                 </tr>
@@ -65,25 +65,28 @@
     </div>
 </div>
 
-<!-- Delete Orientation Modal -->
-<div id="deleteOrientationModal" class="modal fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
+<!-- Edit Orientation Modal -->
+<div id="editOrientationModal" class="modal fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
     <div class="modal-dialog bg-white rounded-lg shadow-xl p-6">
-        <form id="deleteOrientationForm" method="post" action="/orientations/{{ id }}/delete/">
+        <form id="editOrientationForm" method="post" action="">
             {% csrf_token %}
             <div class="modal-header flex justify-between items-center p-4 border-b">
-                <h5 class="modal-title text-xl text-gray-800">Delete Orientation Date</h5>
-                <button type="button" class="close text-gray-500" onclick="closeModal('deleteOrientationModal')">
+                <h5 class="modal-title text-xl text-gray-800">Edit Orientation Date</h5>
+                <button type="button" class="close text-gray-500" onclick="closeModal('editOrientationModal')">
                     <span>&times;</span>
                 </button>
             </div>
             <div class="modal-body p-4">
-                <p class="text-gray-700" id="deleteMessage"></p>
+                <div class="form-group">
+                    <label for="edit_orientation_date" class="text-gray-700">Orientation Date</label>
+                    <input type="date" id="edit_orientation_date" name="orientation_date" class="block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
             </div>
             <div class="modal-footer p-4 flex justify-between">
-                <button type="submit" class="bg-red-600 text-white hover:bg-red-700 focus:outline-none px-4 py-2 rounded-md">
-                    <i class="fas fa-check"></i> Yes, Delete
+                <button type="submit" class="bg-blue-600 text-white hover:bg-blue-700 focus:outline-none px-4 py-2 rounded-md">
+                    <i class="fas fa-check"></i> Save
                 </button>
-                <button type="button" class="bg-gray-300 text-gray-800 hover:bg-gray-400 focus:outline-none px-4 py-2 rounded-md" onclick="closeModal('deleteOrientationModal')">
+                <button type="button" class="bg-gray-300 text-gray-800 hover:bg-gray-400 focus:outline-none px-4 py-2 rounded-md" onclick="closeModal('editOrientationModal')">
                     <i class="fas fa-times"></i> Cancel
                 </button>
             </div>
@@ -134,28 +137,25 @@
                 console.error("Error adding orientation date:", error);
             });
         });
-    
-        // Function to open the Delete Modal
-        window.openDeleteModal = function(id) {
-            openModal('deleteOrientationModal');
-            document.getElementById('deleteMessage').innerText = `Are you sure you want to delete orientation on ${document.getElementById('orientationRow' + id).querySelector('td').textContent}?`;
-            document.getElementById('deleteOrientationForm').action = `/orientations/${id}/delete/`; // Update the form action
+
+        // Edit Modal logic
+        window.openEditModal = function(id, date) {
+            openModal('editOrientationModal');
+            document.getElementById('edit_orientation_date').value = date;
+            document.getElementById('editOrientationForm').action = `/orientations/${id}/edit/`;
         }
-    
-        // Handle Delete Orientation form submission using fetch
-        document.getElementById('deleteOrientationForm').addEventListener('submit', function(event) {
+
+        // Handle Edit Orientation form submission using fetch
+        document.getElementById('editOrientationForm').addEventListener('submit', function(event) {
             event.preventDefault();
             let formData = new FormData(this);
-            
             fetch(this.action, {
                 method: 'POST',
                 body: formData,
             })
             .then(response => {
-                console.log(response.status);
                 if (response.status === 302 || response.status === 200) {
-                    // Close the modal and reload the page
-                    closeModal('deleteOrientationModal');
+                    closeModal('editOrientationModal');
                     window.location.reload();
                 } else {
                     return response.json();
@@ -163,12 +163,12 @@
             })
             .then(data => {
                 if (data && !data.success) {
-                    console.error("Error deleting orientation date!");
-                    alert("There was an error deleting the orientation date.");
+                    console.error("Error editing orientation date:", data.error);
+                    alert("There was an error editing the orientation date.");
                 }
             })
             .catch(error => {
-                console.error("An error occurred while deleting the orientation date:", error);
+                console.error("Error editing orientation date:", error);
             });
         });
     });

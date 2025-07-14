@@ -5,6 +5,7 @@ from .views import (
 )
 from django.contrib.auth import views as auth_views
 from .views import *
+from .views import edit_orientation_date
 
 urlpatterns = [
     path('create-placement-profile/', login_required(PlacementProfileView.as_view()), name='create_placement_profile'),
@@ -50,7 +51,7 @@ urlpatterns = [
     # OrientationDate URLs
     path('orientations/', OrientationDateListView.as_view(), name='orientation_list'),
     path('orientations/add/', OrientationDateCreateView.as_view(), name='orientation_add'),
-    path('orientations/<int:pk>/edit/', OrientationDateUpdateView.as_view(), name='orientation_edit'),
+    path('orientations/<int:pk>/edit/', edit_orientation_date, name='orientation_edit'),
     path('orientations/<int:pk>/delete/', OrientationDateDeleteView.as_view(), name='orientation_delete'),
     
     path('facilities/assign/', assign_facility_and_orientation_date_to_users, name='assign_facility_and_orientation_date_to_users'),

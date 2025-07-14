@@ -374,106 +374,106 @@
                       <h3 class="text-xl font-semibold text-gray-800 mb-4">Document Status Table</h3>
                       
                       <div class="overflow-x-auto">
-                        <table class="min-w-full table-auto">
-  <thead class="bg-teal-500 text-white">
-    <tr>
-      <th class="px-4 py-2 text-left">Document Type</th>
-      <th class="px-4 py-2 text-left">Date Uploaded</th>
-      <th class="px-4 py-2 text-left">Status</th>
-      <th class="px-4 py-2 text-left">Comments</th>
-      <th class="px-4 py-2 text-left">Approval Details</th>
-      <th class="px-4 py-2 text-left">Date Checked</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for group_name, documents in documents_by_group.items %}
-  {% if documents %}
-    <tr class="bg-gray-200 font-bold">
-      <td class="px-4 py-2" colspan="6">
-        {% if group_name == "Additional Facility Requirements" %}
-          Additional Facility Requirements <span class="text-red-600 font-semibold">if Required</span>
-        {% elif group_name == "Documents Required After Placement Completion" %}
-          Documents Required<span class="text-red-600 font-semibold"> After </span>Placement Completion
-        {% else %}
-          {{ group_name }}
-        {% endif %}
-      </td>
-    </tr>
-    {% for document in documents %}
-          {% if document.document_type|is_document_status_section_allowed_doc %}
-            <tr class="border-b hover:bg-gray-50 transition">
-              <td class="px-4 py-2 font-medium text-gray-700">
-                {% if document.document_type == "Medical Certificate" %}
-                  Medical Certificate Form
-                {% else %}
-                  {{ document.document_type }}
-                {% endif %}
-              </td>
-              <td class="px-4 py-2 text-gray-600">
-                {% if document.file %}
-                  {{ document.uploaded_at }}
-                {% else %}
-                  N/A
-                {% endif %}
-              </td>
-              <td class="px-4 py-2">
-  {% if document.file %}
-    <span class="inline-block text-xs px-3 py-1 rounded-full font-semibold tracking-wide
-      {% if document.status == 'Approved' %}
-        bg-green-600 text-white
-      {% elif document.status == 'Rejected' %}
-        bg-red-600 text-white
-      {% elif document.status == 'In Review' %}
-        bg-yellow-400 text-gray-900
-      {% elif document.status == 'Pending' %}
-        bg-blue-500 text-white
-      {% else %}
-        bg-gray-300 text-gray-800
-      {% endif %}">
-      {{ document.status }}
-    </span>
-  {% else %}
-    <span class="inline-block text-xs px-3 py-1 rounded-full font-semibold tracking-wide bg-gray-500 text-white">
-      File Not Uploaded
-    </span>
-  {% endif %}
-</td>
-
-              <td class="px-4 py-2">
-                {% if document.rejection_reason %}
-                  <p class="text-sm text-red-600">{{ document.rejection_reason }}</p>
-                {% else %}
-                  <span class="text-sm text-gray-600">N/A</span>
-                {% endif %}
-              </td>
-              <td class="px-4 py-2">
-                {% if document.approval_logs %}
-                  {% with latest_approval=document.approval_logs|last %}
-                    <div class="text-sm space-y-1">
-                      <p>{{ latest_approval.approver }}</p>
-                    </div>
-                  {% endwith %}
-                {% else %}
-                  <span class="text-sm text-gray-600">Pending</span>
-                {% endif %}
-              </td>
-              <td class="px-4 py-2">
-                {% if document.approval_logs %}
-                  {% with latest_approval=document.approval_logs|last %}
-                    <p>{{ latest_approval.timestamp }}</p>
-                  {% endwith %}
-                {% else %}
-                  <span class="text-sm text-gray-600">N/A</span>
-                {% endif %}
-              </td>
-            </tr>
-          {% endif %}
-        {% endfor %}
-      {% endif %}
-    {% endfor %}
-  </tbody>
-</table>
-
+                        <table class="min-w-full table-auto rounded-2xl shadow-lg border border-gray-200 bg-white">
+                          <thead class="bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-t-2xl">
+                            <tr>
+                              <th class="px-4 py-3 text-left font-semibold text-base rounded-tl-2xl">Document Type</th>
+                              <th class="px-4 py-3 text-left font-semibold text-base">Date Uploaded</th>
+                              <th class="px-4 py-3 text-left font-semibold text-base">Status</th>
+                              <th class="px-4 py-3 text-left font-semibold text-base">Comments</th>
+                              <th class="px-4 py-3 text-left font-semibold text-base">Approval Details</th>
+                              <th class="px-4 py-3 text-left font-semibold text-base rounded-tr-2xl">Date Checked</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for group_name, documents in documents_by_group.items %}
+                              {% if documents %}
+                                <tr class="bg-gray-100 font-bold">
+                                  <td class="px-4 py-2" colspan="6">
+                                    {% if group_name == "Additional Facility Requirements" %}
+                                      Additional Facility Requirements <span class="text-red-600 font-semibold">if Required</span>
+                                    {% elif group_name == "Documents Required After Placement Completion" %}
+                                      Documents Required<span class="text-red-600 font-semibold"> After </span>Placement Completion
+                                    {% else %}
+                                      {{ group_name }}
+                                    {% endif %}
+                                  </td>
+                                </tr>
+                                {% for document in documents %}
+                                  {% if document.document_type|is_document_status_section_allowed_doc %}
+                                    <tr class="border-b last:border-b-0 hover:bg-teal-50 transition text-sm">
+                                      <td class="px-4 py-2 font-medium text-gray-800 flex items-center gap-2 relative">
+                                        {% if document.document_type == "Medical Certificate" %}
+                                          Medical Certificate Form
+                                        {% else %}
+                                          {{ document.document_type }}
+                                        {% endif %}
+                                        <button type="button" class="ml-1 text-xs text-red-500 hover:text-red-700 focus:outline-none align-middle relative z-40" title="View Document History" onclick="openHistoryPopup(event, 'doc-accordion-{{ document.id }}')">
+                                          <i class="fas fa-history"></i>
+                                        </button>
+                                        <div id="doc-accordion-{{ document.id }}" class="hidden absolute left-full top-1/2 -translate-y-1/2 ml-2 z-50 min-w-[260px] max-w-sm p-5 bg-white border-l-4 border-red-400 rounded-xl shadow-2xl text-xs text-gray-800 animate-fadeIn pointer-events-auto transition-all duration-200">
+                                          <div class="grid grid-cols-1 gap-y-2">
+                                            <div><span class="font-semibold text-blue-500">Status:</span> <span class="text-gray-900 font-semibold">{{ document.status }}</span></div>
+                                            <div><span class="font-semibold text-blue-500">Version:</span> <span class="text-gray-900 font-semibold">{{ document.version }}</span></div>
+                                            <div><span class="font-semibold text-blue-500">Date Uploaded:</span> <span class="text-gray-900 font-semibold">{{ document.uploaded_at }}</span></div>
+                                            <div><span class="font-semibold text-blue-500">Last Updated:</span> <span class="text-gray-900 font-semibold">{{ document.updated_at }}</span></div>
+                                            <div><span class="font-semibold text-blue-500">Date Approved:</span> <span class="text-gray-900 font-semibold">{{ document.approved_at }}</span></div>
+                                            <div><span class="font-semibold text-blue-500">Date Rejected:</span> <span class="text-gray-900 font-semibold">{{ document.rejected_at }}</span></div>
+                                            <div><span class="font-semibold text-blue-500">Is Latest Upload:</span> <span class="{% if document.uploaded_new_file %}text-green-600{% else %}text-gray-400{% endif %} font-semibold">{% if document.uploaded_new_file %}Yes{% else %}No{% endif %}</span></div>
+                                          </div>
+                                        </div>
+                                      </td>
+                                      <td class="px-4 py-2 text-gray-600 whitespace-nowrap">{% if document.file %}{{ document.uploaded_at }}{% else %}N/A{% endif %}</td>
+                                      <td class="px-4 py-2">
+                                        {% if document.file %}
+                                          <span class="inline-block text-xs px-3 py-1 rounded-full font-semibold tracking-wide
+                                            {% if document.status == 'Approved' %}bg-green-600 text-white
+                                            {% elif document.status == 'Rejected' %}bg-red-600 text-white
+                                            {% elif document.status == 'In Review' %}bg-yellow-400 text-gray-900
+                                            {% elif document.status == 'Pending' %}bg-blue-500 text-white
+                                            {% else %}bg-gray-300 text-gray-800{% endif %}">
+                                            {{ document.status }}
+                                          </span>
+                                        {% else %}
+                                          <span class="inline-block text-xs px-3 py-1 rounded-full font-semibold tracking-wide bg-gray-500 text-white">
+                                            File Not Uploaded
+                                          </span>
+                                        {% endif %}
+                                      </td>
+                                      <td class="px-4 py-2">
+                                        {% if document.rejection_reason %}
+                                          <p class="text-xs text-red-600">{{ document.rejection_reason }}</p>
+                                        {% else %}
+                                          <span class="text-xs text-gray-500">N/A</span>
+                                        {% endif %}
+                                      </td>
+                                      <td class="px-4 py-2">
+                                        {% if document.approval_logs %}
+                                          {% with latest_approval=document.approval_logs|last %}
+                                            <div class="text-xs space-y-1">
+                                              <p>{{ latest_approval.approver }}</p>
+                                            </div>
+                                          {% endwith %}
+                                        {% else %}
+                                          <span class="text-xs text-gray-500">Pending</span>
+                                        {% endif %}
+                                      </td>
+                                      <td class="px-4 py-2">
+                                        {% if document.approval_logs %}
+                                          {% with latest_approval=document.approval_logs|last %}
+                                            <p class="text-xs">{{ latest_approval.timestamp }}</p>
+                                          {% endwith %}
+                                        {% else %}
+                                          <span class="text-xs text-gray-500">N/A</span>
+                                        {% endif %}
+                                      </td>
+                                    </tr>
+                                  {% endif %}
+                                {% endfor %}
+                              {% endif %}
+                            {% endfor %}
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                     
@@ -575,6 +575,32 @@
       }
     });
   }
+  let openHistoryId = null;
+  function openHistoryPopup(event, id) {
+    event.stopPropagation();
+    // Close any open popup
+    if (openHistoryId && openHistoryId !== id) {
+      const prev = document.getElementById(openHistoryId);
+      if (prev) prev.classList.add('hidden');
+    }
+    const elem = document.getElementById(id);
+    if (elem.classList.contains('hidden')) {
+      elem.classList.remove('hidden');
+      openHistoryId = id;
+    } else {
+      elem.classList.add('hidden');
+      openHistoryId = null;
+    }
+  }
+  document.addEventListener('click', function(e) {
+    if (openHistoryId) {
+      const popup = document.getElementById(openHistoryId);
+      if (popup && !popup.contains(e.target) && !e.target.closest('button[title="View Document History"]')) {
+        popup.classList.add('hidden');
+        openHistoryId = null;
+      }
+    }
+  });
   </script>
 
   {% endblock %}

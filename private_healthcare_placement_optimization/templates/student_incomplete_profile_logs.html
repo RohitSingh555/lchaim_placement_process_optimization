@@ -634,8 +634,26 @@
                         {% for document in documents %}
                           <div class="flex items-center justify-between border-b border-gray-200 py-2">
                             <div>
-                              <p class="text-md font-medium">{{ document.document_type }}</p>
-                              {% if document.file_name %}
+                              <div class="flex items-center gap-2 relative group">
+                                <span class="text-md font-medium">{{ document.document_type }}</span>
+                                {% if document.file %}
+                                  <button type="button" class="ml-1 text-xs text-red-500 hover:text-red-700 focus:outline-none align-middle relative z-40" >
+                                    <i class="fas fa-history"></i>
+                                  </button>
+                                  <div id="doc-accordion-{{ document.id }}-{{ forloop.parentloop.counter }}" class="absolute left-full top-1/2 -translate-y-1/2 ml-2 z-50 min-w-[260px] max-w-sm p-5 bg-white border-l-4 border-red-400 rounded-xl shadow-2xl text-xs text-gray-800 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200 animate-fadeIn">
+                                    <div class="grid grid-cols-1 gap-y-2">
+                                      <div><span class="font-semibold text-blue-500">Status:</span> <span class="text-gray-900 font-semibold">{{ document.status }}</span></div>
+                                      <div><span class="font-semibold text-blue-500">Version:</span> <span class="text-gray-900 font-semibold">{{ document.version }}</span></div>
+                                      <div><span class="font-semibold text-blue-500">Date Uploaded:</span> <span class="text-gray-900 font-semibold">{{ document.uploaded_at }}</span></div>
+                                      <div><span class="font-semibold text-blue-500">Last Updated:</span> <span class="text-gray-900 font-semibold">{{ document.updated_at }}</span></div>
+                                      <div><span class="font-semibold text-blue-500">Date Approved:</span> <span class="text-gray-900 font-semibold">{{ document.approved_at }}</span></div>
+                                      <div><span class="font-semibold text-blue-500">Date Rejected:</span> <span class="text-gray-900 font-semibold">{{ document.rejected_at }}</span></div>
+                                      <div><span class="font-semibold text-blue-500">Is Latest Upload:</span> <span class="{% if document.uploaded_new_file %}text-green-600{% else %}text-gray-400{% endif %} font-semibold">{% if document.uploaded_new_file %}Yes{% else %}No{% endif %}</span></div>
+                                    </div>
+                                  </div>
+                                {% endif %}
+                              </div>
+                              {% if document.file and document.file_name %}
                                 <p class="text-xs text-gray-600">{{ document.uploaded_at }}</p>
                               {% endif %}
                               <div class="flex flex-row-reverse justify-end items-center">

@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404
 from django.core.mail import EmailMessage
 from django.views import View
 
-from private_healthcare_placement_optimization.templatetags.forms_extras import document_group, allowed_docs
+from private_healthcare_placement_optimization.templatetags.forms_extras import document_group, allowed_docs, format_long_date
 from .models import PlacementProfile, Document, ActionLog
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -836,7 +836,12 @@ class StudentProfileLogsView(View):
                     'document_type': doc.document_type,
                     'file': doc.file.url if doc.file else None,
                     'rejection_reason': doc.rejection_reason,
-                    'uploaded_at': doc.uploaded_at,  # Pass as datetime object
+                    'uploaded_at': format_long_date(doc.uploaded_at) if doc.uploaded_at else '-',
+                    'updated_at': format_long_date(doc.updated_at) if doc.updated_at else '-',
+                    'approved_at': format_long_date(doc.approved_at) if doc.approved_at else '-',
+                    'rejected_at': format_long_date(doc.rejected_at) if doc.rejected_at else '-',
+                    'uploaded_new_file': getattr(doc, 'uploaded_new_file', False),
+                    'version': getattr(doc, 'version', 1),
                     'approval_logs': approver_actions
                 })
 
@@ -866,7 +871,12 @@ class StudentProfileLogsView(View):
                     'document_type': doc.document_type,
                     'file': doc.file.url if doc.file else None,
                     'rejection_reason': doc.rejection_reason,
-                    'uploaded_at': doc.uploaded_at if doc.uploaded_at else None,
+                    'uploaded_at': format_long_date(doc.uploaded_at) if doc.uploaded_at else '-',
+                    'updated_at': format_long_date(doc.updated_at) if doc.updated_at else '-',
+                    'approved_at': format_long_date(doc.approved_at) if doc.approved_at else '-',
+                    'rejected_at': format_long_date(doc.rejected_at) if doc.rejected_at else '-',
+                    'uploaded_new_file': getattr(doc, 'uploaded_new_file', False),
+                    'version': getattr(doc, 'version', 1),
                     'approval_logs': approver_actions
                 }
 
@@ -1165,7 +1175,7 @@ class StudentIncompleteProfileLogsView(View):
                     'document_type': doc.document_type,
                     'file': doc.file.url if doc.file else None,
                     'rejection_reason': doc.rejection_reason,
-                    'uploaded_at': doc.uploaded_at,  # Pass as datetime object
+                    'uploaded_at': format_long_date(doc.uploaded_at) if doc.uploaded_at else '-',
                     'approval_logs': approver_actions
                 })
             grouped_documents = OrderedDict((group, []) for group in self.DOCUMENT_GROUP_ORDER)
@@ -1197,7 +1207,12 @@ class StudentIncompleteProfileLogsView(View):
                     'document_type': doc.document_type,
                     'file': doc.file.url if doc.file else None,
                     'rejection_reason': doc.rejection_reason,
-                    'uploaded_at': doc.uploaded_at if doc.uploaded_at else None,
+                    'uploaded_at': format_long_date(doc.uploaded_at) if doc.uploaded_at else '-',
+                    'updated_at': format_long_date(doc.updated_at) if doc.updated_at else '-',
+                    'approved_at': format_long_date(doc.approved_at) if doc.approved_at else '-',
+                    'rejected_at': format_long_date(doc.rejected_at) if doc.rejected_at else '-',
+                    'uploaded_new_file': getattr(doc, 'uploaded_new_file', False),
+                    'version': getattr(doc, 'version', 1),
                     'approval_logs': approver_actions
                 }
                 grouped_documents[group].append(doc_info)
@@ -1221,7 +1236,12 @@ class StudentIncompleteProfileLogsView(View):
                     'document_type': merged_medical_doc.document_type,
                     'file': merged_medical_doc.file.url if merged_medical_doc.file else None,
                     'rejection_reason': merged_medical_doc.rejection_reason,
-                    'uploaded_at': merged_medical_doc.uploaded_at if merged_medical_doc.uploaded_at else None,
+                    'uploaded_at': format_long_date(merged_medical_doc.uploaded_at) if merged_medical_doc.uploaded_at else '-',
+                    'updated_at': format_long_date(merged_medical_doc.updated_at) if merged_medical_doc.updated_at else '-',
+                    'approved_at': format_long_date(merged_medical_doc.approved_at) if merged_medical_doc.approved_at else '-',
+                    'rejected_at': format_long_date(merged_medical_doc.rejected_at) if merged_medical_doc.rejected_at else '-',
+                    'uploaded_new_file': getattr(merged_medical_doc, 'uploaded_new_file', False),
+                    'version': getattr(merged_medical_doc, 'version', 1),
                     'approval_logs': approver_actions
                 }
                 grouped_documents['Medical Requirements'] = [doc_info]
@@ -1247,7 +1267,12 @@ class StudentIncompleteProfileLogsView(View):
                         'document_type': doc.document_type,
                         'file': doc.file.url if doc.file else None,
                         'rejection_reason': doc.rejection_reason,
-                        'uploaded_at': doc.uploaded_at if doc.uploaded_at else None,
+                        'uploaded_at': format_long_date(doc.uploaded_at) if doc.uploaded_at else '-',
+                        'updated_at': format_long_date(doc.updated_at) if doc.updated_at else '-',
+                        'approved_at': format_long_date(doc.approved_at) if doc.approved_at else '-',
+                        'rejected_at': format_long_date(doc.rejected_at) if doc.rejected_at else '-',
+                        'uploaded_new_file': getattr(doc, 'uploaded_new_file', False),
+                        'version': getattr(doc, 'version', 1),
                         'approval_logs': approver_actions
                     }
                     grouped_documents['Medical Requirements'].append(doc_info)
@@ -1453,6 +1478,17 @@ def approve_document(request, document_id):
 
         document.status = action
         document.rejection_reason = rejection_reason if action == DocumentStatus.REJECTED.value else None
+        # Set approval/rejection timestamps
+        from django.utils import timezone
+        if action == DocumentStatus.APPROVED.value:
+            document.approved_at = timezone.now()
+            document.rejected_at = None
+        elif action == DocumentStatus.REJECTED.value:
+            document.rejected_at = timezone.now()
+            document.approved_at = None
+        else:
+            document.approved_at = None
+            document.rejected_at = None
         document.save()
 
         approval_log = ApprovalLog.objects.create(
@@ -2552,12 +2588,19 @@ def submit_new_file(request):
 
         saved_path = default_storage.save(file_path, ContentFile(new_file.read()))
 
+        # Mark the old document as not a new upload
+        existing_document.uploaded_new_file = False
+        existing_document.save()
+        # Set the new version number
+        new_version = existing_document.version + 1
         new_document = Document.objects.create(
             profile=profile,
             document_type=document_type,
             file=saved_path,
             file_name=new_file_name,
-            status="In Review"
+            status="In Review",
+            uploaded_new_file=True,
+            version=new_version
         )
 
         existing_document.delete()
@@ -2755,11 +2798,14 @@ class FacilityListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Get distinct provinces and cities
+        # Get distinct provinces
         provinces = list(set(Facility.objects.values_list('province', flat=True)))
 
-        cities = list(set(Facility.objects.values_list('city', flat=True)))
-
+        # Pass city objects with name and province
+        from .models import City
+        cities = list(City.objects.values('name', 'province'))
+        # Sort: Ontario cities first, then others
+        cities = sorted(cities, key=lambda c: (c['province'] != 'Ontario', c['province'], c['name']))
         context['provinces'] = provinces
         context['cities'] = cities
         return context
@@ -2853,7 +2899,8 @@ def edit_facility(request, facility_id):
 from django.db.models import Count, Q
 
 
-def get_profiles_facilities_orientations():
+def get_profiles_facilities_orientations(request=None):
+    from .models import StudentID
     required_docs = [
         "Medical Certificate Form",
         "Covid Vaccination Certificate",
@@ -2863,8 +2910,7 @@ def get_profiles_facilities_orientations():
         "Experience Document",  # Always required and must be approved
     ]
 
-    # Fetch profiles where all required documents are approved
-    profiles = PlacementProfile.objects.select_related(
+    profiles_qs = PlacementProfile.objects.select_related(
         'user', 'assigned_facility', 'orientation_date'
     ).annotate(
         num_approved_docs=Count(
@@ -2878,18 +2924,68 @@ def get_profiles_facilities_orientations():
         num_approved_docs=len(required_docs)
     )
 
+    # Filtering
+    assigned_facility_id = None
+    status = None
+    orientation_date_id = None
+    search_query = None
+    if request:
+        assigned_facility_id = request.GET.get('assigned_facility', '')
+        status = request.GET.get('status', '')
+        orientation_date_id = request.GET.get('orientation_date', '')
+        search_query = request.GET.get('search', '').strip()
+        if assigned_facility_id:
+            profiles_qs = profiles_qs.filter(assigned_facility__id=assigned_facility_id)
+        if status:
+            profiles_qs = profiles_qs.filter(stage=status)
+        if orientation_date_id:
+            profiles_qs = profiles_qs.filter(orientation_date__id=orientation_date_id)
+        if search_query:
+            profiles_qs = profiles_qs.filter(
+                Q(first_name__icontains=search_query) |
+                Q(last_name__icontains=search_query) |
+                Q(user__student_id_record__student_id__icontains=search_query)
+            )
+
     # Fetch facilities and orientation dates
     facilities = Facility.objects.filter(status='Active').order_by('name')
     orientation_dates = OrientationDate.objects.order_by('-orientation_date')
+    status_choices = [s[0] for s in PlacementProfile._meta.get_field('stage').choices if s[0]]
+
+    # Prepare profiles with student_id and start/end dates
+    profiles = []
+    for profile in profiles_qs:
+        try:
+            student_id = profile.user.student_id_record.student_id
+        except Exception:
+            student_id = ''
+        profiles.append({
+            'id': profile.id,
+            'user': profile.user,
+            'first_name': profile.first_name,
+            'last_name': profile.last_name,
+            'college_email': profile.college_email,
+            'experience_level': profile.experience_level,
+            'assigned_facility': profile.assigned_facility,
+            'orientation_date': profile.orientation_date,
+            'official_start_date': profile.official_start_date,
+            'exact_placement_end_date': profile.exact_placement_end_date,
+            'stage': profile.stage,
+            'student_id': student_id,
+        })
 
     return {
         "profiles": profiles,
         "facilities": facilities,
         "orientation_dates": orientation_dates,
+        "status_choices": status_choices,
+        "selected_facility": assigned_facility_id or '',
+        "selected_status": status or '',
+        "selected_orientation_date": orientation_date_id or '',
     }
 
 def assign_facility_and_orientation_date_to_users(request):
-    context = get_profiles_facilities_orientations()
+    context = get_profiles_facilities_orientations(request)
     return render(request, "assign_facility.html", context)
 
 def assign_facility_view(request):
@@ -3072,7 +3168,7 @@ def get_student_profile_by_id(request, profile_id):
             'document_type': doc.document_type,
             'file': doc.file.url if doc.file else None,
             'rejection_reason': doc.rejection_reason,
-            'uploaded_at': doc.uploaded_at.strftime("%Y-%m-%d %H:%M:%S"),
+            'uploaded_at': format_long_date(doc.uploaded_at) if doc.uploaded_at else '-',
             'approval_logs': approver_actions
         })
     
@@ -3101,7 +3197,12 @@ def get_student_profile_by_id(request, profile_id):
                 'document_type': doc.document_type,
                 'file': doc.file.url if doc.file else None,
                 'rejection_reason': doc.rejection_reason,
-                'uploaded_at': doc.uploaded_at.strftime("%Y-%m-%d %H:%M:%S") if doc.uploaded_at else "N/A",
+                'uploaded_at': format_long_date(doc.uploaded_at) if doc.uploaded_at else '-',
+                'updated_at': format_long_date(doc.updated_at) if doc.updated_at else '-',
+                'approved_at': format_long_date(doc.approved_at) if doc.approved_at else '-',
+                'rejected_at': format_long_date(doc.rejected_at) if doc.rejected_at else '-',
+                'uploaded_new_file': getattr(doc, 'uploaded_new_file', False),
+                'version': getattr(doc, 'version', 1),
                 'approval_logs': approver_actions
             }
 
@@ -3339,9 +3440,27 @@ def merge_medical_requirements_if_ready(profile, debug_prefix="[DEBUG]"):
             defaults={
                 'file': merged_file_storage_path,
                 'file_name': merged_medical_pdf_name,
-                'status': 'In Review',
+                'status': 'Approved',
             }
         )
         print(f"{debug_prefix} Merged Medical Certificate Document {'created' if created else 'updated'}: {doc_obj.id}")
     else:
         print(f"{debug_prefix} Not all medical docs are approved and PDFs. No merge performed.")
+
+@csrf_exempt
+@require_POST
+def edit_orientation_date(request, pk):
+    from .models import OrientationDate
+    import json
+    try:
+        orientation = OrientationDate.objects.get(pk=pk)
+        new_date = request.POST.get('orientation_date')
+        if not new_date:
+            return JsonResponse({'success': False, 'error': 'No date provided.'})
+        orientation.orientation_date = new_date
+        orientation.save()
+        return JsonResponse({'success': True})
+    except OrientationDate.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Orientation date not found.'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})

@@ -125,7 +125,7 @@ class Document(models.Model):
     document_type = models.CharField(
         max_length=50,
         choices=[
-            ("Medical Certificate", "Medical Certificate"),
+            ("Medical Certificate Form", "Medical Certificate Form"),
             ("Covid Vaccination Certificate", "Covid Vaccination Certificate"),
             ("Vulnerable Sector Check", "Vulnerable Sector Check"),
             ("CPR & First Aid", "CPR & First Aid"),
@@ -142,6 +142,11 @@ class Document(models.Model):
     )
     rejection_reason = models.TextField(blank=True, null=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    approved_at = models.DateTimeField(null=True, blank=True)
+    rejected_at = models.DateTimeField(null=True, blank=True)
+    uploaded_new_file = models.BooleanField(default=False)
+    version = models.PositiveIntegerField(default=1)
 
 class Approver(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="approver_profile")
@@ -260,4 +265,4 @@ class ActionLog(models.Model):
         return f"{self.student_id} - {self.action} at {self.timestamp}"  
 
     class Meta:
-        unique_together = ('profile', 'action')  
+        pass  # Removed unique_together constraint for (profile, action)  
