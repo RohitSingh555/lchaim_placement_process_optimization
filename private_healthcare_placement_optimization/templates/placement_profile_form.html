@@ -185,7 +185,7 @@
               />
               <label for="subStep2Checkbox" class="ml-3 text-gray-800 text-lg">
                 I have read and understood my responsibilities listed for
-                placement
+                placement.
               </label>
             </div>
             <p id="subStep2Error" class="text-red-600 text-lg mt-2 hidden">
@@ -245,12 +245,12 @@
               />
               <label for="subStep3Checkbox" class="ml-3 text-gray-800 text-lg">
                 I have read and understood my responsibilities listed for
-                placement</label
+                placement.</label
               >
             </div>
             <p id="subStep3Error" class="text-red-600 text-lg mt-2 hidden">
               I have read and understood my responsibilities listed for
-              placement
+              placement.
             </p>
           </div>
         </div>
@@ -448,7 +448,7 @@
               />
               <label for="subStep4Checkbox" class="ml-3 text-gray-800 text-lg">
                 I have read and understood my responsibilities listed for
-                placement
+                placement.
               </label>
             </div>
             <p id="subStep4Error" class="text-red-600 text-lg mt-2 hidden">
@@ -531,7 +531,7 @@
               />
               <label for="subStep5Checkbox" class="ml-3 text-gray-800 text-lg">
                 I have read and understood my responsibilities listed for
-                placement
+                placement.
               </label>
             </div>
             <p id="subStep5Error" class="text-red-600 text-lg mt-2 hidden">
@@ -619,7 +619,7 @@
                 class="w-6 h-6 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
               />
               <label for="subStep6Checkbox" class="ml-3 text-gray-800 text-lg">
-                I have read and understood the Conduct and Respect Policy
+                I have read and understood the Conduct and Respect Policy.
               </label>
             </div>
             <p id="subStep6Error" class="text-red-600 text-lg mt-2 hidden">
@@ -1348,6 +1348,7 @@
         if (openToOutside === "Yes") {
           cityPreferencesDiv.classList.remove("hidden");
           loadCityDropdowns();
+          loadCityDropdowns_city_1_2();
         } else {
           cityPreferencesDiv.classList.add("hidden");
           city1.value = ""; // Clear previous selection
@@ -1373,7 +1374,7 @@
         }
       }
 
-      function loadCityDropdowns() {
+      function loadCityDropdowns_city_1_2() {
         fetch("/cities-and-provinces/") // Replace with your actual endpoint
           .then((response) => response.json())
           .then((data) => {
@@ -1494,6 +1495,7 @@
       }
       document.addEventListener("DOMContentLoaded", function () {
         loadCityDropdowns();
+        loadCityDropdowns_city_1_2();
       });
     </script>
 
@@ -1860,7 +1862,7 @@
         <!-- Medical Requirements -->
         <div class="mb-2 text-teal-800 font-bold text-base mt-6">Medical Requirements</div>
         <div class="flex flex-col mb-4">
-          <label for="medical_certificate_form" class="text-lg font-medium text-gray-700 mb-2">Medical Certificate Form</label>
+          <label for="medical_certificate_form" class="text-lg font-medium text-gray-700 mb-2">Medical Report Form</label>
           <div class="file-dropzone border-2 border-dashed border-teal-300 rounded-lg bg-white flex flex-col items-center justify-center py-5 px-3 transition hover:border-teal-500 relative" data-input="medical_certificate_form">
             <input type="file" name="medical_certificate_form" id="medical_certificate_form" accept="application/pdf" class="hidden" />
             <div class="flex flex-col items-center justify-center pointer-events-none select-none">

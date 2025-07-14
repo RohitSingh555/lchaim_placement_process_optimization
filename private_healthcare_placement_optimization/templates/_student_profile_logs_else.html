@@ -381,7 +381,7 @@
             <tr class="border-b hover:bg-gray-50 transition">
               <td class="px-4 py-2 font-medium text-gray-700">
                 {% if document.document_type == "Medical Certificate" %}
-                  Medical Certificate Form
+                  Medical Report Form
                 {% else %}
                   {{ document.document_type }}
                 {% endif %}
@@ -583,6 +583,33 @@ function saveModuleCompleted(event) {
       location.reload();
     }
   });
+}
+</script>
+                
+<div id="messagePopup" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+  <span id="messageText"></span>
+</div>
+
+<script>
+function showMessage(message, type) {
+    const messagePopup = document.getElementById('messagePopup');
+    const messageText = document.getElementById('messageText');
+    if (!messagePopup || !messageText) {
+        console.error('messagePopup or messageText element not found!');
+        return;
+    }
+    messagePopup.classList.remove('hidden');
+    messageText.innerText = message;
+    if (type === 'success') {
+        messagePopup.classList.remove('bg-red-500');
+        messagePopup.classList.add('bg-green-500');
+    } else {
+        messagePopup.classList.remove('bg-green-500');
+        messagePopup.classList.add('bg-red-500');
+    }
+    setTimeout(() => {
+        messagePopup.classList.add('hidden');
+    }, 4000); 
 }
 </script>
                 

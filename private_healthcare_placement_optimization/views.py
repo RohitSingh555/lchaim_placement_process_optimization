@@ -279,7 +279,7 @@ class PlacementProfileView(View):
 
         documents_data = {
             'experience_document': 'Experience Document',
-            'medical_certificate_form': 'Medical Certificate Form',
+            'medical_certificate_form': 'Medical Report Form',
             'xray_result': 'X-Ray Result',
             'mmr_lab_vax_record': 'MMR Lab/Vax Record',
             'varicella_lab_vax_record': 'Varicella Lab/Vax Record',
@@ -337,6 +337,8 @@ class PlacementProfileView(View):
                 )
                 send_welcome_email(profile, submitted_documents)
                 print(f"Welcome email sent to {profile.college_email}")
+                # Set session flag for popup
+                request.session['show_under_review_popup'] = True
             except Exception as e:
                 print(f"Error sending welcome email: {e}")
         else:
@@ -354,7 +356,7 @@ class PlacementProfileView(View):
 
         # After all documents are uploaded, check for medical requirements
         MEDICAL_REQUIREMENTS = [
-            'Medical Certificate Form',
+            'Medical Report Form',
             'X-Ray Result',
             'MMR Lab/Vax Record',
             'Varicella Lab/Vax Record',
@@ -704,7 +706,7 @@ class StudentProfileLogsView(View):
 ]
 
     REQUIRED_DOCUMENTS = {
-        "Medical Certificate Form",
+        "Medical Report Form",
         "Covid Vaccination Certificate",
         "Vulnerable Sector Check",
         "CPR & First Aid",
@@ -1030,7 +1032,7 @@ class StudentIncompleteProfileLogsView(View):
     "Documents Required After Placement Completion"
 ]
     REQUIRED_DOCUMENTS = {
-        "Medical Certificate Form",
+        "Medical Report Form",
         "Covid Vaccination Certificate",
         "Vulnerable Sector Check",
         "CPR & First Aid",
@@ -1526,7 +1528,7 @@ def approve_document(request, document_id):
 
         # After approval, check if all medical requirements are approved and PDFs
         MEDICAL_REQUIREMENTS = [
-            'Medical Certificate Form',
+            'Medical Report Form',
             'X-Ray Result',
             'MMR Lab/Vax Record',
             'Varicella Lab/Vax Record',
@@ -1957,15 +1959,15 @@ def send_email_notify_placement(profile, facility, orientation_date, requested_h
 
 
 def send_email_notify_result(profile, rejected_documents, zip_url):
-    subject = 'Placement: Resubmit Rejected Documents'
+    subject = 'Placement Documents Needed – Action Required'
 
-    # Build the dynamic list of rejected documents
+    # Build the dynamic list of rejected documents as bullets
     document_list_html = ""
     for doc in rejected_documents:
         reason = doc.rejection_reason if doc.rejection_reason else "No reason provided"
-        document_list_html += f"<li><span class='bold'>{doc.document_type}:</span> {reason}</li>"
+        document_list_html += f"<li>{doc.document_type} – {reason}</li>"
 
-    # HTML Email message
+    # HTML Email message (revised as per new requirements)
     message = f"""
     <html>
     <head>
@@ -1992,6 +1994,10 @@ def send_email_notify_result(profile, rejected_documents, zip_url):
                 line-height: 1.6;
                 font-size: 16px;
             }}
+            ul {{
+                margin-top: 0.5em;
+                margin-bottom: 1em;
+            }}
             .footer {{
                 margin-top: 20px;
                 font-size: 14px;
@@ -2016,27 +2022,22 @@ def send_email_notify_result(profile, rejected_documents, zip_url):
     <body>
         <div class="container">
             <p>Greetings!</p>
-            <p>The documents below were Corrected due to the following reasons:</p>
+            <p>Thank you for submitting your placement documents.</p>
+            <p>Upon review, we found that some of the submitted documents do not meet the required standards for approval. Below are the specific reasons for rejection:</p>
+            <p><b>Rejected Documents & Reasons:</b></p>
             <ul>
                 {document_list_html}
             </ul>
-            <p>Next step: address the reasons and resubmit the documents by clicking the link below.</p>
-            <p><a href="https://www.peakcollege.ca" class="highlight">Resubmission Link: Click here!</a></p>
-            <p>You'll receive another email once all are approved.</p>
+            <p>To proceed, please log in to your profile and resubmit the corrected documents ensuring they meet all outlined requirements. The Placement Team will re-evaluate your submission once the updated documents are provided.</p>
+            <p><a href="https://www.peakcollege.ca" class="highlight">Placement Link: Click here.</a></p>
+            <p>We appreciate your prompt attention to this matter and look forward to your updated submission.</p>
             <div class="footer">
-                <p>Best of luck with your placement process and thanks again for completing your Placement at Peak College!</p>
-                <span>Warm regards, </span>
+                <span>Warm regards,</span><br><br>
+                <span>Peak HealthCare Private College</span><br>
+                <span>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></span><br>
                 <br>
-                <span> The Peak Healthcare Team</span>
-                <br>
-                <span>Website: <a href="https://www.peakcollege.ca">www.peakcollege.ca</a></span>
-                <br>
-                <img src="http://peakcollege.ca/wp-content/uploads/2015/06/PEAK-Logo-Black-Green.jpg"></img>
-                <br>
-                <span>1140 Sheppard Ave West</span>
-                <br>
-                <span>Unit #12, North York, ON</span>
-                <br>
+                <span>1140 Sheppard Ave W - Unit 12</span><br>
+                <span>North York, ON</span><br>
                 <span>M3K 2A2</span>
             </div>
         </div>
@@ -2367,7 +2368,7 @@ def handle_button_action(request, profile_id, action):
 
         # --- Medical Requirements group as per forms_extras.py ---
         MEDICAL_REQUIREMENTS = [
-            'Medical Certificate Form',
+            'Medical Report Form',
             'X-Ray Result',
             'MMR Lab/Vax Record',
             'Varicella Lab/Vax Record',
@@ -2701,7 +2702,7 @@ def submit_new_file(request):
 
         # After uploading a new file, check for medical requirements
         MEDICAL_REQUIREMENTS = [
-            'Medical Certificate Form',
+            'Medical Report Form',
             'X-Ray Result',
             'MMR Lab/Vax Record',
             'Varicella Lab/Vax Record',
@@ -2781,7 +2782,7 @@ def incomplete_profiles_view(request):
     profiles = PlacementProfile.objects.all().prefetch_related("documents")
     for profile in profiles:
         required_docs = [
-            "Medical Certificate Form",
+            "Medical Report Form",
             "Covid Vaccination Certificate",
             "Vulnerable Sector Check",
             "CPR & First Aid",
@@ -2813,7 +2814,7 @@ def complete_profiles_view(request):
     profiles = PlacementProfile.objects.all().prefetch_related("documents")
     for profile in profiles:
         required_docs = [
-            "Medical Certificate Form",
+            "Medical Report Form",
             "Covid Vaccination Certificate",
             "Vulnerable Sector Check",
             "CPR & First Aid",
@@ -2987,7 +2988,7 @@ from django.db.models import Count, Q
 def get_profiles_facilities_orientations(request=None):
     from .models import StudentID
     required_docs = [
-        "Medical Certificate Form",
+        "Medical Report Form",
         "Covid Vaccination Certificate",
         "Vulnerable Sector Check",
         "Mask Fit Certificate",
@@ -3207,7 +3208,7 @@ def get_student_profile_by_id(request, profile_id):
     )
 
     REQUIRED_DOCUMENTS = {
-        "Medical Certificate Form",
+        "Medical Report Form",
         "Covid Vaccination Certificate",
         "Vulnerable Sector Check",
         "CPR & First Aid",
@@ -3333,8 +3334,10 @@ def update_stage(request):
     
 def base_view(request):
     has_profile = PlacementProfile.objects.filter(user=request.user).exists()
+    show_under_review_popup = request.session.pop('show_under_review_popup', False)
     context = {
         'has_profile': has_profile,
+        'show_under_review_popup': show_under_review_popup,
     }
     return render(request, 'base.html', context)
 
@@ -3491,7 +3494,7 @@ def merge_pdfs(pdf_paths, output_path):
 # --- Helper function for merging medical requirements ---
 def merge_medical_requirements_if_ready(profile, debug_prefix="[DEBUG]"):
     MEDICAL_REQUIREMENTS = [
-        'Medical Certificate Form',
+        'Medical Report Form',
         'X-Ray Result',
         'MMR Lab/Vax Record',
         'Varicella Lab/Vax Record',

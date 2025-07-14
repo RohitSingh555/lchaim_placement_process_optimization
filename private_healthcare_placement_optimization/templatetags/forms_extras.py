@@ -22,7 +22,7 @@ def is_allowed_doc(doc_type):
 allowed_docs = [
     'Experience Document',
     # --- Medical Requirements ---
-    'Medical Certificate Form',
+    'Medical Report Form',
     'X-Ray Result',
     'MMR Lab/Vax Record',
     'Varicella Lab/Vax Record',
@@ -52,7 +52,7 @@ def document_group(doc_type_display_name, all_doc_types=None):
     # If all_doc_types is provided and this is Medical Requirements, only return 'Medical Requirements' for merged
     if all_doc_types and (
         doc_type_display_name in [
-            'Medical Certificate Form',
+            'Medical Report Form',
             'X-Ray Result',
             'MMR Lab/Vax Record',
             'Varicella Lab/Vax Record',
@@ -73,7 +73,7 @@ def document_group(doc_type_display_name, all_doc_types=None):
     ]:
         return 'Experience'
     if doc_type_display_name in [
-        'Medical Certificate Form',
+        'Medical Report Form',
         'X-Ray Result',
         'MMR Lab/Vax Record',
         'Varicella Lab/Vax Record',
@@ -150,7 +150,7 @@ def hide_if_merged_medical_group(docs, all_docs):
     """
     merged = 'Merged Medical Certificate'
     to_hide = [
-        'Medical Certificate Form',
+        'Medical Report Form',
         'X-Ray Result',
         'MMR Lab/Vax Record',
         'Varicella Lab/Vax Record',

@@ -321,13 +321,13 @@
                   {% if profile.action_log_times.done %}
                     <div class="text-xs text-gray-500 mt-1 mb-2">Last used: {{ profile.action_log_times.done }}</div>
                   {% endif %}
-                  <button onclick="sendEmailAction('{{ profile.profile_id }}', 'notify_placement'); closeActionModal('{{ profile.profile_id }}')" class="w-full text-left bg-orange-500 text-white px-3 py-2 rounded-md hover:bg-orange-600 flex items-center space-x-2">
+                  {% comment %} <button onclick="sendEmailAction('{{ profile.profile_id }}', 'notify_placement'); closeActionModal('{{ profile.profile_id }}')" class="w-full text-left bg-orange-500 text-white px-3 py-2 rounded-md hover:bg-orange-600 flex items-center space-x-2">
                     <i class="fas fa-building"></i>
                     <span>Notify Placement</span>
-                  </button>
-                  {% if profile.action_log_times.notify_placement %}
+                  </button> {% endcomment %}
+                  {% comment %} {% if profile.action_log_times.notify_placement %}
                     <div class="text-xs text-gray-500 mt-1 mb-2">Last used: {{ profile.action_log_times.notify_placement }}</div>
-                  {% endif %}
+                  {% endif %}  {% endcomment %}
                 {% endif %}
                 {% if is_superuser %}
                   {% if only_users_no_profile %}
@@ -461,7 +461,7 @@
         </div>
 
         {% for profile in profile_details %}
-    <div id="documentModal-{{ forloop.counter }}" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-6">
+    <div id="documentModal-{{ forloop.counter }}" style="z-index:999" class="fixed z inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-6">
         <div class="bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 relative">
             <div class="">
             <h3 class="text-2xl font-semibold text-gray-800 mb-4">Submitted Documents</h3>
@@ -559,7 +559,7 @@
                       </div>
                     {% endif %}
                   {% endfor %}
-                  {# Fallback for documents with no group #}
+
                   {% with ungrouped_docs=profile.documents|dictsort:"document_type" %}
                     {% if ungrouped_docs %}
                       {% for document in ungrouped_docs %}
@@ -1130,7 +1130,6 @@ function sendDocumentsEmail(profileId) {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
-
 </style>
 <script>
 document.addEventListener("DOMContentLoaded", function() {

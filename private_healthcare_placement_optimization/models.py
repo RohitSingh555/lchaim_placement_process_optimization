@@ -125,7 +125,7 @@ class Document(models.Model):
     document_type = models.CharField(
         max_length=50,
         choices=[
-            ("Medical Certificate Form", "Medical Certificate Form"),
+            ("Medical Report Form", "Medical Report Form"),
             ("Covid Vaccination Certificate", "Covid Vaccination Certificate"),
             ("Vulnerable Sector Check", "Vulnerable Sector Check"),
             ("CPR & First Aid", "CPR & First Aid"),

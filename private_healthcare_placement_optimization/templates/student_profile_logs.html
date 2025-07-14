@@ -40,7 +40,7 @@
 
     {% if profile_details and is_approver and is_superuser %}
 <!-- Fixed Filter/Header Section -->
-<div id="fixed-filters" class="fixed top-20 left-0 w-full z-40 bg-white shadow-md border-b border-teal-100 hidden md:block">
+<div id="fixed-filters"  class="fixed top-20 left-0 w-full z-4 bg-white shadow-md border-b border-teal-100 hidden md:block">
   <div class="max-w-screen-xxl mx-auto px-4 py-2 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
     <!-- Left: Title & Description -->
     <div class="flex flex-col justify-center gap-1 min-w-[260px]">
@@ -105,12 +105,13 @@
     </form>
   </div>
 </div>
+<div id="messagePopup" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+  <span id="messageText"></span>
+</div>
 <!-- End Fixed Filter/Header Section -->
 <div id="profile-logs-content"> <!-- dynamic padding will be set by JS -->
     <div class="rounded-lg overflow-hidden mb-8">
-        <div id="messagePopup" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
-            <span id="messageText"></span>
-        </div>
+      
         
             <div class="overflow-x-auto w-full">
                 <div class="relative max-w-full">
@@ -338,13 +339,13 @@
           {% if profile.action_log_times.done %}
             <div class="text-xs text-gray-500 mt-1 mb-2">Last used: {{ profile.action_log_times.done }}</div>
           {% endif %}
-          <button onclick="sendEmailAction('{{ profile.profile_id }}', 'notify_placement'); closeActionModal('{{ profile.profile_id }}')" class="w-full text-left bg-orange-500 text-white px-3 py-2 rounded-md hover:bg-orange-600 flex items-center space-x-2">
+          {% comment %} {# <button onclick="sendEmailAction('{{ profile.profile_id }}', 'notify_placement'); closeActionModal('{{ profile.profile_id }}')" class="w-full text-left bg-orange-500 text-white px-3 py-2 rounded-md hover:bg-orange-600 flex items-center space-x-2">
             <i class="fas fa-building"></i>
             <span>Notify Placement</span>
           </button>
           {% if profile.action_log_times.notify_placement %}
             <div class="text-xs text-gray-500 mt-1 mb-2">Last used: {{ profile.action_log_times.notify_placement }}</div>
-          {% endif %}
+          {% endif %} #} {% endcomment %}
         {% endif %}
         {% if is_superuser %}
           {% if only_users_no_profile %}
@@ -434,9 +435,13 @@
             
         </div>
         
+<div id="messagePopup" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+  <span id="messageText"></span>
+</div>
 
+    
         {% for profile in profile_details %}
-    <div id="documentModal-{{ forloop.counter }}" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-6">
+    <div  style="z-index:98"  id="documentModal-{{ forloop.counter }}" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-6">
         <div class="bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 relative">
 
             <div class="">
@@ -467,7 +472,7 @@
                           <div class="flex items-center justify-between border-b border-gray-200 py-2">
                             <div>
                               <p class="text-md font-medium">{% if document.document_type == "Medical Certificate" %}
-                                Medical Certificate Form
+                                Medical Report Form
                               {% else %}
                                 {{ document.document_type }}
                               {% endif %}</p>
@@ -548,7 +553,8 @@
                       </div>
                     {% endif %}
                   {% endfor %}
-                  {# Fallback for documents with no group #}
+
+                  
                   {% with ungrouped_docs=profile.documents|dictsort:"document_type" %}
                     {% if ungrouped_docs %}
                       {% for document in ungrouped_docs %}
@@ -558,7 +564,7 @@
                             <div class="flex items-center justify-between border-b border-gray-200 py-2">
                               <div>
                                 <p class="text-md font-medium">{% if document.document_type == "Medical Certificate" %}
-                                  Medical Certificate Form
+                                  Medical Report Form
                                 {% else %}
                                   {{ document.document_type }}
                                 {% endif %}</p>
@@ -604,7 +610,7 @@
         
         
         <!-- Modal for comments or rejection reason -->
-        <div id="commentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-6">
+        <div id="commentModal"  style="z-index:99"  class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-6">
             <div class="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 relative">
                 <h3 class="text-2xl font-semibold text-gray-800 mb-4">Add Comments / Rejection Reason</h3>
                 <button onclick="closeCommentModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700">&times;</button>
@@ -981,10 +987,12 @@ function updateRejectionReason(documentData) {
     function showMessage(message, type) {
         const messagePopup = document.getElementById('messagePopup');
         const messageText = document.getElementById('messageText');
-        
+        if (!messagePopup || !messageText) {
+            console.error('messagePopup or messageText element not found!');
+            return;
+        }
         messagePopup.classList.remove('hidden');
         messageText.innerText = message;
-        
         if (type === 'success') {
             messagePopup.classList.remove('bg-red-500');
             messagePopup.classList.add('bg-green-500');
@@ -992,7 +1000,6 @@ function updateRejectionReason(documentData) {
             messagePopup.classList.remove('bg-green-500');
             messagePopup.classList.add('bg-red-500');
         }
-    
         setTimeout(() => {
             messagePopup.classList.add('hidden');
         }, 4000); 
