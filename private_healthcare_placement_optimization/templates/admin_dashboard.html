@@ -23,8 +23,8 @@
     <table class="min-w-full bg-white divide-y divide-gray-200">
       <thead class="bg-teal-50">
         <tr>
-          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">ID</th>
-          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">Name</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">Student ID</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">Name / Email</th>
           <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">Status</th>
           <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">Last Updated</th>
           <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">Skills Passbook</th>
@@ -62,32 +62,56 @@ function fetchDashboardData() {
 }
 function renderStatusCards() {
   const statuses = ['new','in_process','ready','in_placement','for_exam','approved'];
-  const statusNames = {
-    new: 'New', in_process: 'Ongoing', ready: 'Ready', in_placement: 'In Placement', for_exam: 'For Exam', approved: 'Approved'
+  const statusMeta = {
+    new: { label: 'New', icon: '<i class="fas fa-user-plus text-gray-400"></i>' },
+    in_process: { label: 'Ongoing', icon: '<i class="fas fa-spinner text-yellow-400 animate-spin-slow"></i>' },
+    ready: { label: 'Ready', icon: '<i class="fas fa-flag-checkered text-blue-400"></i>' },
+    in_placement: { label: 'In Placement', icon: '<i class="fas fa-briefcase-medical text-purple-400"></i>' },
+    for_exam: { label: 'For Exam', icon: '<i class="fas fa-book-open text-cyan-400"></i>' },
+    approved: { label: 'Approved', icon: '<i class="fas fa-check-circle text-green-400"></i>' },
   };
   const counts = {};
   statuses.forEach(s => counts[s] = 0);
   dashboardData.profiles.forEach(p => { if (counts[p.status] !== undefined) counts[p.status]++; });
-  let html = statuses.map(s => `<div class='bg-white rounded-xl shadow p-6 flex flex-col items-center'><div class='text-2xl font-bold text-teal-600'>${counts[s]}</div><div class='text-gray-700 mt-2 text-sm'>${statusNames[s]}</div></div>`).join('');
+  let html = statuses.map(s => `<div class='bg-white rounded-xl shadow p-6 flex flex-col items-center gap-2'><div class='text-3xl'>${statusMeta[s].icon}</div><div class='text-2xl font-bold text-teal-600'>${counts[s]}</div><div class='text-gray-700 mt-2 text-sm'>${statusMeta[s].label}</div></div>`).join('');
   document.getElementById('status-cards').innerHTML = html;
+}
+function statusBadge(status) {
+  const map = {
+    'approved': 'bg-green-100 text-green-800 border-green-300',
+    'in_process': 'bg-yellow-100 text-yellow-800 border-yellow-300',
+    'ready': 'bg-blue-100 text-blue-800 border-blue-300',
+    'in_placement': 'bg-purple-100 text-purple-800 border-purple-300',
+    'for_exam': 'bg-cyan-100 text-cyan-800 border-cyan-300',
+    'new': 'bg-gray-100 text-gray-800 border-gray-300',
+    'pending_resubmission': 'bg-orange-100 text-orange-800 border-orange-300',
+    'cancelled': 'bg-red-100 text-red-800 border-red-300',
+    'transferred': 'bg-pink-100 text-pink-800 border-pink-300',
+    'onhold': 'bg-gray-200 text-gray-600 border-gray-400',
+  };
+  const label = status.replace('_',' ').replace(/\b\w/g, l => l.toUpperCase());
+  return `<span class="inline-block px-3 py-1 rounded-full border text-xs font-semibold ${map[status]||'bg-gray-100 text-gray-800 border-gray-300'}">${label}</span>`;
 }
 function renderTable() {
   let rows = '';
   let search = document.getElementById('searchInput').value.toLowerCase();
   let status = document.getElementById('statusFilter').value;
   let filtered = dashboardData.profiles.filter(p => {
-    let match = (!search || p.name.toLowerCase().includes(search) || (p.student_id+'' === search));
+    let match = (!search || (p.name && p.name.toLowerCase().includes(search)) || (p.student_id+'' === search));
     if (status && p.status !== status) return false;
     return match;
   });
   filtered.forEach(p => {
     let reminders = dashboardData.reminders.filter(r => r.profile_id === p.id);
-    rows += `<tr class='hover:bg-teal-50'>
-      <td class='px-4 py-2'><a href='${p.profile_url}' class='text-teal-600 underline' target='_blank'>${p.student_id}</a></td>
-      <td class='px-4 py-2'>${p.name}</td>
-      <td class='px-4 py-2'>${p.status.replace('_',' ').replace(/\b\w/g, l => l.toUpperCase())}</td>
-      <td class='px-4 py-2'>${p.last_updated ? new Date(p.last_updated).toLocaleString() : ''}</td>
-      <td class='px-4 py-2'>${p.skills_passbook || ''}</td>
+    let nameCell = p.name && p.name.trim() ? `<span>${p.name}</span>` : `<span class="italic text-sm bg-teal-50 text-teal-700 px-2 py-1 rounded">${p.email||'No Name/Email'}</span>`;
+    rows += `<tr class='hover:bg-teal-50 transition'>
+      <td class='px-4 py-2 font-mono text-xs text-gray-700'>
+        <a href='${p.profile_url}' class='text-teal-600 underline' target='_blank'>${p.student_id}</a>
+      </td>
+      <td class='px-4 py-2'>${nameCell}</td>
+      <td class='px-4 py-2'>${statusBadge(p.status)}</td>
+      <td class='px-4 py-2 text-xs text-gray-500'>${p.last_updated || ''}</td>
+      <td class='px-4 py-2'>${p.skills_passbook ? statusBadge(p.skills_passbook.toLowerCase().replace(/ /g,'_')) : '<span class="text-gray-400 italic">N/A</span>'}</td>
       <td class='px-4 py-2'><button onclick='showReminderLog(${p.id})' class='text-xs text-teal-700 underline'>View (${reminders.length})</button></td>
     </tr>`;
   });

@@ -1,4 +1,122 @@
 {% load forms_extras %}
+{% if show_complete_popup or show_incomplete_popup %}
+<div id="uploadPopup" class="popup-overlay" style="display:none;">
+  <div class="popup-content {% if show_complete_popup %}popup-complete{% else %}popup-incomplete{% endif %}">
+    <div class="popup-icon">
+      {% if show_complete_popup %}
+        <i class="fas fa-check-circle"></i>
+      {% else %}
+        <i class="fas fa-exclamation-circle"></i>
+      {% endif %}
+    </div>
+    {% if show_complete_popup %}
+      <h3>Your documents are now <span class="text-teal">UNDER REVIEW</span> by our team.</h3>
+      <p>Next step, wait for the approval of your submitted documents.<br>
+      You’ll receive another email once all are approved.</p>
+    {% else %}
+      <h3>Thank you for creating your profile.</h3>
+      <p>To submit the remaining requirements, please log in to your profile again and complete the submission process.<br>
+      The placement coordinators will begin reviewing your documents only once all requirements are submitted and your balance is cleared.</p>
+    {% endif %}
+    <button class="popup-close" onclick="closeUploadPopup()">Close</button>
+  </div>
+</div>
+<script>
+function closeUploadPopup() {
+  const popup = document.getElementById('uploadPopup');
+  if (popup) popup.style.display = 'none';
+  {% if show_complete_popup %}
+    localStorage.setItem('uploadPopupCompleteShown', '1');
+  {% elif show_incomplete_popup %}
+    localStorage.setItem('uploadPopupIncompleteShown', '1');
+  {% endif %}
+}
+window.addEventListener('DOMContentLoaded', function() {
+  {% if show_complete_popup %}
+    if (!localStorage.getItem('uploadPopupCompleteShown')) {
+      document.getElementById('uploadPopup').style.display = 'flex';
+    }
+  {% elif show_incomplete_popup %}
+    if (!localStorage.getItem('uploadPopupIncompleteShown')) {
+      document.getElementById('uploadPopup').style.display = 'flex';
+    }
+  {% endif %}
+});
+</script>
+{% endif %}
+<style>
+.popup-overlay {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; z-index: 99999;
+  animation: popup-fadein 0.3s;
+}
+@keyframes popup-fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.popup-content {
+  min-width: 340px;
+  max-width: 95vw;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  padding: 2.5em 2em 2em 2em;
+  text-align: center;
+  position: relative;
+  animation: popup-slidein 0.4s cubic-bezier(.4,1.4,.6,1);
+}
+@keyframes popup-slidein {
+  from { transform: translateY(-40px) scale(0.98); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+.popup-icon {
+  font-size: 2.8em;
+  margin-bottom: 0.5em;
+}
+.popup-complete .popup-icon {
+  color: #14b8a6; /* teal-500 */
+}
+.popup-incomplete .popup-icon {
+  color: #f59e42; /* orange-400 */
+}
+.popup-content h3 {
+  font-size: 1.35em;
+  font-weight: 700;
+  margin-bottom: 0.7em;
+  color: #222;
+}
+.popup-content .text-teal {
+  color: #14b8a6;
+  font-weight: 700;
+}
+.popup-content p {
+  color: #444;
+  font-size: 1.05em;
+  margin-bottom: 1.5em;
+}
+.popup-close {
+  background: linear-gradient(90deg, #14b8a6 0%, #0ea5e9 100%);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 0.6em 2.2em;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(20,184,166,0.08);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.popup-close:hover {
+  background: linear-gradient(90deg, #0ea5e9 0%, #14b8a6 100%);
+  box-shadow: 0 4px 16px rgba(20,184,166,0.18);
+}
+.popup-complete {
+  border-top: 6px solid #14b8a6;
+}
+.popup-incomplete {
+  border-top: 6px solid #f59e42;
+}
+</style>
 <h2 
                 class="text-4xl font-extrabold pt-6 text-center mb-12 bg-gradient-to-r from-teal-600 via-teal-400 to-cyan-400 text-transparent bg-clip-text drop-shadow-md tracking-wide opacity-0 translate-y-4 animate-fadeInUp"
               >

@@ -7,6 +7,7 @@ from django.contrib.auth import views as auth_views
 from .views import *
 from .views import edit_orientation_date
 from .views import admin_dashboard
+from .views import reminders_page_view
 
 urlpatterns = [
     path('create-placement-profile/', login_required(PlacementProfileView.as_view()), name='create_placement_profile'),
@@ -67,6 +68,7 @@ urlpatterns = [
     path('update-pregnancy-signature/', update_pregnancy_signature, name='update_pregnancy_signature'),
     path('get-action-logs/<int:profile_id>/', get_action_logs, name='get_action_logs'),
     path('dashboard/', admin_dashboard, name='admin_dashboard'),
+    path('reminders/', reminders_page_view, name='reminders_page'),
 
 ]
 handler404 = 'private_healthcare_placement_optimization.custom_404'

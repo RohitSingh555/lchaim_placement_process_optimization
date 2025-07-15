@@ -1126,7 +1126,6 @@ function sendDocumentsEmail(profileId) {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
-
 </style>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
@@ -1141,4 +1140,32 @@ document.addEventListener("DOMContentLoaded", function() {
     window.addEventListener("resize", adjustContentPadding);
 });
 </script>
+{% if upload_popup_status == "complete" %}
+<div id="uploadPopup" class="popup-overlay">
+  <div class="popup-content">
+    <h3>Your documents are now <span style="color: #008080;">UNDER REVIEW</span> by our team.</h3>
+    <p>Next step, wait for the approval of your submitted documents.<br>
+    You’ll receive another email once all are approved.</p>
+    <button onclick="document.getElementById('uploadPopup').style.display='none'">Close</button>
+  </div>
+</div>
+{% elif upload_popup_status == "incomplete" %}
+<div id="uploadPopup" class="popup-overlay">
+  <div class="popup-content">
+    <h3>Thank you for creating your profile.</h3>
+    <p>To submit the remaining requirements, please log in to your profile again and complete the submission process.<br>
+    The placement coordinators will begin reviewing your documents only once all requirements are submitted and your balance is cleared.</p>
+    <button onclick="document.getElementById('uploadPopup').style.display='none'">Close</button>
+  </div>
+</div>
+{% endif %}
+<style>
+.popup-overlay {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 9999;
+}
+.popup-content {
+  background: #fff; padding: 2em; border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); text-align: center;
+}
+</style>
 {% endblock %}

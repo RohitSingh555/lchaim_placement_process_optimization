@@ -58,6 +58,7 @@ from django.views.decorators.http import require_POST, require_GET
 
 from PyPDF2 import PdfMerger
 from django.contrib.admin.views.decorators import staff_member_required
+import pytz
 
 
 REQUIRED_DOCS = [
@@ -355,7 +356,7 @@ class PlacementProfileView(View):
                 send_welcome_email(profile, submitted_documents)
                 print(f"Welcome email sent to {profile.college_email}")
                 # Set session flag for popup
-                request.session['show_under_review_popup'] = True
+                request.session['upload_popup_status'] = "complete"
             except Exception as e:
                 print(f"Error sending welcome email: {e}")
         else:
@@ -368,6 +369,8 @@ class PlacementProfileView(View):
             )
                 send_documents_incomplete_email(profile, missing_required_docs)
                 print(f"Documents incomplete email sent to {profile.college_email}")
+                # Set session flag for popup
+                request.session['upload_popup_status'] = "incomplete"
             except Exception as e:
                 print(f"Error sending incomplete documents email: {e}")
 
@@ -722,15 +725,7 @@ class StudentProfileLogsView(View):
     "Documents Required After Placement Completion"
 ]
 
-    REQUIRED_DOCUMENTS = {
-        "Medical Report Form",
-        "Covid Vaccination Certificate",
-        "Vulnerable Sector Check",
-        "CPR & First Aid",
-        "Mask Fit Certificate",
-        "Experience Document",
-        "Basic Life Support"
-    }
+    REQUIRED_DOCUMENTS = REQUIRED_DOCS
     OPTIONAL_DOCUMENTS = {""}
 
     def get(self, request):
@@ -1018,6 +1013,17 @@ class StudentProfileLogsView(View):
         page_obj = paginator.get_page(page_number)
         facilities = Facility.objects.values_list('name', flat=True).distinct()
         orientation_dates = OrientationDate.objects.values_list('orientation_date', flat=True).distinct().order_by('orientation_date')
+        upload_popup_status = request.session.pop('upload_popup_status', None)
+        print(f"[DEBUG] upload_popup_status for popup: {upload_popup_status}")
+        # Determine popup flags for the current user's profile (for students only)
+        show_incomplete_popup = False
+        show_complete_popup = False
+        if not is_approver and has_profile and filtered_profile_details:
+            user_profile = filtered_profile_details[0]
+            if user_profile['missing_documents']:
+                show_incomplete_popup = True
+            else:
+                show_complete_popup = True
         return render(request, 'student_profile_logs.html', {
             'page_obj': page_obj,
             'profile_details': page_obj.object_list,
@@ -1036,7 +1042,9 @@ class StudentProfileLogsView(View):
                 'shift_requested': shift_requested_filter,
                 'assigned_facility': assigned_facility_filter,
                 'orientation_date': orientation_date_filter,
-            }
+            },
+            'show_incomplete_popup': show_incomplete_popup,
+            'show_complete_popup': show_complete_popup,
         })
 
 
@@ -3056,6 +3064,10 @@ def get_profiles_facilities_orientations(request=None):
             'exact_placement_end_date': profile.exact_placement_end_date,
             'stage': profile.stage,
             'student_id': student_id,
+            'city': profile.city,
+            'municipality': profile.municipality,
+            'city_preference_1': profile.city_preference_1,
+            'city_preference_2': profile.city_preference_2,
         })
 
     return {
@@ -3332,10 +3344,10 @@ def update_stage(request):
     
 def base_view(request):
     has_profile = PlacementProfile.objects.filter(user=request.user).exists()
-    show_under_review_popup = request.session.pop('show_under_review_popup', False)
+    upload_popup_status = request.session.pop('upload_popup_status', None)
     context = {
         'has_profile': has_profile,
-        'show_under_review_popup': show_under_review_popup,
+        'upload_popup_status': upload_popup_status,
     }
     return render(request, 'base.html', context)
 
@@ -3556,19 +3568,49 @@ def admin_dashboard(request):
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         profiles = PlacementProfile.objects.all().select_related('user')
         reminders = ReminderLog.objects.all()
+        # Map PlacementProfile.stage to dashboard status keys
+        stage_to_status = {
+            'ONGOING_PROCESS': 'in_process',
+            'READY': 'ready',
+            'IN_PLACEMENT': 'in_placement',
+            'DONE': 'approved',
+            'ENDORSED': 'approved',
+            'CANCELLED': 'cancelled',
+            'TRANSFERED': 'transferred',
+            'ONHOLD': 'onhold',
+            'ORIENTATION_SCHEDULED': 'for_exam',
+        }
+        dashboard_profiles = []
+        for p in profiles:
+            # Find Skills Passbook document status if it exists
+            skills_passbook_doc = p.documents.filter(document_type='Skills Passbook').order_by('-uploaded_at').first()
+            skills_passbook_status = skills_passbook_doc.status if skills_passbook_doc else ''
+            # Determine dashboard status
+            stage = p.stage or ''
+            status = stage_to_status.get(stage, 'new')
+            # Get student_id from StudentID model
+            try:
+                student_id = p.user.student_id_record.student_id
+            except Exception:
+                student_id = '-'
+            # Format last_updated as 'Month D, YYYY' (e.g., May 8, 2025) - Windows compatible, date only
+            if p.created_at:
+                dt = p.created_at.astimezone(pytz.timezone('US/Eastern')) if p.created_at.tzinfo else p.created_at
+                last_updated_str = dt.strftime('%B %d, %Y').replace(' 0', ' ')
+            else:
+                last_updated_str = ''
+            dashboard_profiles.append({
+                'id': p.id,
+                'student_id': student_id,
+                'name': f"{p.user.first_name} {p.user.last_name}",
+                'email': p.user.email,
+                'status': status,
+                'last_updated': last_updated_str,
+                'skills_passbook': skills_passbook_status,
+                'profile_url': f"/profile/{p.user.id}/",
+            })
         data = {
-            'profiles': [
-                {
-                    'id': p.id,
-                    'student_id': p.user.id,
-                    'name': f"{p.user.first_name} {p.user.last_name}",
-                    'stage': p.stage,  # Use 'stage' instead of 'status'
-                    'last_updated': p.created_at,  # Or use another timestamp if you have an updated_at
-                    'skills_passbook': '',  # Add logic if you have this field
-                    'profile_url': f"/profile/{p.user.id}/",
-                }
-                for p in profiles
-            ],
+            'profiles': dashboard_profiles,
             'reminders': [
                 {
                     'profile_id': r.profile.id,
@@ -3580,3 +3622,6 @@ def admin_dashboard(request):
         }
         return JsonResponse(data)
     return render(request, 'admin_dashboard.html', {})
+
+def reminders_page_view(request):
+    return render(request, 'reminders_page.html', {})

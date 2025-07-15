@@ -59,6 +59,36 @@
             {% endfor %}
           </select>
         </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Student Home City</label>
+          <select name="student_home_city" id="student-home-city-filter" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-teal-500 focus:border-teal-500">
+            <option value="">All Cities</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Municipality</label>
+          <select name="municipality" id="municipality-filter" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-teal-500 focus:border-teal-500">
+            <option value="">All Municipalities</option>
+            <option value="Downtown">Downtown</option>
+            <option value="Etobicoke">Etobicoke</option>
+            <option value="Scarborough">Scarborough</option>
+            <option value="North York">North York</option>
+            <option value="East York">East York</option>
+            <option value="York">York</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Preferred City 1</label>
+          <select name="preferred_city_1" id="preferred-city-1-filter" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-teal-500 focus:border-teal-500">
+            <option value="">All Cities</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Preferred City 2</label>
+          <select name="preferred_city_2" id="preferred-city-2-filter" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-teal-500 focus:border-teal-500">
+            <option value="">All Cities</option>
+          </select>
+        </div>
       </div>
       <div class="flex justify-end mt-8 gap-2">
         <button type="button" onclick="closeFilterModal()" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Cancel</button>
@@ -113,7 +143,7 @@
         </thead>
         <tbody class="bg-white divide-y divide-gray-100" id="profile-table-body">
           {% for profile in profiles %}
-          <tr class="hover:bg-gradient-to-r hover:from-teal-50 hover:to-cyan-50 transition-all cursor-pointer group">
+          <tr class="hover:bg-gradient-to-r hover:from-teal-50 hover:to-cyan-50 transition-all cursor-pointer group" data-home-city="{{ profile.city }}" data-municipality="{{ profile.municipality }}" data-pref-city-1="{{ profile.city_preference_1 }}" data-pref-city-2="{{ profile.city_preference_2 }}">
             <td class="px-4 py-4 whitespace-nowrap" data-label="Select / Profile" style="text-align: center; vertical-align: middle;">
               <div class="flex items-center justify-center gap-3 h-full">
                 <input type="checkbox" name="selected_users" value="{{ profile.user.id }}" class="user-checkbox w-4 h-4 accent-teal-600 align-middle cursor-pointer" style="min-width: 18px; min-height: 18px;" onclick="event.stopPropagation();" />
@@ -214,7 +244,29 @@
     selectAll.checked = checkboxes.length > 0 && Array.from(checkboxes).every(cb => cb.checked);
   }
 
-  document.addEventListener("DOMContentLoaded", function () {
+  // --- Fetch city list for city-based filters ---
+  function populateCityDropdown(selectId) {
+    fetch('/cities-and-provinces/')
+      .then(response => response.json())
+      .then(data => {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        // Remove all except the first option
+        while (select.options.length > 1) select.remove(1);
+        Object.keys(data).forEach(province => {
+          data[province].forEach(city => {
+            const opt = document.createElement('option');
+            opt.value = city;
+            opt.text = province + ' - ' + city;
+            select.appendChild(opt);
+          });
+        });
+      });
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    populateCityDropdown('student-home-city-filter');
+    populateCityDropdown('preferred-city-1-filter');
+    populateCityDropdown('preferred-city-2-filter');
     // --- Checkbox logic ---
     const checkboxes = document.querySelectorAll(".user-checkbox");
     const selectAll = document.getElementById("select-all");
@@ -291,6 +343,10 @@
     const orientationFilter = document.querySelector('select[name="orientation_date"]');
     const statusFilter = document.querySelector('select[name="status"]');
     const cityFilter = document.getElementById('facility-city-filter');
+    const homeCityFilter = document.getElementById('student-home-city-filter');
+    const municipalityFilter = document.getElementById('municipality-filter');
+    const preferredCity1Filter = document.getElementById('preferred-city-1-filter');
+    const preferredCity2Filter = document.getElementById('preferred-city-2-filter');
     const applyFiltersBtn = document.querySelector('#filterModal button[type="submit"]');
     const rows = document.querySelectorAll("#profile-table-body tr");
 
@@ -300,6 +356,10 @@
       const orientationVal = orientationFilter?.value || '';
       const statusVal = statusFilter?.value || '';
       const cityVal = cityFilter?.value || '';
+      const homeCityVal = homeCityFilter?.value || '';
+      const municipalityVal = municipalityFilter?.value || '';
+      const preferredCity1Val = preferredCity1Filter?.value || '';
+      const preferredCity2Val = preferredCity2Filter?.value || '';
       rows.forEach(row => {
         // Skip empty row (no profiles)
         if (row.querySelectorAll('td').length < 2) {
@@ -311,15 +371,33 @@
         const facility = row.querySelector("td:nth-child(6)")?.textContent.trim() || "";
         const orientation = row.querySelector("td:nth-child(7)")?.textContent.trim() || "";
         const status = row.querySelector("td:nth-child(10)")?.textContent.trim().toLowerCase() || "";
-        const city = facility.split(' - ')[1] || '';
+        const rowHomeCity = row.getAttribute('data-home-city') || '';
+        const rowMunicipality = row.getAttribute('data-municipality') || '';
+        const rowPrefCity1 = row.getAttribute('data-pref-city-1') || '';
+        const rowPrefCity2 = row.getAttribute('data-pref-city-2') || '';
         let show = true;
         if (searchVal && !(name.includes(searchVal) || studentId.includes(searchVal))) show = false;
         if (facilityVal && !facility.includes(facilityFilter.options[facilityFilter.selectedIndex].text.split(' - ')[0])) show = false;
         if (orientationVal && !orientation.includes(orientationFilter.options[orientationFilter.selectedIndex].text)) show = false;
         if (statusVal && !status.includes(statusVal.toLowerCase())) show = false;
         if (cityVal && city !== cityVal) show = false;
+        if (homeCityVal && rowHomeCity !== homeCityVal) show = false;
+        if (municipalityVal && rowMunicipality !== municipalityVal) show = false;
+        if (preferredCity1Val && rowPrefCity1 !== preferredCity1Val) show = false;
+        if (preferredCity2Val && rowPrefCity2 !== preferredCity2Val) show = false;
         row.style.display = show ? '' : 'none';
       });
+      // --- Facility dropdown filtering ---
+      const facilityAssign = document.getElementById('facility-id-assignment');
+      if (facilityAssign) {
+        Array.from(facilityAssign.options).forEach(opt => {
+          if (!homeCityVal || opt.value === '' || opt.getAttribute('data-city') === homeCityVal) {
+            opt.style.display = '';
+          } else {
+            opt.style.display = 'none';
+          }
+        });
+      }
     }
 
     if (searchInput) searchInput.addEventListener("input", applyAllFilters);
@@ -327,6 +405,10 @@
     if (orientationFilter) orientationFilter.addEventListener("change", applyAllFilters);
     if (statusFilter) statusFilter.addEventListener("change", applyAllFilters);
     if (cityFilter) cityFilter.addEventListener("change", applyAllFilters);
+    if (homeCityFilter) homeCityFilter.addEventListener('change', applyAllFilters);
+    if (municipalityFilter) municipalityFilter.addEventListener('change', applyAllFilters);
+    if (preferredCity1Filter) preferredCity1Filter.addEventListener('change', applyAllFilters);
+    if (preferredCity2Filter) preferredCity2Filter.addEventListener('change', applyAllFilters);
     if (applyFiltersBtn) {
       applyFiltersBtn.addEventListener('click', function(e) {
         e.preventDefault();

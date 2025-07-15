@@ -1,0 +1,1 @@
+default_app_config = 'private_healthcare_placement_optimization.apps.LchaimPlacementProcessOptimizationConfig'

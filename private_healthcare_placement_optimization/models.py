@@ -274,3 +274,12 @@ class ReminderLog(models.Model):
 
     def __str__(self):
         return f"Reminder for {self.profile} on {self.date_sent}"
+
+class EmailReminderLog(models.Model):
+    profile = models.ForeignKey('PlacementProfile', on_delete=models.CASCADE, related_name='email_reminders')
+    document = models.ForeignKey('Document', on_delete=models.CASCADE, related_name='email_reminders')
+    sent_at = models.DateTimeField(auto_now_add=True)
+    email_type = models.CharField(max_length=64, default='rejected_reminder')
+
+    def __str__(self):
+        return f"{self.email_type} to {self.profile.college_email} for {self.document.document_type} at {self.sent_at}"

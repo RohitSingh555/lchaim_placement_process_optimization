@@ -69,6 +69,12 @@
             >
               <i class="fas fa-passport"></i><span>Skills Passbook</span>
             </a>
+            <a
+              href="{% url 'admin_dashboard' %}"
+              class="hover:text-teal-300 flex items-center space-x-2"
+            >
+              <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
+            </a>
             {% endif %}
           </div>
         </div>
@@ -118,6 +124,12 @@
                 class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
               >
                 <i class="fas fa-passport mr-2"></i> Skills Passbook
+              </a>
+              <a
+                href="{% url 'admin_dashboard' %}"
+                class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
+              >
+                <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
               </a>
               {% endif %}
               <a
@@ -197,6 +209,12 @@
           >
             <i class="fas fa-passport"></i><span>Skills Passbook</span>
           </a>
+          <a
+            href="{% url 'admin_dashboard' %}"
+            class="hover:text-teal-300 flex items-center space-x-2"
+          >
+            <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
+          </a>
           {% endif %}
           <a href="{% url 'profile' %}" class="flex items-center space-x-2">
             <i class="fas fa-user-circle"></i><span>Profile</span>
@@ -260,5 +278,14 @@
   setTimeout(hideUnderReviewModal, 5000);
 </script>
 {% endif %}
+<style>
+.popup-overlay {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 9999;
+}
+.popup-content {
+  background: #fff; padding: 2em; border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); text-align: center;
+}
+</style>
   </body>
 </html>

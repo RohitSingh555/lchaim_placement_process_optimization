@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-4xl mx-auto py-10 px-4">
+  <h1 class="text-3xl font-bold text-teal-700 mb-8 flex items-center gap-2">
+    <i class="fas fa-bell"></i> Reminders
+  </h1>
+  <div class="bg-white rounded-xl shadow p-8">
+    <div id="reminders-list">
+      <div class="text-center text-gray-500 py-10">
+        <i class="fas fa-inbox fa-2x mb-2 text-teal-400"></i>
+        <div class="text-lg font-semibold">No reminders to show yet.</div>
+        <div class="text-sm">Reminders you send or receive will appear here.</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 
