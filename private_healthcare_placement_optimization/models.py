@@ -266,3 +266,11 @@ class ActionLog(models.Model):
 
     class Meta:
         pass  # Removed unique_together constraint for (profile, action)  
+
+class ReminderLog(models.Model):
+    profile = models.ForeignKey('PlacementProfile', on_delete=models.CASCADE, related_name='reminders')
+    date_sent = models.DateTimeField(auto_now_add=True)
+    reminder_type = models.CharField(max_length=100, default='resubmission')  # or whatever types you want
+
+    def __str__(self):
+        return f"Reminder for {self.profile} on {self.date_sent}"

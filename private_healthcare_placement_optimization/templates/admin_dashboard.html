@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-7xl mx-auto py-10 px-4">
+  <h1 class="text-3xl font-bold text-teal-700 mb-8">Status Tracking Dashboard</h1>
+  <!-- Status Summary Cards -->
+  <div id="status-cards" class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10"></div>
+  <!-- Filters -->
+  <div class="flex flex-wrap gap-4 mb-6 items-center">
+    <input id="searchInput" type="text" placeholder="Search by name or ID..." class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-400" />
+    <select id="statusFilter" class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-400">
+      <option value="">All Statuses</option>
+      <option value="new">New</option>
+      <option value="in_process">Ongoing Process</option>
+      <option value="ready">Ready for Placement</option>
+      <option value="in_placement">In Placement</option>
+      <option value="for_exam">For Exam</option>
+      <option value="approved">Approved</option>
+    </select>
+    <button id="resetFilters" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Reset</button>
+  </div>
+  <!-- Submissions Table -->
+  <div class="overflow-x-auto rounded-lg shadow">
+    <table class="min-w-full bg-white divide-y divide-gray-200">
+      <thead class="bg-teal-50">
+        <tr>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">ID</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">Name</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">Status</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">Last Updated</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">Skills Passbook</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700">Reminders</th>
+        </tr>
+      </thead>
+      <tbody id="submissionsTable" class="divide-y divide-gray-100"></tbody>
+    </table>
+  </div>
+  <!-- Pending Resubmissions -->
+  <div class="mt-10">
+    <h2 class="text-xl font-semibold text-teal-700 mb-4">Pending Resubmissions</h2>
+    <div id="pendingResubmissions" class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded"></div>
+  </div>
+  <!-- Reminder Log Modal -->
+  <div id="reminderModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+      <h3 class="text-lg font-bold mb-4 text-teal-700">Reminder History</h3>
+      <ul id="reminderLog" class="space-y-2"></ul>
+      <button onclick="closeReminderModal()" class="mt-4 px-4 py-2 bg-teal-500 text-white rounded hover:bg-teal-600">Close</button>
+    </div>
+  </div>
+</div>
+<script>
+let dashboardData = { profiles: [], reminders: [] };
+function fetchDashboardData() {
+  fetch('/dashboard/', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+    .then(r => r.json())
+    .then(data => {
+      dashboardData = data;
+      renderStatusCards();
+      renderTable();
+      renderPendingResubmissions();
+    });
+}
+function renderStatusCards() {
+  const statuses = ['new','in_process','ready','in_placement','for_exam','approved'];
+  const statusNames = {
+    new: 'New', in_process: 'Ongoing', ready: 'Ready', in_placement: 'In Placement', for_exam: 'For Exam', approved: 'Approved'
+  };
+  const counts = {};
+  statuses.forEach(s => counts[s] = 0);
+  dashboardData.profiles.forEach(p => { if (counts[p.status] !== undefined) counts[p.status]++; });
+  let html = statuses.map(s => `<div class='bg-white rounded-xl shadow p-6 flex flex-col items-center'><div class='text-2xl font-bold text-teal-600'>${counts[s]}</div><div class='text-gray-700 mt-2 text-sm'>${statusNames[s]}</div></div>`).join('');
+  document.getElementById('status-cards').innerHTML = html;
+}
+function renderTable() {
+  let rows = '';
+  let search = document.getElementById('searchInput').value.toLowerCase();
+  let status = document.getElementById('statusFilter').value;
+  let filtered = dashboardData.profiles.filter(p => {
+    let match = (!search || p.name.toLowerCase().includes(search) || (p.student_id+'' === search));
+    if (status && p.status !== status) return false;
+    return match;
+  });
+  filtered.forEach(p => {
+    let reminders = dashboardData.reminders.filter(r => r.profile_id === p.id);
+    rows += `<tr class='hover:bg-teal-50'>
+      <td class='px-4 py-2'><a href='${p.profile_url}' class='text-teal-600 underline' target='_blank'>${p.student_id}</a></td>
+      <td class='px-4 py-2'>${p.name}</td>
+      <td class='px-4 py-2'>${p.status.replace('_',' ').replace(/\b\w/g, l => l.toUpperCase())}</td>
+      <td class='px-4 py-2'>${p.last_updated ? new Date(p.last_updated).toLocaleString() : ''}</td>
+      <td class='px-4 py-2'>${p.skills_passbook || ''}</td>
+      <td class='px-4 py-2'><button onclick='showReminderLog(${p.id})' class='text-xs text-teal-700 underline'>View (${reminders.length})</button></td>
+    </tr>`;
+  });
+  document.getElementById('submissionsTable').innerHTML = rows;
+}
+function renderPendingResubmissions() {
+  let pending = dashboardData.profiles.filter(p => p.status === 'pending_resubmission');
+  if (!pending.length) {
+    document.getElementById('pendingResubmissions').innerHTML = '<span class="text-gray-600">No pending resubmissions.</span>';
+    return;
+  }
+  let html = '<ul class="space-y-2">';
+  pending.forEach(p => {
+    html += `<li class="flex items-center gap-2"><a href="${p.profile_url}" class="text-teal-600 underline font-semibold" target="_blank">${p.student_id}</a> <span class="text-gray-700">${p.name}</span></li>`;
+  });
+  html += '</ul>';
+  document.getElementById('pendingResubmissions').innerHTML = html;
+}
+function showReminderLog(profileId) {
+  let logs = dashboardData.reminders.filter(r => r.profile_id === profileId);
+  let html = logs.length ? logs.map(l => `<li><span class='font-semibold'>${l.type}</span> - <span>${new Date(l.date).toLocaleString()}</span></li>`).join('') : '<li>No reminders sent.</li>';
+  document.getElementById('reminderLog').innerHTML = html;
+  document.getElementById('reminderModal').classList.remove('hidden');
+}
+function closeReminderModal() {
+  document.getElementById('reminderModal').classList.add('hidden');
+}
+document.getElementById('searchInput').addEventListener('input', renderTable);
+document.getElementById('statusFilter').addEventListener('change', renderTable);
+document.getElementById('resetFilters').addEventListener('click', function() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('statusFilter').value = '';
+  renderTable();
+});
+setInterval(fetchDashboardData, 10000); // Poll every 10s
+fetchDashboardData();
+</script>
+{% endblock %} 

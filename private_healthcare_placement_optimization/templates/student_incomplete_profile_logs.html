@@ -36,7 +36,7 @@
     
     {% if profile_details and is_approver or profile_details and is_superuser %}
     <!-- Fixed Filter/Header Section -->
-<div id="fixed-filters" class="fixed top-20 left-0 w-full z-40 bg-white shadow-md border-b border-teal-100 hidden md:block">
+<div id="fixed-filters" class="fixed top-20 left-0 w-full z-2 bg-white shadow-md border-b border-teal-100 hidden md:block">
   <div class="max-w-screen-xxl mx-auto px-4 py-2 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
     <!-- Left: Title & Description -->
     <div class="flex flex-col justify-center gap-1 min-w-[260px]">
@@ -461,7 +461,7 @@
         </div>
 
         {% for profile in profile_details %}
-    <div id="documentModal-{{ forloop.counter }}" style="z-index:999" class="fixed z inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-6">
+    <div id="documentModal-{{ forloop.counter }}" style="z-index:99" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-6">
         <div class="bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 relative">
             <div class="">
             <h3 class="text-2xl font-semibold text-gray-800 mb-4">Submitted Documents</h3>
@@ -613,7 +613,7 @@
         
         
         <!-- Modal for comments or rejection reason -->
-        <div id="commentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-6">
+        <div id="commentModal" style="z-index:999" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-6">
             <div class="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 relative">
                 <h3 class="text-2xl font-semibold text-gray-800 mb-4">Add Comments / Rejection Reason</h3>
                 <button onclick="closeCommentModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700">&times;</button>

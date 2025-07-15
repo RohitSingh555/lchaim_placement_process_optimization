@@ -38,7 +38,7 @@
 
 
 
-    {% if profile_details and is_approver and is_superuser %}
+    {% if profile_details and is_approver or is_superuser %}
 <!-- Fixed Filter/Header Section -->
 <div id="fixed-filters"  class="fixed top-20 left-0 w-full z-4 bg-white shadow-md border-b border-teal-100 hidden md:block">
   <div class="max-w-screen-xxl mx-auto px-4 py-2 flex flex-col md:flex-row md:items-center md:justify-between gap-2">

@@ -12,7 +12,7 @@ from django.core.mail import EmailMessage
 from django.views import View
 
 from private_healthcare_placement_optimization.templatetags.forms_extras import document_group, allowed_docs, format_long_date
-from .models import PlacementProfile, Document, ActionLog
+from .models import PlacementProfile, Document, ActionLog, ReminderLog
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import redirect, render
@@ -57,6 +57,23 @@ from .models import (
 from django.views.decorators.http import require_POST, require_GET
 
 from PyPDF2 import PdfMerger
+from django.contrib.admin.views.decorators import staff_member_required
+
+
+REQUIRED_DOCS = [
+    'Medical Report Form',
+    'X-Ray Result',
+    'MMR Lab/Vax Record',
+    'Varicella Lab/Vax Record',
+    'TDAP Vax Record',
+    'Hepatitis A Lab/Vax Record',
+    'Hepatitis B Lab/Vax Record',
+    'Covid Vaccination Certificate',
+    'Vulnerable Sector Check',
+    'CPR & First Aid',
+    'Mask Fit Certificate',
+    'Basic Life Support'
+]
 
 def staff_required(view_func):
     return user_passes_test(lambda u: u.is_staff)(view_func)
@@ -2029,7 +2046,7 @@ def send_email_notify_result(profile, rejected_documents, zip_url):
                 {document_list_html}
             </ul>
             <p>To proceed, please log in to your profile and resubmit the corrected documents ensuring they meet all outlined requirements. The Placement Team will re-evaluate your submission once the updated documents are provided.</p>
-            <p><a href="https://www.peakcollege.ca" class="highlight">Placement Link: Click here.</a></p>
+            <p><a href="https://placement.peakcollege.ca/" class="highlight">Placement Link: Click here.</a></p>
             <p>We appreciate your prompt attention to this matter and look forward to your updated submission.</p>
             <div class="footer">
                 <span>Warm regards,</span><br><br>
@@ -2781,13 +2798,7 @@ def incomplete_profiles_view(request):
 
     profiles = PlacementProfile.objects.all().prefetch_related("documents")
     for profile in profiles:
-        required_docs = [
-            "Medical Report Form",
-            "Covid Vaccination Certificate",
-            "Vulnerable Sector Check",
-            "CPR & First Aid",
-            "Mask Fit Certificate"
-        ]
+        required_docs = REQUIRED_DOCS
         documents = {doc.document_type: doc for doc in profile.documents.all()}
         complete = True
 
@@ -2813,13 +2824,7 @@ def complete_profiles_view(request):
 
     profiles = PlacementProfile.objects.all().prefetch_related("documents")
     for profile in profiles:
-        required_docs = [
-            "Medical Report Form",
-            "Covid Vaccination Certificate",
-            "Vulnerable Sector Check",
-            "CPR & First Aid",
-            "Mask Fit Certificate"
-        ]
+        required_docs = REQUIRED_DOCS
         documents = {doc.document_type: doc for doc in profile.documents.all()}
         complete = True
 
@@ -2987,14 +2992,7 @@ from django.db.models import Count, Q
 
 def get_profiles_facilities_orientations(request=None):
     from .models import StudentID
-    required_docs = [
-        "Medical Report Form",
-        "Covid Vaccination Certificate",
-        "Vulnerable Sector Check",
-        "Mask Fit Certificate",
-        "CPR & First Aid",
-        "Experience Document",  # Always required and must be approved
-    ]
+    required_docs = REQUIRED_DOCS
 
     profiles_qs = PlacementProfile.objects.select_related(
         'user', 'assigned_facility', 'orientation_date'
@@ -3552,3 +3550,33 @@ def edit_orientation_date(request, pk):
         return JsonResponse({'success': False, 'error': 'Orientation date not found.'})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+
+@staff_member_required
+def admin_dashboard(request):
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        profiles = PlacementProfile.objects.all().select_related('user')
+        reminders = ReminderLog.objects.all()
+        data = {
+            'profiles': [
+                {
+                    'id': p.id,
+                    'student_id': p.user.id,
+                    'name': f"{p.user.first_name} {p.user.last_name}",
+                    'stage': p.stage,  # Use 'stage' instead of 'status'
+                    'last_updated': p.created_at,  # Or use another timestamp if you have an updated_at
+                    'skills_passbook': '',  # Add logic if you have this field
+                    'profile_url': f"/profile/{p.user.id}/",
+                }
+                for p in profiles
+            ],
+            'reminders': [
+                {
+                    'profile_id': r.profile.id,
+                    'date': r.date_sent,
+                    'type': r.reminder_type,
+                }
+                for r in reminders
+            ]
+        }
+        return JsonResponse(data)
+    return render(request, 'admin_dashboard.html', {})

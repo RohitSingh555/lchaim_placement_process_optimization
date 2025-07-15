@@ -7,7 +7,7 @@
       class="absolute left-0 flex items-center gap-2 px-4 py-2 bg-gray-300 text-gray-700 font-medium rounded-full shadow-md hover:bg-gray-400 hover:shadow-lg transition-all duration-300 hidden"
       onclick="prevStep()"
     >
-      <i class="fas fa-arrow-left"></i> Back
+      <i class="fas fa-arrow-left"></i>
     </button>
 
     <!-- Title (Centered) -->
@@ -688,7 +688,7 @@
               <ul class="ml-6 space-y-2">
                 <li>
                   <i class="fas fa-arrow-right text-teal-600 mr-2"></i>
-                  Placement Requirement: 100 hours.
+                  Placement Requirement: 300 hours.
                 </li>
                 <li>
                   <i class="fas fa-arrow-right text-teal-600 mr-2"></i> Other
@@ -750,7 +750,7 @@
               />
               <label for="subStep7Checkbox" class="ml-3 text-gray-800 text-lg">
                 I have read and understood my responsibilities listed for
-                placement
+                placement.
               </label>
             </div>
             <p id="subStep7Error" class="text-red-600 text-lg mt-2 hidden">
@@ -1148,7 +1148,7 @@
     <!-- Address Updated Dropdown (Step 4) -->
     <div class="form-step hidden bg-white p-6 rounded-lg shadow-lg" id="step3">
       <h2 class="text-2xl font-semibold text-gray-800 mb-4">
-        Address Information
+        Current Address Information
       </h2>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1238,13 +1238,38 @@
           />
         </div>
 
+         <!-- Municipality Dropdown (only if city is Toronto) -->
+         <div class="flex flex-col" id="municipalityDiv" style="display:none;">
+          <label for="municipality" class="text-lg font-medium text-gray-700">
+            Municipality <strong style="color: red">*</strong>
+          </label>
+          <select
+            name="municipality"
+            id="municipality"
+            class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="" selected disabled>Select your area</option>
+            <option value="Downtown">Downtown</option>
+            <option value="Etobicoke">Etobicoke</option>
+            <option value="Scarborough">Scarborough</option>
+            <option value="North York">North York</option>
+            <option value="East York">East York</option>
+            <option value="York">York</option>
+          </select>
+          <p id="municipalityError" class="text-red-600 text-sm mt-1 hidden">
+            Please select your municipality.
+          </p>
+        </div>
+
         <div class="flex flex-col md:col-span-2">
           <label
             for="open_to_outside_city"
             class="text-lg font-medium text-gray-700"
           >
-            Are you open to do your placement outside your city when there is a
-            slot available for you?
+            Are you open to completing your placement outside your city when there is a slot available for you? 
+            <span class="block mt-2 text-sm text-gray-600">
+              Please note that if we do not have an existing contract with the facility, we cannot guarantee the timeline for establishing one. The process may take additional time, and availability could be affected.
+            </span>
           </label>
           <select
             name="open_to_outside_city"
@@ -1256,6 +1281,7 @@
             <option value="Yes">Yes</option>
           </select>
         </div>
+        
 
         <!-- Hidden initially -->
         <div id="cityPreferences" class="hidden md:col-span-2">
@@ -1302,28 +1328,7 @@
 
        
 
-        <!-- Municipality Dropdown (only if city is Toronto) -->
-        <div class="flex flex-col" id="municipalityDiv" style="display:none;">
-          <label for="municipality" class="text-lg font-medium text-gray-700">
-            Municipality <strong style="color: red">*</strong>
-          </label>
-          <select
-            name="municipality"
-            id="municipality"
-            class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="" selected disabled>Select your area</option>
-            <option value="Downtown">Downtown</option>
-            <option value="Etobicoke">Etobicoke</option>
-            <option value="Scarborough">Scarborough</option>
-            <option value="North York">North York</option>
-            <option value="East York">East York</option>
-            <option value="York">York</option>
-          </select>
-          <p id="municipalityError" class="text-red-600 text-sm mt-1 hidden">
-            Please select your municipality.
-          </p>
-        </div>
+       
       </div>
 
       <div class="flex justify-center items-center mt-6">
