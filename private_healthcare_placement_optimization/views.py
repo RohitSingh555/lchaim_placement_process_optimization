@@ -3002,6 +3002,17 @@ def get_profiles_facilities_orientations(request=None):
     from .models import StudentID
     required_docs = REQUIRED_DOCS
 
+    # Get all profiles for debugging missing docs
+    all_profiles = PlacementProfile.objects.select_related('user').all()
+    for profile in all_profiles:
+        missing = []
+        for doc_type in required_docs:
+            doc = profile.documents.filter(document_type=doc_type, status=DocumentStatus.APPROVED.value).first()
+            if not doc:
+                missing.append(doc_type)
+        if missing:
+            print(f"[DEBUG] Profile {profile.first_name} {profile.last_name} is missing approval for: {', '.join(missing)}")
+
     profiles_qs = PlacementProfile.objects.select_related(
         'user', 'assigned_facility', 'orientation_date'
     ).annotate(
@@ -3015,6 +3026,8 @@ def get_profiles_facilities_orientations(request=None):
     ).filter(
         num_approved_docs=len(required_docs)
     )
+
+    print(f"[DEBUG] Profiles with all required documents approved: {profiles_qs.count()}")
 
     # Filtering
     assigned_facility_id = None
@@ -3038,6 +3051,8 @@ def get_profiles_facilities_orientations(request=None):
                 Q(last_name__icontains=search_query) |
                 Q(user__student_id_record__student_id__icontains=search_query)
             )
+
+    print(f"[DEBUG] Profiles after additional filters: {profiles_qs.count()}")
 
     # Fetch facilities and orientation dates
     facilities = Facility.objects.filter(status='Active').order_by('name')
@@ -3069,6 +3084,9 @@ def get_profiles_facilities_orientations(request=None):
             'city_preference_1': profile.city_preference_1,
             'city_preference_2': profile.city_preference_2,
         })
+    print(f"[DEBUG] Final profiles returned: {len(profiles)}")
+    for p in profiles:
+        print(f"[DEBUG] Profile ID: {p['id']}, Name: {p['first_name']} {p['last_name']}")
 
     return {
         "profiles": profiles,

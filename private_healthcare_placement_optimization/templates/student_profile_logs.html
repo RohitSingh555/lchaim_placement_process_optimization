@@ -36,9 +36,54 @@
 </style>
 
 
+{% if not profile_details and not has_profile %}
+{% if is_approver or is_superuser and not profile_details %}
+<div class="max-w-2xl mx-auto mt-10 text-center px-6 py-8 border border-dashed border-gray-300 bg-white rounded-xl shadow-sm">
+    <div class="flex flex-col items-center justify-center space-y-4">
+        <i class="fas fa-user-check text-teal-500 text-5xl drop-shadow-md"></i>
+        <h2 class="text-2xl font-semibold text-gray-700">No Completed Profiles Found</h2>
+        <p class="text-gray-500 text-md leading-relaxed">
+            It looks like no student has completed their placement profile yet. <br />
+            Once all required documents are uploaded and approved, you'll see the profiles listed here.
+        </p>
+        <a href="{% url request.resolver_match.view_name %}"
+                        class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 flex items-center">
+                        <i class="fas fa-times mr-2"></i>Clear Filters
+                    </a>
+    </div>
+</div>
 
+{% endif %}
 
-    {% if profile_details and is_approver or is_superuser %}
+  <div class="mb-4 mt-4 text-center">
+    <a href="{% url 'create_placement_profile' %}" class="inline-block px-8 py-4 bg-blue-600 text-white rounded-full text-lg font-semibold hover:bg-blue-700 transition-colors duration-300">
+      Create Placement Profile
+    </a>
+  </div>
+{% elif not profile_details %}
+<div class="flex justify-center items-center mt-16">
+  <div class="bg-white border border-teal-200 rounded-2xl px-6 py-8 text-center shadow-sm w-full md:w-1/2 animate-fadeIn">
+  <h3 class="text-2xl font-semibold text-teal-600 mb-2">
+    <i class="fas fa-info-circle text-teal-400 mr-2"></i> No Matching Profiles
+  </h3>
+  <p class="text-gray-600 text-sm mb-6">
+    We couldn't find any student profiles matching your selected filters.
+    Try adjusting the status or search keywords and try again.
+  </p>
+
+  <!-- Clear Filters Button -->
+  <a 
+    href="/" 
+    class="inline-flex items-center gap-2 px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium rounded-xl transition duration-300 ease-in-out"
+  >
+    <i class="fas fa-sync-alt"></i> Clear Filters
+  </a>
+</div>
+</div>
+
+{% endif %}
+
+    {% if profile_details and is_approver and is_superuser %}
 <!-- Fixed Filter/Header Section -->
 <div id="fixed-filters"  class="fixed top-20 left-0 w-full z-4 bg-white shadow-md border-b border-teal-100 hidden md:block">
   <div class="max-w-screen-xxl mx-auto px-4 py-2 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
@@ -334,7 +379,7 @@
           {% endif %}
           <button onclick="sendEmailAction('{{ profile.profile_id }}', 'done'); closeActionModal('{{ profile.profile_id }}')" class="w-full text-left bg-green-500 text-white px-3 py-2 rounded-md hover:bg-green-600 flex items-center space-x-2">
             <i class="fas fa-check-circle"></i>
-            <span>Done</span>
+            <span>Ready</span>
           </button>
           {% if profile.action_log_times.done %}
             <div class="text-xs text-gray-500 mt-1 mb-2">Last used: {{ profile.action_log_times.done }}</div>
@@ -441,42 +486,44 @@
 
     
         {% for profile in profile_details %}
-    <div  style="z-index:98"  id="documentModal-{{ forloop.counter }}" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-6">
+    <div id="documentModal-{{ forloop.counter }}" style="z-index:99" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-6">
         <div class="bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 relative">
-
             <div class="">
             <h3 class="text-2xl font-semibold text-gray-800 mb-4">Submitted Documents</h3>
-            <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-3 rounded mb-4 text-sm flex items-start space-x-2">
-        <i class="fas fa-exclamation-triangle mt-0.5"></i>
-        <span>Document uploads may take longer than usual depending on your internet connection. Please wait patiently after uploading.</span>
-    </div>
-          
-        </div>
+           
+            </div>
             <button onclick="closeModal({{ forloop.counter }})" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl">
                 <i class="fas fa-times"></i>
             </button>
-            
             <div class="space-y-4">
                 {% if profile.documents_by_group %}
                   {% for group_name, documents in profile.documents_by_group.items %}
                     {% if documents %}
                       <div class="bg-gray-100 p-2 rounded-lg mb-2">
-                        <h4 class="font-semibold text-lg mb-2">
-                          {% if group_name == "Additional Facility Requirements" %}
-                            Additional Facility Requirements <span class="text-red-600 font-semibold">if Required</span>
-                          {% else %}
-                            {{ group_name|default:'Other Documents' }}
-                          {% endif %}
-                        </h4>
+                        <h4 class="font-semibold text-lg mb-2">{{ group_name|default:'Other Documents' }}</h4>
                         {% for document in documents %}
                           <div class="flex items-center justify-between border-b border-gray-200 py-2">
                             <div>
-                              <p class="text-md font-medium">{% if document.document_type == "Medical Certificate" %}
-                                Medical Report Form
-                              {% else %}
-                                {{ document.document_type }}
-                              {% endif %}</p>
-                              {% if document.file_name %}
+                              <div class="flex items-center gap-2 relative group">
+                                <span class="text-md font-medium">{{ document.document_type }}</span>
+                                {% if document.file %}
+                                  <button type="button" class="ml-1 text-xs text-red-500 hover:text-red-700 focus:outline-none align-middle relative z-40" >
+                                    <i class="fas fa-history"></i>
+                                  </button>
+                                  <div id="doc-accordion-{{ document.id }}-{{ forloop.parentloop.counter }}" class="absolute left-full top-1/2 -translate-y-1/2 ml-2 z-50 min-w-[260px] max-w-sm p-5 bg-white border-l-4 border-red-400 rounded-xl shadow-2xl text-xs text-gray-800 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200 animate-fadeIn">
+                                    <div class="grid grid-cols-1 gap-y-2">
+                                      <div><span class="font-semibold text-blue-500">Status:</span> <span class="text-gray-900 font-semibold">{{ document.status }}</span></div>
+                                      <div><span class="font-semibold text-blue-500">Version:</span> <span class="text-gray-900 font-semibold">{{ document.version }}</span></div>
+                                      <div><span class="font-semibold text-blue-500">Date Uploaded:</span> <span class="text-gray-900 font-semibold">{{ document.uploaded_at }}</span></div>
+                                      <div><span class="font-semibold text-blue-500">Last Updated:</span> <span class="text-gray-900 font-semibold">{{ document.updated_at }}</span></div>
+                                      <div><span class="font-semibold text-blue-500">Date Approved:</span> <span class="text-gray-900 font-semibold">{{ document.approved_at }}</span></div>
+                                      <div><span class="font-semibold text-blue-500">Date Rejected:</span> <span class="text-gray-900 font-semibold">{{ document.rejected_at }}</span></div>
+                                      <div><span class="font-semibold text-blue-500">Is Latest Upload:</span> <span class="{% if document.uploaded_new_file %}text-green-600{% else %}text-gray-400{% endif %} font-semibold">{% if document.uploaded_new_file %}Yes{% else %}No{% endif %}</span></div>
+                                    </div>
+                                  </div>
+                                {% endif %}
+                              </div>
+                              {% if document.file and document.file_name %}
                                 <p class="text-xs text-gray-600">{{ document.uploaded_at }}</p>
                               {% endif %}
                               <div class="flex flex-row-reverse justify-end items-center">
@@ -506,9 +553,6 @@
                                   <span class="document-status {{ document.status|lower }}">
                                     {% if document.file %}
                                       {{ document.status }}
-                                      {% if document.uploaded_at %}
-                                        <span class="text-gray-500 ml-2">({{ document.uploaded_at|format_long_date }})</span>
-                                      {% endif %}
                                     {% else %}
                                       <span class="text-red-500">File Not Uploaded</span>
                                     {% endif %}
@@ -528,25 +572,9 @@
                                   <option value="Approved" {% if document.status == 'Approved' %} selected {% endif %}>Approved</option>
                                   <option value="Rejected" {% if document.status == 'Rejected' %} selected {% endif %}>Rejected</option>
                                 </select>
-                              {% elif document.status != 'Approved' %}
-                                {% if document.file %}
-                                  <a href="{{ document.file }}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">View</a>
-                                  <button class="px-4 py-2 bg-teal-500 text-white rounded-lg text-sm font-medium hover:bg-teal-600 transition" onclick="openNewFileUploadModal('{{ document.id }}')">Submit New File</button>
-                                {% else %}
-                                  <button class="px-4 py-2 bg-teal-500 text-white rounded-lg text-sm font-medium hover:bg-teal-600 transition" onclick="openNewFileUploadModal('{{ document.id }}')">Upload File</button>
-                                {% endif %}
+                              {% elif document.file %}
+                                <a href="{{ document.file }}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">View</a>
                               {% endif %}
-                            </div>
-                          </div>
-                          <!-- Unique Upload Modal for Each Document -->
-                          <div id="fileUploadModal-{{ document.id }}" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
-                            <div class="bg-white p-6 rounded-lg shadow-lg">
-                              <h3 class="text-lg font-semibold mb-4">Upload New Document</h3>
-                              <input type="file" id="newFileInput-{{ document.id }}" class="mb-4 border rounded p-2 w-full">
-                              <div class="flex justify-end space-x-4">
-                                <button onclick="closeNewFileUploadModal('{{ document.id }}')" class="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500">Cancel</button>
-                                <button onclick="submitNewFile('{{ document.id }}'); sendEmailAction('{{ profile.profile_id }}', 'resubmit');" class="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600">Upload</button>
-                              </div>
                             </div>
                           </div>
                         {% endfor %}
@@ -554,7 +582,6 @@
                     {% endif %}
                   {% endfor %}
 
-                  
                   {% with ungrouped_docs=profile.documents|dictsort:"document_type" %}
                     {% if ungrouped_docs %}
                       {% for document in ungrouped_docs %}
@@ -563,11 +590,7 @@
                             <h4 class="font-semibold text-lg mb-2">Other Documents</h4>
                             <div class="flex items-center justify-between border-b border-gray-200 py-2">
                               <div>
-                                <p class="text-md font-medium">{% if document.document_type == "Medical Certificate" %}
-                                  Medical Report Form
-                                {% else %}
-                                  {{ document.document_type }}
-                                {% endif %}</p>
+                                <p class="text-md font-medium">{{ document.document_type }}</p>
                                 {% if document.file_name %}
                                   <p class="text-xs text-gray-600">{{ document.uploaded_at }}</p>
                                 {% endif %}
@@ -575,9 +598,6 @@
                                   <span class="document-status {{ document.status|lower }}">
                                     {% if document.file %}
                                       {{ document.status }}
-                                      {% if document.uploaded_at %}
-                                        <span class="text-gray-500 ml-2">({{ document.uploaded_at|format_long_date }})</span>
-                                      {% endif %}
                                     {% else %}
                                       <span class="text-red-500">File Not Uploaded</span>
                                     {% endif %}
@@ -591,6 +611,8 @@
                                 {% if is_approver and document.file %}
                                   <a href="{{ document.file }}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">View</a>
                                   <a href="{{ document.file }}" download class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition">Download</a>
+                                {% elif document.file %}
+                                  <a href="{{ document.file }}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">View</a>
                                 {% endif %}
                               </div>
                             </div>

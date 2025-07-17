@@ -1,5 +1,5 @@
 {% extends "base.html" %} {% load static %} {% block content %}
-<div class="max-w-7xl mx-auto p-6">
+<div class="max-w-8xl mx-auto p-6">
   <h1 class="text-3xl font-semibold mb-6 text-teal-700">
     Assign Facility & Orientation
   </h1>
@@ -122,7 +122,7 @@
     </div>
 
     <div class="overflow-x-auto rounded-2xl shadow-lg border border-gray-200 bg-white mt-6">
-      <table class="min-w-full divide-y divide-gray-200 rounded-2xl overflow-hidden text-sm md:text-base whitespace-nowrap" style="table-layout: auto;">
+      <table class="min-w-full divide-y divide-gray-200 rounded-2xl shadow-lg border border-gray-200 bg-white mt-6">
         <thead class="bg-gradient-to-r from-teal-50 to-cyan-50 sticky top-0 z-10">
           <tr>
             <th class="px-4 py-3 whitespace-nowrap" style="min-width: 60px;">
@@ -139,6 +139,7 @@
             <th class="px-4 py-3 text-left text-xs font-bold text-teal-700 uppercase tracking-wider" style="min-width: 110px;">Start Date</th>
             <th class="px-4 py-3 text-left text-xs font-bold text-teal-700 uppercase tracking-wider" style="min-width: 110px;">End Date</th>
             <th class="px-4 py-3 text-left text-xs font-bold text-teal-700 uppercase tracking-wider" style="min-width: 100px;">Status</th>
+            <th class="px-4 py-3 text-left text-xs font-bold text-teal-700 uppercase tracking-wider" style="min-width: 120px;">Actions</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-100" id="profile-table-body">
@@ -176,15 +177,16 @@
                 {% else %}<i class="fas fa-question-circle mr-1"></i>{% endif %}
                 {{ profile.stage|title }}
               </span>
-              <!-- Notify Placement Button -->
-              <button onclick="sendEmailAction('{{ profile.id }}', 'notify_placement')" class="ml-2 bg-orange-500 text-white px-3 py-1 rounded-md text-xs font-semibold hover:bg-orange-600 flex items-center gap-1">
+            </td>
+            <td class="px-4 py-4 whitespace-nowrap" data-label="Actions">
+              <button onclick="sendEmailAction('{{ profile.id }}', 'notify_placement')" class="bg-orange-500 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-orange-600 flex items-center gap-1 shadow transition duration-150">
                 <i class="fas fa-building"></i> Notify Placement
               </button>
             </td>
           </tr>
           {% empty %}
           <tr>
-            <td colspan="10" class="text-center py-8 text-gray-400 text-lg font-semibold">No profiles found.</td>
+            <td colspan="11" class="text-center py-8 text-gray-400 text-lg font-semibold">No profiles found.</td>
           </tr>
           {% endfor %}
         </tbody>

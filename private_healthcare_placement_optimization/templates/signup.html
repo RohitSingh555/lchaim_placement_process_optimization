@@ -23,7 +23,7 @@
             <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 pointer-events-none">
               <i class="fa fa-id-card"></i>
             </span>
-            <input type="text" name="student_id" id="id_student_id" autocomplete="off"
+            <input type="text" name="student_id" id="id_student_id" autocomplete="off" oninput="formatStudentID(this)"
               class="block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500 bg-gray-50 placeholder-gray-400 text-base transition-all"
               value="{{ form.student_id.value|default_if_none:'' }}" required placeholder="XXXX-XXXX">
           </div>
@@ -121,25 +121,41 @@
     </div>
   </div>
 </div>
-{% endblock %}
 
 <!-- Password Toggle Script -->
 <script>
-    function togglePassword(passwordFieldId, iconId) {
-        const passwordField = document.getElementById(passwordFieldId);
-        const icon = document.getElementById(iconId);
+  document.addEventListener("DOMContentLoaded", function () {
+    window.formatStudentID = function (input) {
+      let value = input.value.replace(/[^0-9]/g, ''); // Only digits
+      if (value.length > 4) {
+        input.value = value.slice(0, 4) + '-' + value.slice(4, 8);
+      } else {
+        input.value = value;
+      }
+    };
+  });
+</script>
 
-        if (passwordField.type === "password") {
-            passwordField.type = "text";
-            icon.classList.remove("fa-eye-slash");
-            icon.classList.add("fa-eye");
-        } else {
-            passwordField.type = "password";
-            icon.classList.remove("fa-eye");
-            icon.classList.add("fa-eye-slash");
-        }
-    }
+<script>
+  function togglePassword(passwordFieldId, iconId) {
+      const passwordField = document.getElementById(passwordFieldId);
+      const icon = document.getElementById(iconId);
+
+      if (passwordField.type === "password") {
+          passwordField.type = "text";
+          icon.classList.remove("fa-eye-slash");
+          icon.classList.add("fa-eye");
+      } else {
+          passwordField.type = "password";
+          icon.classList.remove("fa-eye");
+          icon.classList.add("fa-eye-slash");
+      }
+  }
 </script>
 
 <!-- FontAwesome for Eye Icons -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+
+
+{% endblock %}
+

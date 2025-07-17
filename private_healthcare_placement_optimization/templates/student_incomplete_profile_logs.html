@@ -316,7 +316,7 @@
                   {% endif %}
                   <button onclick="sendEmailAction('{{ profile.profile_id }}', 'done'); closeActionModal('{{ profile.profile_id }}')" class="w-full text-left bg-green-500 text-white px-3 py-2 rounded-md hover:bg-green-600 flex items-center space-x-2">
                     <i class="fas fa-check-circle"></i>
-                    <span>Done</span>
+                    <span>Ready</span>
                   </button>
                   {% if profile.action_log_times.done %}
                     <div class="text-xs text-gray-500 mt-1 mb-2">Last used: {{ profile.action_log_times.done }}</div>
@@ -528,9 +528,6 @@
                                   <span class="document-status {{ document.status|lower }}">
                                     {% if document.file %}
                                       {{ document.status }}
-                                      {% if document.uploaded_at %}
-                                        <span class="text-gray-500 ml-2">({{ document.uploaded_at|format_long_date }})</span>
-                                      {% endif %}
                                     {% else %}
                                       <span class="text-red-500">File Not Uploaded</span>
                                     {% endif %}
@@ -576,9 +573,6 @@
                                   <span class="document-status {{ document.status|lower }}">
                                     {% if document.file %}
                                       {{ document.status }}
-                                      {% if document.uploaded_at %}
-                                        <span class="text-gray-500 ml-2">({{ document.uploaded_at|format_long_date }})</span>
-                                      {% endif %}
                                     {% else %}
                                       <span class="text-red-500">File Not Uploaded</span>
                                     {% endif %}

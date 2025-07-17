@@ -117,11 +117,13 @@ window.addEventListener('DOMContentLoaded', function() {
   border-top: 6px solid #f59e42;
 }
 </style>
+{% if profile_details %}
 <h2 
                 class="text-4xl font-extrabold pt-6 text-center mb-12 bg-gradient-to-r from-teal-600 via-teal-400 to-cyan-400 text-transparent bg-clip-text drop-shadow-md tracking-wide opacity-0 translate-y-4 animate-fadeInUp"
               >
                 Your Placement Profile
               </h2>
+{% endif %}
                 {% for profile in profile_details %}
                 <div class="flex items-center justify-center p-6">
                     <div class="w-full max-w-6xl bg-white rounded-2xl p-6 md:p-8 border border-gray-200 shadow-lg">
