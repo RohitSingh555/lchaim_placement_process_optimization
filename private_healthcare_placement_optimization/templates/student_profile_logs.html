@@ -33,6 +33,103 @@
 .animate-fadeInUp {
   animation: fadeInUp 0.8s ease-out forwards;
 }
+    .filter-input, .filter-select {
+        height: 2.5rem;
+        font-size: 1rem;
+        padding: 0.5rem 1rem;
+        min-width: 120px;
+        border-radius: 0.5rem;
+    }
+    .filter-btn {
+        height: 2.5rem;
+        font-size: 1rem;
+        padding: 0.5rem 1.5rem;
+        border-radius: 0.5rem;
+    }
+    .filter-header-card {
+        background: #fff;
+        border-radius: 1.25rem;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+        padding: 2rem 2.5rem 1.5rem 2.5rem;
+        margin-bottom: 0.75rem;
+        border: 1px solid #e0f2f1;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    .filter-title {
+        font-size: 2rem;
+        font-weight: 800;
+        background: linear-gradient(90deg, #14b8a6 0%, #06b6d4 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-fill-color: transparent;
+        margin-bottom: 0.25rem;
+    }
+    .filter-subtitle {
+        font-size: 1rem;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .filter-form-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: center;
+        background: #f9fafb;
+        border-radius: 2rem;
+        padding: 1rem 1.5rem;
+        box-shadow: 0 2px 8px rgba(20,184,166,0.07);
+    }
+    .filter-input, .filter-select {
+        height: 2.5rem;
+        font-size: 1rem;
+        padding: 0.5rem 1.25rem;
+        min-width: 140px;
+        border-radius: 9999px;
+        background: #fff;
+        box-shadow: 0 1px 4px rgba(20,184,166,0.07);
+        border: 1px solid #cbd5e1;
+        transition: border 0.2s, box-shadow 0.2s;
+    }
+    .filter-input:focus, .filter-select:focus {
+        border: 1.5px solid #14b8a6;
+        box-shadow: 0 0 0 2px #99f6e4;
+        outline: none;
+    }
+    .filter-btn {
+        height: 2.5rem;
+        font-size: 1rem;
+        padding: 0.5rem 1.5rem;
+        border-radius: 9999px;
+        font-weight: 600;
+        box-shadow: 0 1px 4px rgba(20,184,166,0.07);
+        transition: background 0.2s, color 0.2s;
+    }
+    .filter-btn.bg-teal-600:hover {
+        background: #0d9488;
+    }
+    .filter-btn.bg-gray-100:hover {
+        background: #e0e7ef;
+    }
+    @media (max-width: 768px) {
+        .filter-header-card {
+            padding: 1rem 0.5rem 1rem 0.5rem;
+        }
+        .filter-form-row {
+            flex-direction: column;
+            gap: 0.75rem;
+            padding: 0.75rem 0.5rem;
+        }
+        .filter-input, .filter-select {
+            min-width: 100%;
+            width: 100%;
+        }
+    }
 </style>
 
 
@@ -85,70 +182,69 @@
 
     {% if profile_details and is_approver and is_superuser %}
 <!-- Fixed Filter/Header Section -->
-<div id="fixed-filters"  class="fixed top-20 left-0 w-full z-4 bg-white shadow-md border-b border-teal-100 hidden md:block">
-  <div class="max-w-screen-xxl mx-auto px-4 py-2 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-    <!-- Left: Title & Description -->
-    <div class="flex flex-col justify-center gap-1 min-w-[260px]">
-      <h2 class="text-2xl font-extrabold bg-gradient-to-r from-teal-600 via-teal-400 to-cyan-400 text-transparent bg-clip-text drop-shadow-md tracking-wide leading-tight mb-0">Complete Student Placement Profiles</h2>
-      <p class="text-xs text-gray-600 flex items-center gap-2 mt-1 mb-0">
-        <i class="fas fa-check-circle text-teal-500"></i>
-        <span>This page displays all <strong>complete</strong> student profiles. All necessary documents have been uploaded and approved. Review and ensure everything is in order.</span>
-      </p>
-    </div>
-    <!-- Right: Search & Filters -->
-    <form method="get" class="flex flex-wrap items-center gap-2 justify-end bg-white rounded-xl p-2 shadow-sm border border-teal-100">
-      <input type="text" name="search" id="search" value="{{ search_query }}" placeholder="Search Name, Email, ID" class="bg-white border border-teal-300 rounded-lg px-3 py-1 text-sm text-gray-800 focus:ring-2 focus:ring-teal-400 focus:outline-none w-40 md:w-48" />
-      <select name="gender" class="rounded-lg border border-gray-300 px-2 py-1 text-xs focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
-        <option value="">Gender</option>
-        <option value="Male" {% if request.GET.gender == "Male" %}selected{% endif %}>Male</option>
-        <option value="Female" {% if request.GET.gender == "Female" %}selected{% endif %}>Female</option>
-        <option value="Other" {% if request.GET.gender == "Other" %}selected{% endif %}>Other</option>
-      </select>
-      <select name="stage" class="rounded-lg border border-gray-300 px-2 py-1 text-xs focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
-        <option value="">Stage</option>
-        <option value="Pending" {% if request.GET.stage == "Pending" %}selected{% endif %}>Pending</option>
-        <option value="Approved" {% if request.GET.stage == "Approved" %}selected{% endif %}>Approved</option>
-        <option value="Rejected" {% if request.GET.stage == "Rejected" %}selected{% endif %}>Rejected</option>
-        <option value="DONE" {% if request.GET.stage == "DONE" %}selected{% endif %}>Done</option>
-        <option value="ENDORSED" {% if request.GET.stage == "ENDORSED" %}selected{% endif %}>Endorsed</option>
-        <option value="IN_PLACEMENT" {% if request.GET.stage == "IN_PLACEMENT" %}selected{% endif %}>In Placement</option>
-        <option value="CANCELLED" {% if request.GET.stage == "CANCELLED" %}selected{% endif %}>Cancelled</option>
-        <option value="TRANSFERED" {% if request.GET.stage == "TRANSFERED" %}selected{% endif %}>Transferred</option>
-        <option value="ONHOLD" {% if request.GET.stage == "ONHOLD" %}selected{% endif %}>On Hold</option>
-        <option value="ONGOING_PROCESS" {% if request.GET.stage == "ONGOING_PROCESS" %}selected{% endif %}>Ongoing</option>
-        <option value="ORIENTATION_SCHEDULED" {% if request.GET.stage == "ORIENTATION_SCHEDULED" %}selected{% endif %}>Orientation</option>
-        <option value="READY" {% if request.GET.stage == "READY" %}selected{% endif %}>Ready</option>
-      </select>
-      <select name="experience_level" class="rounded-lg border border-gray-300 px-2 py-1 text-xs focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
-        <option value="">Experience</option>
-        <option value="No Experience" {% if request.GET.experience_level == "No Experience" %}selected{% endif %}>No Exp</option>
-        <option value="1 Year PSW Experience" {% if request.GET.experience_level == "1 Year PSW Experience" %}selected{% endif %}>1yr PSW</option>
-        <option value="International Nurse" {% if request.GET.experience_level == "International Nurse" %}selected{% endif %}>Intl Nurse</option>
-        <option value="Caregiver Experience" {% if request.GET.experience_level == "Caregiver Experience" %}selected{% endif %}>Caregiver</option>
-      </select>
-      <select name="shift_requested" class="rounded-lg border border-gray-300 px-2 py-1 text-xs focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
-        <option value="">Shift</option>
-        <option value="Monday to Friday - Morning" {% if request.GET.shift_requested == "Monday to Friday - Morning" %}selected{% endif %}>M-F Morning</option>
-        <option value="Monday to Friday - Evening" {% if request.GET.shift_requested == "Monday to Friday - Evening" %}selected{% endif %}>M-F Evening</option>
-        <option value="Saturday & Sunday - Morning" {% if request.GET.shift_requested == "Saturday & Sunday - Morning" %}selected{% endif %}>S-S Morning</option>
-        <option value="Saturday & Sunday - Evening" {% if request.GET.shift_requested == "Saturday & Sunday - Evening" %}selected{% endif %}>S-S Evening</option>
-      </select>
-      <select name="assigned_facility" class="rounded-lg border border-gray-300 px-2 py-1 text-xs focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
-        <option value="">Facility</option>
-        {% for facility in facilities %}
-        <option value="{{ facility }}" {% if request.GET.assigned_facility == facility %}selected{% endif %}>{{ facility }}</option>
-        {% endfor %}
-      </select>
-      <select name="orientation_date" class="rounded-lg border border-gray-300 px-2 py-1 text-xs focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
-        <option value="">Orientation</option>
-        {% for date in orientation_dates %}
-        <option value="{{ date|date:'Y-m-d' }}" {% if request.GET.orientation_date == date|date:'Y-m-d' %}selected{% endif %}>{{ date|date:'M j' }}</option>
-        {% endfor %}
-      </select>
-      <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs px-3 py-1 rounded shadow flex items-center gap-1"><i class="fas fa-filter"></i> Filter</button>
-      <a href="{% url request.resolver_match.view_name %}" class="bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200 text-xs shadow flex items-center gap-1"><i class="fas fa-times"></i> Clear</a>
-    </form>
+<div id="fixed-filters" class="filter-header-card hidden md:block">
+  <div>
+    <h2 class="filter-title flex items-center gap-2">
+      <i class="fas fa-user-check text-teal-400 text-3xl drop-shadow"></i>
+      Complete Student Placement Profiles
+    </h2>
+    <p class="filter-subtitle pl-12">
+      <i class="fas fa-check-circle text-teal-500"></i>
+      This page displays all <strong>complete</strong> student profiles. All necessary documents have been uploaded and approved. Review and ensure everything is in order.
+    </p>
   </div>
+  <form method="get" class="filter-form-row">
+    <input type="text" name="search" id="search" value="{{ search_query }}" placeholder="Search Name, Email, ID" class="filter-input bg-white border border-teal-300 text-gray-800 focus:ring-2 focus:ring-teal-400 focus:outline-none w-40 md:w-48" />
+    <select name="gender" class="filter-select border-gray-300 text-xs focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
+      <option value="">Gender</option>
+      <option value="Male" {% if request.GET.gender == "Male" %}selected{% endif %}>Male</option>
+      <option value="Female" {% if request.GET.gender == "Female" %}selected{% endif %}>Female</option>
+      <option value="Other" {% if request.GET.gender == "Other" %}selected{% endif %}>Other</option>
+    </select>
+    <select name="stage" class="filter-select border-gray-300 text-xs focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
+      <option value="">Stage</option>
+      <option value="Pending" {% if request.GET.stage == "Pending" %}selected{% endif %}>Pending</option>
+      <option value="Approved" {% if request.GET.stage == "Approved" %}selected{% endif %}>Approved</option>
+      <option value="Rejected" {% if request.GET.stage == "Rejected" %}selected{% endif %}>Rejected</option>
+      <option value="DONE" {% if request.GET.stage == "DONE" %}selected{% endif %}>Done</option>
+      <option value="ENDORSED" {% if request.GET.stage == "ENDORSED" %}selected{% endif %}>Endorsed</option>
+      <option value="IN_PLACEMENT" {% if request.GET.stage == "IN_PLACEMENT" %}selected{% endif %}>In Placement</option>
+      <option value="CANCELLED" {% if request.GET.stage == "CANCELLED" %}selected{% endif %}>Cancelled</option>
+      <option value="TRANSFERED" {% if request.GET.stage == "TRANSFERED" %}selected{% endif %}>Transferred</option>
+      <option value="ONHOLD" {% if request.GET.stage == "ONHOLD" %}selected{% endif %}>On Hold</option>
+      <option value="ONGOING_PROCESS" {% if request.GET.stage == "ONGOING_PROCESS" %}selected{% endif %}>Ongoing</option>
+      <option value="ORIENTATION_SCHEDULED" {% if request.GET.stage == "ORIENTATION_SCHEDULED" %}selected{% endif %}>Orientation</option>
+      <option value="READY" {% if request.GET.stage == "READY" %}selected{% endif %}>Ready</option>
+    </select>
+    <select name="experience_level" class="filter-select border-gray-300 text-xs focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
+      <option value="">Experience</option>
+      <option value="No Experience" {% if request.GET.experience_level == "No Experience" %}selected{% endif %}>No Exp</option>
+      <option value="1 Year PSW Experience" {% if request.GET.experience_level == "1 Year PSW Experience" %}selected{% endif %}>1yr PSW</option>
+      <option value="International Nurse" {% if request.GET.experience_level == "International Nurse" %}selected{% endif %}>Intl Nurse</option>
+      <option value="Caregiver Experience" {% if request.GET.experience_level == "Caregiver Experience" %}selected{% endif %}>Caregiver</option>
+    </select>
+    <select name="shift_requested" class="filter-select border-gray-300 text-xs focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
+      <option value="">Shift</option>
+      <option value="Monday to Friday - Morning" {% if request.GET.shift_requested == "Monday to Friday - Morning" %}selected{% endif %}>M-F Morning</option>
+      <option value="Monday to Friday - Evening" {% if request.GET.shift_requested == "Monday to Friday - Evening" %}selected{% endif %}>M-F Evening</option>
+      <option value="Saturday & Sunday - Morning" {% if request.GET.shift_requested == "Saturday & Sunday - Morning" %}selected{% endif %}>S-S Morning</option>
+      <option value="Saturday & Sunday - Evening" {% if request.GET.shift_requested == "Saturday & Sunday - Evening" %}selected{% endif %}>S-S Evening</option>
+    </select>
+    <select name="assigned_facility" class="filter-select border-gray-300 text-xs focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
+      <option value="">Facility</option>
+      {% for facility in facilities %}
+      <option value="{{ facility }}" {% if request.GET.assigned_facility == facility %}selected{% endif %}>{{ facility }}</option>
+      {% endfor %}
+    </select>
+    <select name="orientation_date" class="filter-select border-gray-300 text-xs focus:ring-2 focus:ring-teal-400 focus:border-teal-500">
+      <option value="">Orientation</option>
+      {% for date in orientation_dates %}
+      <option value="{{ date|date:'Y-m-d' }}" {% if request.GET.orientation_date == date|date:'Y-m-d' %}selected{% endif %}>{{ date|date:'M j' }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="filter-btn bg-teal-600 hover:bg-teal-700 text-white flex items-center gap-1"><i class="fas fa-filter"></i> Filter</button>
+    <a href="{% url request.resolver_match.view_name %}" class="filter-btn bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center gap-1"><i class="fas fa-times"></i> Clear</a>
+  </form>
 </div>
 <div id="messagePopup" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
   <span id="messageText"></span>
@@ -1177,7 +1273,7 @@ document.addEventListener("DOMContentLoaded", function() {
         var header = document.getElementById("fixed-filters");
         var content = document.getElementById("profile-logs-content");
         if (header && content) {
-            content.style.paddingTop = (header.offsetHeight * 1.3) + "px";
+            content.style.paddingTop = (header.offsetHeight * 0.05) + "px";
         }
     }
     adjustContentPadding();

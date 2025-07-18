@@ -3625,7 +3625,7 @@ def admin_dashboard(request):
                 'status': status,
                 'last_updated': last_updated_str,
                 'skills_passbook': skills_passbook_status,
-                'profile_url': f"/profile/{p.user.id}/",
+                'profile_url': f"/student-profile/{p.id}/",
             })
         data = {
             'profiles': dashboard_profiles,
